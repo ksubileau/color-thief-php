@@ -121,9 +121,9 @@ class VBox {
 	public function count($force = false) {
 		if (! $this->_count_set || $force) {
 			$npix = 0;
-			for($i = $this->r1; $i <= $this->r2; $i ++) {
-				for($j = $this->g1; $j <= $this->g2; $j ++) {
-					for($k = $this->b1; $k <= $this->b2; $k ++) {
+			for($i = $this->r1; $i <= $this->r2; $i++) {
+				for($j = $this->g1; $j <= $this->g2; $j++) {
+					for($k = $this->b1; $k <= $this->b2; $k++) {
 						$index = getColorIndex($i, $j, $k);
 						if (isset($this->histo[$index]))
 							$npix += $this->histo[$index];
@@ -148,9 +148,9 @@ class VBox {
 			$gsum = 0;
 			$bsum = 0;
 			
-			for($i = $this->r1; $i <= $this->r2; $i ++) {
-				for($j = $this->g1; $j <= $this->g2; $j ++) {
-					for($k = $this->b1; $k <= $this->b2; $k ++) {
+			for($i = $this->r1; $i <= $this->r2; $i++) {
+				for($j = $this->g1; $j <= $this->g2; $j++) {
+					for($k = $this->b1; $k <= $this->b2; $k++) {
 						$histoindex = getColorIndex($i, $j, $k);
 						$hval = isset ($this->histo[$histoindex]) ? $this->histo[$histoindex] : 0;
 						$ntot += $hval;
@@ -216,7 +216,8 @@ class CMap {
 	}
 	
 	public function map($color) {
-		for($i = 0; $i < $this->vboxes->size(); $i ++) {
+		$vboxes_size = $this->vboxes->size();
+		for($i = 0; $i < $vboxes_size; $i++) {
 			$vbox = $this->vboxes->peek($i);
 			if ($vbox['vbox']->contains($color)) {
 				return $vbox['color'];
@@ -226,7 +227,8 @@ class CMap {
 	}
 	
 	public function nearest($color) {
-		for($i = 0; i < $this->vboxes->size(); $i ++) {
+		$vboxes_size = $this->vboxes->size();
+		for($i = 0; i < $vboxes_size; $i ++) {
 			$vbox = $this->vboxes->peek($i);
 			$d2 = sqrt(pow($color[0] - $vbox['color'][0], 2) + pow($color[1] - $vbox['color'][1], 2) + pow($color[2] - $vbox['color'][2], 2));
 			if (! isset($d1) || $d2 < $d1) {
@@ -269,8 +271,7 @@ function getColorIndex($r, $g, $b, $sigbits = SIGBITS) {
 // histo (1-d array, giving the number of pixels in
 // each quantized region of color space), or null on error
 function getHisto($pixels) {
-	$histosize = 1 << (3 * SIGBITS);
-	$histo = array ();
+	$histo = array();
 	
 	foreach($pixels as $rgb) {
 		$rval = (($rgb >> 16) & 0xFF) >> RSHIFT;
@@ -468,7 +469,6 @@ function quantize($pixels, $maxcolors) {
 	}
 	
 	$histo = getHisto($pixels);
-	$histosize = 1 << (3 * SIGBITS);
 	
 	// check that we aren't below maxcolors already
 	if (count($histo) <= $maxcolors) {
@@ -490,8 +490,7 @@ function quantize($pixels, $maxcolors) {
 		return naturalOrder($a->count () * $a->volume (), $b->count () * $b->volume ());
 	} );
 	
-	// TODO Replace "size" by a new function "empty" or, better, by a counter
-	while ($pq->size()) {
+	for ($i = $pq->size(); $i > 0; $i--) {
 		$pq2->push($pq->pop());
 	}
 	
@@ -500,8 +499,8 @@ function quantize($pixels, $maxcolors) {
 	
 	// calculate the actual colors
 	$cmap = new CMap();
-	// TODO Replace "size" by a new function "empty" or, better, by a counter
-	while ($pq2->size()) {
+	
+	for ($i = $pq2->size(); $i > 0; $i--) {
 		$cmap->push($pq2->pop());
 	}
 	
