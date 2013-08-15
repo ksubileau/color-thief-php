@@ -262,27 +262,27 @@ function naturalOrder($a, $b) {
 }
 
 // get reduced-space color index for a pixel
-function getColorIndex($r, $g, $b) {
-	return ($r << (2 * SIGBITS)) + ($g << SIGBITS) + $b;
+function getColorIndex($r, $g, $b, $sigbits = SIGBITS) {
+	return ($r << (2 * $sigbits)) + ($g << $sigbits) + $b;
 }
 
 // histo (1-d array, giving the number of pixels in
 // each quantized region of color space), or null on error
-function getHisto(array $pixels) {
+function getHisto($pixels) {
 	$histosize = 1 << (3 * SIGBITS);
 	$histo = array ();
 	
-	foreach($pixels as $pixel) {
-		$rval = $pixel[0] >> RSHIFT;
-		$gval = $pixel[1] >> RSHIFT;
-		$bval = $pixel[2] >> RSHIFT;
+	foreach($pixels as $rgb) {
+		$rval = (($rgb >> 16) & 0xFF) >> RSHIFT;
+		$gval = (($rgb >> 8) & 0xFF) >> RSHIFT;
+		$bval = ($rgb & 0xFF) >> RSHIFT;
 		$index = getColorIndex($rval, $gval, $bval);
 		$histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
 	}
 	return $histo;
 }
 
-function vboxFromPixels(array $pixels, array $histo) {
+function vboxFromPixels($pixels, array $histo) {
 	$rmin = 1000000;
 	$rmax = 0;
 	$gmin = 1000000;
@@ -291,10 +291,10 @@ function vboxFromPixels(array $pixels, array $histo) {
 	$bmax = 0;
 	
 	// find min/max
-	foreach ($pixels as $pixel) {
-		$rval = $pixel[0] >> RSHIFT;
-		$gval = $pixel[1] >> RSHIFT;
-		$bval = $pixel[2] >> RSHIFT;
+	foreach ($pixels as $rgb) {
+		$rval = (($rgb >> 16) & 0xFF) >> RSHIFT;
+		$gval = (($rgb >> 8) & 0xFF) >> RSHIFT;
+		$bval = ($rgb & 0xFF) >> RSHIFT;
 		if ($rval < $rmin)
 			$rmin = $rval;
 		else if ($rval > $rmax)
@@ -460,7 +460,7 @@ function quantize_iter(&$lh, $target, $histo) {
 	}
 }
 
-function quantize(array $pixels, $maxcolors) {
+function quantize($pixels, $maxcolors) {
 	// short-circuit
 	if (! count($pixels) || $maxcolors < 2 || $maxcolors > 256) {
 		// echo 'wrong number of maxcolors'."\n";
@@ -561,23 +561,32 @@ class ColorThiefPHP {
 		$pixelCount = $width * $height;
 		
 		// Store the RGB values in an array format suitable for quantize function
-		$pixelArray = array();
+		if(class_exists("SplFixedArray"))
+			// SplFixedArray is faster and more memory-efficient than normal PHP array.
+			// Uses it if available.
+			$pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
+		else 
+			$pixelArray = array();
+		
+		$j = 0;
 		for($i = 0; $i < $pixelCount; $i = $i + $quality) {
 			$x = $i % $width;
 			$y = (int) ($i / $width);
 			$rgba = imagecolorat($image, $x, $y);
 			$colors = imagecolorsforindex($image, $rgba);
-			$r = $colors['red'];
-			$g = $colors['green'];
-			$b = $colors['blue'];
-			$a = $colors['alpha'];
+			$alpha = $colors['alpha'];
+			$rgb = getColorIndex($colors['red'], $colors['green'], $colors['blue'], 8);
+			
 			// If pixel is mostly opaque and not white
-			if ($a <= 62) {
-				if (! ($r > 250 && $g > 250 && $b > 250)) {
-					array_push($pixelArray, array ($r,$g,$b) );
+			if ($alpha <= 62) {
+				if (! ($colors['red'] > 250 && $colors['green'] > 250 && $colors['blue'] > 250)) {
+					$pixelArray[$j++] = $rgb;
 				}
 			}
 		}
+		
+		if(class_exists("SplFixedArray"))
+			$pixelArray->setSize($j);
 		
 		imagedestroy($image);
 		
