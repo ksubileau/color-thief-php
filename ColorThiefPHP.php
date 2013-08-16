@@ -286,7 +286,7 @@ class ColorThiefPHP {
 	 */
 	public static function getColor($sourceImage, $quality = 10) {
 		$palette = ColorThiefPHP::getPalette($sourceImage, 5, $quality);
-		return $palette[0];
+		return $palette?$palette[0]:false;
 	}
 	
 	/*
@@ -308,6 +308,12 @@ class ColorThiefPHP {
 	 * colors will be missed.
 	 */
 	public static function getPalette($sourceImage, $colorCount = 10, $quality = 10) {
+		// short-circuit
+		if ($colorCount < 2 || $colorCount > 256) {
+			// echo 'wrong number of maxcolors'."\n";
+			return false;
+		}
+		
 		$ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
 		
 		if ($ext == 'jpg' || $ext == 'jpeg')
