@@ -277,7 +277,7 @@ class ColorThiefPHP {
 	 * Use the median cut algorithm to cluster similar colors and 
 	 * return the base color from the largest cluster. Quality is 
 	 * an optional argument. It needs to be an integer. 
-	 * 0 is the highest quality settings. 10 is the default. 
+	 * 1 is the highest quality settings. 10 is the default. 
 	 * There is a trade-off between quality and speed. 
 	 * The bigger the number, the faster a color will be returned 
 	 * but the greater the likelihood that it will not be the 
@@ -302,7 +302,7 @@ class ColorThiefPHP {
 	 * It can be +/- 2. 
 	 * 
 	 * quality is an optional argument. It needs to be an integer. 
-	 * 0 is the highest quality settings. 10 is the default. 
+	 * 1 is the highest quality settings. 10 is the default. 
 	 * There is a trade-off between quality and speed. The bigger the number,
 	 * the faster the palette generation but the greater the likelihood that 
 	 * colors will be missed.
@@ -310,6 +310,11 @@ class ColorThiefPHP {
 	public static function getPalette($sourceImage, $colorCount = 10, $quality = 10) {
 		// short-circuit
 		if ($colorCount < 2 || $colorCount > 256) {
+			// echo 'wrong number of maxcolors'."\n";
+			return false;
+		}
+		// short-circuit
+		if ($quality < 1) {
 			// echo 'wrong number of maxcolors'."\n";
 			return false;
 		}
