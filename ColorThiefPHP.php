@@ -68,7 +68,7 @@ class PQueue {
 		if (! $this->sorted)
 			$this->sort();
 		
-		if (index === null)
+		if ($index === null)
 			$index = $this->size() - 1;
 		
 		return $this->contents[$index];
@@ -246,7 +246,7 @@ class CMap {
 				$pColor = $vbox['color'];
 			}
 		}
-		return pColor;
+		return $pColor;
 	}
 	
 	public function forcebw() {
@@ -611,4 +611,3 @@ class ColorThiefPHP {
 	}
 }
 
-?>
