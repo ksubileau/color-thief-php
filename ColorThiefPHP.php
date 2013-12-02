@@ -320,14 +320,26 @@ class ColorThiefPHP {
 		}
 		
 		$ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
-		
-		if ($ext == 'jpg' || $ext == 'jpeg')
-			$image = imagecreatefromjpeg ($sourceImage);
-		if ($ext == 'gif')
-			$image = imagecreatefromgif($sourceImage);
-		if ($ext == 'png')
-			$image = imagecreatefrompng ($sourceImage);
-		
+
+	        switch ($ext)
+	        {
+	        case 'jpg':
+	        case 'jpeg':
+	            $image = imagecreatefromjpeg ($sourceImage);
+	            break;
+	        case 'gif':
+	            $image = imagecreatefromgif($sourceImage);
+	            break;
+	        case 'png':
+	            $image = imagecreatefrompng ($sourceImage);
+	            break;
+	        default:
+	            return false;
+	        }
+
+	        if ($image === FALSE)
+	            return false;
+
 		$width = imagesx($image);
 		$height = imagesy($image);
 		$pixelCount = $width * $height;
