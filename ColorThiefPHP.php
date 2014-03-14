@@ -348,7 +348,7 @@ class ColorThiefPHP {
 		if(class_exists("SplFixedArray"))
 			// SplFixedArray is faster and more memory-efficient than normal PHP array.
 			// Uses it if available.
-			$pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
+			$pixelArray = new \SplFixedArray(ceil($pixelCount/$quality));
 		else 
 			$pixelArray = array();
 		
