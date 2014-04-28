@@ -383,7 +383,7 @@ class ColorThief
         $vbox = ColorThief::vboxFromPixels($pixels, $histo);
 
         $pq = new PQueue(function ($a, $b) {
-            return self::naturalOrder($a->count(), $b->count());
+            return ColorThief::naturalOrder($a->count(), $b->count());
         });
         $pq->push($vbox);
 
@@ -392,7 +392,7 @@ class ColorThief
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $pq2 = new PQueue(function ($a, $b) {
-            return self::naturalOrder($a->count () * $a->volume (), $b->count () * $b->volume ());
+            return ColorThief::naturalOrder($a->count () * $a->volume (), $b->count () * $b->volume ());
         });
 
         for ($i = $pq->size(); $i > 0; $i--) {
