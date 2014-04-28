@@ -8,13 +8,14 @@ It's a PHP port of the [Color Thief Javascript library] (http://github.com/lokes
 
 ###Get the dominant color from an image
 ```php
-include "color-thief-php/ColorThiefPHP.php";
-$dominantColor = ColorThiefPHP::getColor($sourceImage);
+require_once __DIR__.'/../vendor/autoload.php';
+use ColorThief\ColorThief;
+$dominantColor = ColorThief::getColor($sourceImage);
 ```
 The `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
 
 ```php
-ColorThiefPHP::getColor($sourceImage[, $quality=10]) 
+ColorThief::getColor($sourceImage[, $quality=10]) 
 returns array(r: num, g: num, b: num)
 ```
 
@@ -29,14 +30,15 @@ If the quality settings are too high (close to 1) relative to the image size (pi
 In this example, we build an 8 color palette.
 
 ```php
-include "color-thief-php/ColorThiefPHP.php";
-$palette = ColorThiefPHP::getPalette($sourceImage, 8)
+require_once __DIR__.'/../vendor/autoload.php';
+use ColorThief\ColorThief;
+$palette = ColorThief::getPalette($sourceImage, 8)
 ```
 
 Again, the `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
 
 ```php
-ColorThiefPHP::getPalette($sourceImage[, $colorCount=10, $quality=10])
+ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10])
 returns array(array(num, num, num), array(num, num, num), ... )
 ```
 
