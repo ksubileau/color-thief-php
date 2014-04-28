@@ -1,0 +1,11 @@
+{
+    "name": "ksubileau/color-thief-php",
+    "description": "Color Thief PHP",
+    "keywords": ["color", "thief", "php"],
+    "type": "library",
+    "autoload": {
+        "psr-0": {
+            "ColorThief": "lib/"
+        }
+    }
+}
