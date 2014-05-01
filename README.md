@@ -4,11 +4,38 @@ A PHP class for grabbing the color palette from an image. Uses PHP and GD librar
 
 It's a PHP port of the [Color Thief Javascript library] (http://github.com/lokesh/color-thief), using the MMCQ (modified median cut quantization) algorithm from the [Leptonica library] (http://www.leptonica.com/).
 
+## Requirements
+
+- PHP >= 5.3
+- GD >= 2.0
+
 ##How to use
+###Installing via Composer
+The recommended way to install Color Thief is through
+[Composer](http://getcomposer.org).
+
+```bash
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+```
+
+Next, update your project's composer.json file to include Color Thief:
+
+```javascript
+{
+    "repositories": [{
+            "type": "vcs",
+            "url": "https://github.com/ksubileau/color-thief-php"
+    }],
+    "require": {
+        "ksubileau/color-thief-php": "~1.0"
+    }
+}
+```
 
 ###Get the dominant color from an image
 ```php
-require_once __DIR__.'/../vendor/autoload.php';
+require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $dominantColor = ColorThief::getColor($sourceImage);
 ```
@@ -30,7 +57,7 @@ If the quality settings are too high (close to 1) relative to the image size (pi
 In this example, we build an 8 color palette.
 
 ```php
-require_once __DIR__.'/../vendor/autoload.php';
+require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $palette = ColorThief::getPalette($sourceImage, 8)
 ```
