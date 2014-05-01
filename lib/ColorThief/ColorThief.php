@@ -128,12 +128,8 @@ class ColorThief
         $pixelCount = $width * $height;
 
         // Store the RGB values in an array format suitable for quantize function
-        if(class_exists("SplFixedArray"))
-            // SplFixedArray is faster and more memory-efficient than normal PHP array.
-            // Uses it if available.
-            $pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
-        else
-            $pixelArray = array();
+        // SplFixedArray is faster and more memory-efficient than normal PHP array.
+        $pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
 
         $j = 0;
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
@@ -152,8 +148,7 @@ class ColorThief
             }
         }
 
-        if(class_exists("SplFixedArray"))
-            $pixelArray->setSize($j);
+        $pixelArray->setSize($j);
 
         imagedestroy($image);
 
