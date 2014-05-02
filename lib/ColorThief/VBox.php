@@ -2,7 +2,7 @@
 
 namespace ColorThief;
 
-class Vbox
+class VBox
 {
     public $r1;
     public $r2;
