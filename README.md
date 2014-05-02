@@ -1,8 +1,11 @@
-#Color Thief PHP
+Color Thief PHP
+==============
+
+[![Build Status](https://travis-ci.org/ksubileau/color-thief-php.png?branch=master)](https://travis-ci.org/ksubileau/color-thief-php)
 
 A PHP class for grabbing the color palette from an image. Uses PHP and GD library to make it happen.
 
-It's a PHP port of the [Color Thief Javascript library] (http://github.com/lokesh/color-thief), using the MMCQ (modified median cut quantization) algorithm from the [Leptonica library] (http://www.leptonica.com/).
+It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh/color-thief), using the MMCQ (modified median cut quantization) algorithm from the [Leptonica library](http://www.leptonica.com/).
 
 ## Requirements
 
@@ -42,11 +45,11 @@ $dominantColor = ColorThief::getColor($sourceImage);
 The `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
 
 ```php
-ColorThief::getColor($sourceImage[, $quality=10]) 
+ColorThief::getColor($sourceImage[, $quality=10])
 returns array(r: num, g: num, b: num)
 ```
 
-This function returns an array of three integer values, corresponding to the RGB values (Red, Green & Blue) of the dominant color. 
+This function returns an array of three integer values, corresponding to the RGB values (Red, Green & Blue) of the dominant color.
 
 You can pass an additional argument (`$quality`) to adjust the calculation accuracy of the dominant color. 1 is the highest quality settings, 10 is the default. But be aware that there is a trade-off between quality and speed/memory consumption !
 If the quality settings are too high (close to 1) relative to the image size (pixel counts), it may **exceed the memory limit** set in the PHP configuration (and computation will be slow).
@@ -76,11 +79,11 @@ The `$quality` argument works as in the previous function.
 ##Credits and license
 
 ###Author
-by Kevin Subileau  
+by Kevin Subileau
 [kevinsubileau.fr](http://www.kevinsubileau.fr/?utm_campaign=github&utm_term=color-thief-php_readme)
 
-Based on the fabulous work done by Lokesh Dhakar  
-[lokeshdhakar.com](http://www.lokeshdhakar.com)  
+Based on the fabulous work done by Lokesh Dhakar
+[lokeshdhakar.com](http://www.lokeshdhakar.com)
 [twitter.com/lokesh](http://twitter.com/lokesh)
 
 ###Thanks
