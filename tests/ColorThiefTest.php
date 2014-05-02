@@ -9,6 +9,10 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     {
         return array(
                 array(
+                        "/images/rails_600x406.gif",
+                        array(88, 70, 80)
+                    ),
+                array(
                         "/images/field_1024x683.jpg",
                         array(107, 172, 222)
                     ),
@@ -16,16 +20,26 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                         "/images/vegetables_1500x995.png",
                         array(211, 198, 172)
                     ),
-                array(
-                        "/images/rails_600x406.gif",
-                        array(88, 70, 80)
-                    ),
             );
     }
 
     public function paletteImageSet()
     {
         return array(
+                array(
+                    "/images/rails_600x406.gif",
+                    array(
+                        array(87, 68, 79),
+                        array(210, 170, 127),
+                        array(158, 113, 84),
+                        array(157, 190, 175),
+                        array(107, 119, 129),
+                        array(52, 136, 211),
+                        array(29, 68, 84),
+                        array(120, 124, 101),
+                        array(212, 76, 60)
+                    )
+                ),
                 array(
                     "/images/field_1024x683.jpg",
                     array(
@@ -54,20 +68,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                         array(60, 148, 44)
                     )
                 ),
-                array(
-                    "/images/rails_600x406.gif",
-                    array(
-                        array(87, 68, 79),
-                        array(210, 170, 127),
-                        array(158, 113, 84),
-                        array(157, 190, 175),
-                        array(107, 119, 129),
-                        array(52, 136, 211),
-                        array(29, 68, 84),
-                        array(120, 124, 101),
-                        array(212, 76, 60)
-                    )
-                ),
             );
     }
 
@@ -78,6 +78,8 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     {
         $dominantColor = ColorThief::getColor(__DIR__.$image);
 
+        $this->assertInternalType('array', $dominantColor);
+        $this->assertCount(3, $dominantColor);
         $this->assertEquals($expectedColor, $dominantColor);
     }
 
@@ -86,8 +88,12 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
      */
     public function testPalette($image, $expectedPalette)
     {
-        $palette = ColorThief::getPalette(__DIR__.$image, 10, 30);
+        //$numColors = count($expectedPalette);
+        $numColors = 10;
+        $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
 
+        $this->assertInternalType('array', $palette);
+        //$this->assertCount($numColors, $palette);
         $this->assertEquals($expectedPalette, $palette);
     }
 }
