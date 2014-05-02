@@ -12,10 +12,10 @@ class VBox
     public $b2;
     public $histo;
 
-    private $_volume = false;
-    private $_count;
-    private $_count_set = false;
-    private $_avg = false;
+    private $volume = false;
+    private $count;
+    private $count_set = false;
+    private $avg = false;
 
     public function __construct($r1, $r2, $g1, $g2, $b1, $b2, $histo)
     {
@@ -30,31 +30,32 @@ class VBox
 
     public function volume($force = false)
     {
-        if (! $this->_volume || $force) {
-            $this->_volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
+        if (! $this->volume || $force) {
+            $this->volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
         }
 
-        return $this->_volume;
+        return $this->volume;
     }
 
     public function count($force = false)
     {
-        if (! $this->_count_set || $force) {
+        if (! $this->count_set || $force) {
             $npix = 0;
             for ($i = $this->r1; $i <= $this->r2; $i++) {
                 for ($j = $this->g1; $j <= $this->g2; $j++) {
                     for ($k = $this->b1; $k <= $this->b2; $k++) {
                         $index = ColorThief::getColorIndex($i, $j, $k);
-                        if (isset($this->histo[$index]))
+                        if (isset($this->histo[$index])) {
                             $npix += $this->histo[$index];
+                        }
                     }
                 }
             }
-            $this->_count = $npix;
-            $this->_count_set = true;
+            $this->count = $npix;
+            $this->count_set = true;
         }
 
-        return $this->_count;
+        return $this->count;
     }
 
     public function copy()
@@ -64,7 +65,7 @@ class VBox
 
     public function avg($force = false)
     {
-        if (! $this->_avg || $force) {
+        if (! $this->avg || $force) {
             $ntot = 0;
             $mult = 1 << (8 - ColorThief::SIGBITS);
             $rsum = 0;
@@ -85,14 +86,14 @@ class VBox
             }
 
             if ($ntot) {
-                $this->_avg = array (
+                $this->avg = array (
                         ~ ~ ($rsum / $ntot),
                         ~ ~ ($gsum / $ntot),
                         ~ ~ ($bsum / $ntot)
                 );
             } else {
                 // echo 'empty box'."\n";
-                $this->_avg = array (
+                $this->avg = array (
                         ~ ~ ($mult * ($this->r1 + $this->r2 + 1) / 2),
                         ~ ~ ($mult * ($this->g1 + $this->g2 + 1) / 2),
                         ~ ~ ($mult * ($this->b1 + $this->b2 + 1) / 2)
@@ -100,7 +101,7 @@ class VBox
             }
         }
 
-        return $this->_avg;
+        return $this->avg;
     }
 
     public function contains(array $pixel)
@@ -109,6 +110,12 @@ class VBox
         $gval = $pixel[1] >> ColorThief::RSHIFT;
         $bval = $pixel[2] >> ColorThief::RSHIFT;
 
-        return ($rval >= $this->r1 && $rval <= $this->r2 && $gval >= $this->g1 && $gval <= $this->g2 && $bval >= $this->b1 && $bval <= $this->b2);
+        return
+            $rval >= $this->r1 &&
+            $rval <= $this->r2 &&
+            $gval >= $this->g1 &&
+            $gval <= $this->g2 &&
+            $bval >= $this->b1 &&
+            $bval <= $this->b2;
     }
 }

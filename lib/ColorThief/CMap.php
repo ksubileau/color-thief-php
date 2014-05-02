@@ -16,7 +16,7 @@ class CMap
 
     public function push($vbox)
     {
-        $this->vboxes->push (array(
+        $this->vboxes->push(array(
                 'vbox' => $vbox,
                 'color' => $vbox->avg()
             ));
@@ -52,7 +52,12 @@ class CMap
         $vboxes_size = $this->vboxes->size();
         for ($i = 0; i < $vboxes_size; $i ++) {
             $vbox = $this->vboxes->peek($i);
-            $d2 = sqrt(pow($color[0] - $vbox['color'][0], 2) + pow($color[1] - $vbox['color'][1], 2) + pow($color[2] - $vbox['color'][2], 2));
+            $d2 = sqrt(
+                pow($color[0] - $vbox['color'][0], 2) +
+                pow($color[1] - $vbox['color'][1], 2) +
+                pow($color[2] - $vbox['color'][2], 2)
+            );
+
             if (! isset($d1) || $d2 < $d1) {
                 $d1 = $d2;
                 $pColor = $vbox['color'];

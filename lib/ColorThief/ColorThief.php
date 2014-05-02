@@ -105,23 +105,24 @@ class ColorThief
 
         $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
 
-            switch ($ext) {
+        switch ($ext) {
             case 'jpg':
             case 'jpeg':
-                $image = imagecreatefromjpeg ($sourceImage);
+                $image = imagecreatefromjpeg($sourceImage);
                 break;
             case 'gif':
                 $image = imagecreatefromgif($sourceImage);
                 break;
             case 'png':
-                $image = imagecreatefrompng ($sourceImage);
+                $image = imagecreatefrompng($sourceImage);
                 break;
             default:
                 return false;
-            }
+        }
 
-            if ($image === FALSE)
-                return false;
+        if ($image === false) {
+            return false;
+        }
 
         $width = imagesx($image);
         $height = imagesy($image);
@@ -191,20 +192,24 @@ class ColorThief
             $rval = (($rgb >> 16) & 0xFF) >> self::RSHIFT;
             $gval = (($rgb >> 8) & 0xFF) >> self::RSHIFT;
             $bval = ($rgb & 0xFF) >> self::RSHIFT;
-            if ($rval < $rmin)
+
+            if ($rval < $rmin) {
                 $rmin = $rval;
-            else if ($rval > $rmax)
+            } elseif ($rval > $rmax) {
                 $rmax = $rval;
+            }
 
-            if ($gval < $gmin)
+            if ($gval < $gmin) {
                 $gmin = $gval;
-            else if ($gval > $gmax)
+            } elseif ($gval > $gmax) {
                 $gmax = $gval;
+            }
 
-            if ($bval < $bmin)
+            if ($bval < $bmin) {
                 $bmin = $bval;
-            else if ($bval > $bmax)
+            } elseif ($bval > $bmax) {
                 $bmax = $bval;
+            }
         }
         ;
 
@@ -224,19 +229,22 @@ class ColorThief
                 $left = $i - $vbox->$dim1;
                 $right = $vbox->$dim2 - $i;
 
-                if ($left <= $right)
+                if ($left <= $right) {
                     $d2 = min($vbox->$dim2 - 1, ~ ~ ($i + $right / 2));
-                else
+                } else {
                     $d2 = max($vbox->$dim1, ~ ~ ($i - 1 - $left / 2));
-                // avoid 0-count boxes
+                    // avoid 0-count boxes
+                }
 
-                while (empty($partialsum[$d2]))
+                while (empty($partialsum[$d2])) {
                     $d2 ++;
+                }
 
                 $count2 = $lookaheadsum[$d2];
-                while (! $count2 && !empty($partialsum[$d2 - 1]))
+                while (! $count2 && !empty($partialsum[$d2 - 1])) {
                     $count2 = $lookaheadsum[--$d2];
-                // set dimensions
+                    // set dimensions
+                }
 
                 $vbox1->$dim2 = $d2;
                 $vbox2->$dim1 = $vbox1->$dim2 + 1;
@@ -249,8 +257,9 @@ class ColorThief
 
     private static function medianCutApply($histo, $vbox)
     {
-        if (!$vbox->count())
+        if (!$vbox->count()) {
             return;
+        }
 
         $rw = $vbox->r2 - $vbox->r1 + 1;
         $gw = $vbox->g2 - $vbox->g1 + 1;
@@ -273,8 +282,9 @@ class ColorThief
                 for ($j = $vbox->g1; $j <= $vbox->g2; $j++) {
                     for ($k = $vbox->b1; $k <= $vbox->b2; $k++) {
                         $index = self::getColorIndex($i, $j, $k);
-                        if (isset($histo[$index]))
+                        if (isset($histo[$index])) {
                             $sum += $histo[$index];
+                        }
                     }
                 }
                 $total += $sum;
@@ -286,8 +296,9 @@ class ColorThief
                 for ($j = $vbox->r1; $j <= $vbox->r2; $j++) {
                     for ($k = $vbox->b1; $k <= $vbox->b2; $k++) {
                         $index = self::getColorIndex($j, $i, $k);
-                        if (isset($histo[$index]))
+                        if (isset($histo[$index])) {
                             $sum += $histo[$index];
+                        }
                     }
                 }
                 $total += $sum;
@@ -299,8 +310,9 @@ class ColorThief
                 for ($j = $vbox->r1; $j <= $vbox->r2; $j++) {
                     for ($k = $vbox->g1; $k <= $vbox->g2; $k++) {
                         $index = self::getColorIndex($j, $k, $i);
-                        if (isset($histo [$index]))
+                        if (isset($histo [$index])) {
                             $sum += $histo[$index];
+                        }
                     }
                 }
                 $total += $sum;
@@ -313,17 +325,18 @@ class ColorThief
         }
 
         // determine the cut planes
-        if ($maxw == $rw)
+        if ($maxw == $rw) {
             return ColorThief::doCut('r', $vbox, $partialsum, $total, $lookaheadsum);
-        else if ($maxw == $gw)
+        } elseif ($maxw == $gw) {
             return ColorThief::doCut('g', $vbox, $partialsum, $total, $lookaheadsum);
-        else
+        } else {
             return ColorThief::doCut('b', $vbox, $partialsum, $total, $lookaheadsum);
+        }
     }
 
 
     // inner function to do the iteration
-    private static function quantize_iter(&$lh, $target, $histo)
+    private static function quantizeIter(&$lh, $target, $histo)
     {
         $ncolors = 1;
         $niters = 0;
@@ -351,8 +364,11 @@ class ColorThief
                 $lh->push($vbox2);
                 $ncolors++;
             }
-            if ($ncolors >= $target)
+
+            if ($ncolors >= $target) {
                 return;
+            }
+
             if ($niters++ > self::MAX_ITERATIONS) {
                 // echo "infinite loop; perhaps too few pixels!"."\n";
                 return;
@@ -383,11 +399,11 @@ class ColorThief
         $pq->push($vbox);
 
         // first set of colors, sorted by population
-        ColorThief::quantize_iter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
+        ColorThief::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $pq2 = new PQueue(function ($a, $b) {
-            return ColorThief::naturalOrder($a->count () * $a->volume (), $b->count () * $b->volume ());
+            return ColorThief::naturalOrder($a->count() * $a->volume(), $b->count() * $b->volume());
         });
 
         for ($i = $pq->size(); $i > 0; $i--) {
@@ -395,7 +411,7 @@ class ColorThief
         }
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        ColorThief::quantize_iter($pq2, $maxcolors - $pq2->size(), $histo);
+        ColorThief::quantizeIter($pq2, $maxcolors - $pq2->size(), $histo);
 
         // calculate the actual colors
         $cmap = new CMap();

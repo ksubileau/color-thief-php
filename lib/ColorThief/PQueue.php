@@ -28,19 +28,22 @@ class PQueue
 
     public function peek($index = null)
     {
-        if (! $this->sorted)
+        if (! $this->sorted) {
             $this->sort();
+        }
 
-        if ($index === null)
+        if ($index === null) {
             $index = $this->size() - 1;
+        }
 
         return $this->contents[$index];
     }
 
     public function pop()
     {
-        if (! $this->sorted)
+        if (! $this->sorted) {
             $this->sort();
+        }
 
         return array_pop($this->contents);
     }
@@ -57,8 +60,9 @@ class PQueue
 
     public function debug()
     {
-        if (! $this->sorted)
+        if (! $this->sorted) {
             $this->sort();
+        }
 
         return $this->contents;
     }
