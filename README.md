@@ -2,6 +2,10 @@ Color Thief PHP
 ==============
 
 [![Build Status](https://travis-ci.org/ksubileau/color-thief-php.png?branch=master)](https://travis-ci.org/ksubileau/color-thief-php)
+[![Latest Stable Version](https://poser.pugx.org/ksubileau/color-thief-php/v/stable.png)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Total Downloads](https://poser.pugx.org/ksubileau/color-thief-php/downloads.png)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Latest Unstable Version](https://poser.pugx.org/ksubileau/color-thief-php/v/unstable.png)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![License](https://poser.pugx.org/ksubileau/color-thief-php/license.png)](https://packagist.org/packages/ksubileau/color-thief-php)
 
 A PHP class for grabbing the color palette from an image. Uses PHP and GD library to make it happen.
 
@@ -26,10 +30,6 @@ Next, update your project's composer.json file to include Color Thief:
 
 ```javascript
 {
-    "repositories": [{
-            "type": "vcs",
-            "url": "https://github.com/ksubileau/color-thief-php"
-    }],
     "require": {
         "ksubileau/color-thief-php": "~1.0"
     }
