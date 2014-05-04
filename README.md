@@ -31,7 +31,7 @@ Next, update your project's composer.json file to include Color Thief:
 ```javascript
 {
     "require": {
-        "ksubileau/color-thief-php": "~1.0"
+        "ksubileau/color-thief-php": "dev-master"
     }
 }
 ```
