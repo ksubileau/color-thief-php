@@ -44,6 +44,14 @@ class ColorThief
     {
         return ($r << (2 * $sigbits)) + ($g << $sigbits) + $b;
     }
+    // get red, green and blue components from reduced-space color index for a pixel
+    public static function getColorsFromIndex($index, $rshift = self::RSHIFT)
+    {
+        $rval = (($index >> 16) & 0xFF) >> $rshift;
+        $gval = (($index >> 8) & 0xFF) >> $rshift;
+        $bval = ($index & 0xFF) >> $rshift;
+        return array($rval, $gval, $bval);
+    }
 
     /* Miscellaneous functions */
     public static function naturalOrder($a, $b)
@@ -103,6 +111,35 @@ class ColorThief
             return false;
         }
 
+        $pixelArray = ColorThief::loadImage($sourceImage, $quality);
+        if ($pixelArray === false) {
+            return false;
+        }
+
+        // Send array to quantize function which clusters values
+        // using median cut algorithm
+        $cmap = ColorThief::quantize($pixelArray, $colorCount);
+        $palette = $cmap->palette();
+
+        return $palette;
+    }
+
+    // histo (1-d array, giving the number of pixels in
+    // each quantized region of color space), or null on error
+    private static function getHisto($pixels)
+    {
+        $histo = array();
+
+        foreach ($pixels as $rgb) {
+            list($rval, $gval, $bval) = ColorThief::getColorsFromIndex($rgb);
+            $index = self::getColorIndex($rval, $gval, $bval);
+            $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
+        }
+
+        return $histo;
+    }
+
+    private static function loadImage($sourceImage, $quality) {
         $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
 
         switch ($ext) {
@@ -139,12 +176,11 @@ class ColorThief
             $rgba = imagecolorat($image, $x, $y);
             $colors = imagecolorsforindex($image, $rgba);
             $alpha = $colors['alpha'];
-            $rgb = self::getColorIndex($colors['red'], $colors['green'], $colors['blue'], 8);
 
             // If pixel is mostly opaque and not white
             if ($alpha <= 62) {
                 if (! ($colors['red'] > 250 && $colors['green'] > 250 && $colors['blue'] > 250)) {
-                    $pixelArray[$j++] = $rgb;
+                    $pixelArray[$j++] = self::getColorIndex($colors['red'], $colors['green'], $colors['blue'], 8);
                 }
             }
         }
@@ -153,29 +189,7 @@ class ColorThief
 
         imagedestroy($image);
 
-        // Send array to quantize function which clusters values
-        // using median cut algorithm
-        $cmap = ColorThief::quantize($pixelArray, $colorCount);
-        $palette = $cmap->palette();
-
-        return $palette;
-    }
-
-    // histo (1-d array, giving the number of pixels in
-    // each quantized region of color space), or null on error
-    private static function getHisto($pixels)
-    {
-        $histo = array();
-
-        foreach ($pixels as $rgb) {
-            $rval = (($rgb >> 16) & 0xFF) >> self::RSHIFT;
-            $gval = (($rgb >> 8) & 0xFF) >> self::RSHIFT;
-            $bval = ($rgb & 0xFF) >> self::RSHIFT;
-            $index = self::getColorIndex($rval, $gval, $bval);
-            $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
-        }
-
-        return $histo;
+        return $pixelArray;
     }
 
     private static function vboxFromPixels($pixels, array $histo)
@@ -189,9 +203,7 @@ class ColorThief
 
         // find min/max
         foreach ($pixels as $rgb) {
-            $rval = (($rgb >> 16) & 0xFF) >> self::RSHIFT;
-            $gval = (($rgb >> 8) & 0xFF) >> self::RSHIFT;
-            $bval = ($rgb & 0xFF) >> self::RSHIFT;
+            list($rval, $gval, $bval) = ColorThief::getColorsFromIndex($rgb);
 
             if ($rval < $rmin) {
                 $rmin = $rval;

@@ -15,6 +15,7 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 
 - PHP >= 5.3
 - GD >= 2.0
+- Support JPEG, PNG and GIF images.
 
 ##How to use
 ###Installing via Composer
@@ -62,7 +63,7 @@ In this example, we build an 8 color palette.
 ```php
 require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
-$palette = ColorThief::getPalette($sourceImage, 8)
+$palette = ColorThief::getPalette($sourceImage, 8);
 ```
 
 Again, the `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
