@@ -9,7 +9,14 @@ php:
   - hhvm
 
 matrix:
+  include:
+    - php: 5.4
+      env:
+        - PHPCS=1
   allow_failures:
+    - php: 5.4
+      env:
+        - PHPCS=1
     - php: hhvm
 
 before_script:
@@ -17,10 +24,10 @@ before_script:
   - date
   - composer self-update
   - composer install
-  - if [ "$TRAVIS_PHP_VERSION" == "5.3" ]; then pyrus install pear/PHP_CodeSniffer; fi;
+  - if [ "$PHPCS" == 1 ]; then pyrus install pear/PHP_CodeSniffer; fi;
   - phpenv rehash
 
 script:
-  - if [ "$TRAVIS_PHP_VERSION" == "5.3" ]; then phpcs --standard=psr2 lib/ tests/; fi;
+  - if [ "$PHPCS" == 1 ]; then phpcs --standard=psr2 lib/ tests/; exit $?; fi;
   - cd tests
   - phpunit --coverage-text
