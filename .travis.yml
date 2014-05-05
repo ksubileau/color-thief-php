@@ -8,13 +8,19 @@ php:
   - 5.6
   - hhvm
 
+env:
+  matrix:
+    -
+
 matrix:
   include:
     - php: 5.4
-      env: PHPCS=1
+      env:
+        - PHPCS=1
   allow_failures:
     - php: 5.4
-      env: PHPCS=1
+      env:
+        - PHPCS=1
     - php: hhvm
 
 before_script:
@@ -29,3 +35,6 @@ script:
   - if [ "$PHPCS" == 1 ]; then phpcs --standard=psr2 lib/ tests/; exit $?; fi;
   - cd tests
   - phpunit --coverage-text
+
+notifications:
+  email: false
