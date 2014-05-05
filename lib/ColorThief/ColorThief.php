@@ -139,7 +139,8 @@ class ColorThief
         return $histo;
     }
 
-    private static function loadImage($sourceImage, $quality) {
+    private static function loadImage($sourceImage, $quality)
+    {
         $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
 
         switch ($ext) {
