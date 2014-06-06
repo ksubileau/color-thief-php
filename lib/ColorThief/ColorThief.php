@@ -141,21 +141,33 @@ class ColorThief
 
     private static function loadImage($sourceImage, $quality)
     {
-        $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
+        if ((is_resource($sourceImage) && get_resource_type($sourceImage) == 'gd')) {
 
-        switch ($ext) {
-            case 'jpg':
-            case 'jpeg':
-                $image = imagecreatefromjpeg($sourceImage);
-                break;
-            case 'gif':
-                $image = imagecreatefromgif($sourceImage);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($sourceImage);
-                break;
-            default:
-                return false;
+            $image = $sourceImage;
+
+        } else if (is_a($sourceImage, 'Imagick')) {
+
+            $image = @imagecreatefromstring($sourceImage->getImagesBlob());
+
+        } else {
+
+            $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
+
+            switch ($ext) {
+                case 'jpg':
+                case 'jpeg':
+                    $image = imagecreatefromjpeg($sourceImage);
+                    break;
+                case 'gif':
+                    $image = imagecreatefromgif($sourceImage);
+                    break;
+                case 'png':
+                    $image = imagecreatefrompng($sourceImage);
+                    break;
+                default:
+                    return false;
+            }
+
         }
 
         if ($image === false) {
