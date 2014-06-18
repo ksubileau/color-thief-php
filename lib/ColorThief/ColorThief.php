@@ -75,7 +75,7 @@ class ColorThief
      */
     public static function getColor($sourceImage, $quality = 10)
     {
-        $palette = ColorThief::getPalette($sourceImage, 5, $quality);
+        $palette = static::getPalette($sourceImage, 5, $quality);
 
         return $palette?$palette[0]:false;
     }
@@ -111,14 +111,14 @@ class ColorThief
             return false;
         }
 
-        $pixelArray = ColorThief::loadImage($sourceImage, $quality);
+        $pixelArray = static::loadImage($sourceImage, $quality);
         if ($pixelArray === false) {
             return false;
         }
 
         // Send array to quantize function which clusters values
         // using median cut algorithm
-        $cmap = ColorThief::quantize($pixelArray, $colorCount);
+        $cmap = static::quantize($pixelArray, $colorCount);
         $palette = $cmap->palette();
 
         return $palette;
@@ -131,7 +131,7 @@ class ColorThief
         $histo = array();
 
         foreach ($pixels as $rgb) {
-            list($rval, $gval, $bval) = ColorThief::getColorsFromIndex($rgb);
+            list($rval, $gval, $bval) = static::getColorsFromIndex($rgb);
             $index = self::getColorIndex($rval, $gval, $bval);
             $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
         }
@@ -204,7 +204,7 @@ class ColorThief
 
         // find min/max
         foreach ($pixels as $rgb) {
-            list($rval, $gval, $bval) = ColorThief::getColorsFromIndex($rgb);
+            list($rval, $gval, $bval) = static::getColorsFromIndex($rgb);
 
             if ($rval < $rmin) {
                 $rmin = $rval;
@@ -339,11 +339,11 @@ class ColorThief
 
         // determine the cut planes
         if ($maxw == $rw) {
-            return ColorThief::doCut('r', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('r', $vbox, $partialsum, $total, $lookaheadsum);
         } elseif ($maxw == $gw) {
-            return ColorThief::doCut('g', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('g', $vbox, $partialsum, $total, $lookaheadsum);
         } else {
-            return ColorThief::doCut('b', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('b', $vbox, $partialsum, $total, $lookaheadsum);
         }
     }
 
@@ -363,7 +363,7 @@ class ColorThief
                 continue;
             }
             // do the cut
-            $vboxes = ColorThief::medianCutApply($histo, $vbox);
+            $vboxes = static::medianCutApply($histo, $vbox);
             $vbox1 = $vboxes[0];
             $vbox2 = $vboxes[1];
 
@@ -397,14 +397,14 @@ class ColorThief
             return false;
         }
 
-        $histo = ColorThief::getHisto($pixels);
+        $histo = static::getHisto($pixels);
 
         // check that we aren't below maxcolors already
         if (count($histo) <= $maxcolors) {
             // XXX: generate the new colors from the histo and return
         }
 
-        $vbox = ColorThief::vboxFromPixels($pixels, $histo);
+        $vbox = static::vboxFromPixels($pixels, $histo);
 
         $pq = new PQueue(function ($a, $b) {
             return ColorThief::naturalOrder($a->count(), $b->count());
@@ -412,7 +412,7 @@ class ColorThief
         $pq->push($vbox);
 
         // first set of colors, sorted by population
-        ColorThief::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
+        static::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $pq2 = new PQueue(function ($a, $b) {
@@ -424,7 +424,7 @@ class ColorThief
         }
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        ColorThief::quantizeIter($pq2, $maxcolors - $pq2->size(), $histo);
+        static::quantizeIter($pq2, $maxcolors - $pq2->size(), $histo);
 
         // calculate the actual colors
         $cmap = new CMap();
