@@ -5,7 +5,7 @@ use ColorThief\ColorThief;
 
 class ColorThiefTest extends \PHPUnit_Framework_TestCase
 {
-    public function dominantImageSet()
+    public function provideImageDominantColor()
     {
         return array(
                 array(
@@ -23,7 +23,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
             );
     }
 
-    public function paletteImageSet()
+    public function provideImageColorPalette()
     {
         return array(
                 array(
@@ -71,20 +71,45 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
             );
     }
 
+    public function provide8bitsColorIndex()
+    {
+        return array(
+          array(  0,   0,   0,        0),
+          array(120, 120, 120,  7895160),
+          array(255, 255, 255, 16777215)
+        );
+    }
+
+    public function provide5bitsColorIndex()
+    {
+        return array(
+          array(  0,   0,   0,      0),
+          array(120, 120, 120, 126840),
+          array(255, 255, 255, 269535)
+        );
+    }
+
+    public function provideNaturalOrderComparison()
+    {
+        return array(
+          array(0, 5, -1),
+          array(10, -3, 1),
+          array(3, 3, 0)
+        );
+    }
+
     /**
-     * @dataProvider dominantImageSet
+     * @dataProvider provideImageDominantColor
      */
     public function testDominantColor($image, $expectedColor)
     {
         $dominantColor = ColorThief::getColor(__DIR__.$image);
 
-        $this->assertInternalType('array', $dominantColor);
-        $this->assertCount(3, $dominantColor);
-        $this->assertEquals($expectedColor, $dominantColor);
+        $this->assertSame($expectedColor, $dominantColor);
     }
 
     /**
-     * @dataProvider paletteImageSet
+     * @dataProvider provideImageColorPalette
      */
     public function testPalette($image, $expectedPalette)
     {
@@ -92,8 +117,172 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $numColors = 10;
         $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
 
-        $this->assertInternalType('array', $palette);
         //$this->assertCount($numColors, $palette);
-        $this->assertEquals($expectedPalette, $palette);
+        $this->assertSame($expectedPalette, $palette);
+    }
+
+    /**
+     * @dataProvider provide8bitsColorIndex
+     * @covers ColorThief::getColorIndex
+     */
+    public function testGetColorIndex8bits($r, $g, $b, $index)
+    {
+        $this->assertSame(
+            $index,
+            ColorThief::getColorIndex($r, $g, $b, 8)
+        );
+    }
+
+    /**
+     * @dataProvider provide5bitsColorIndex
+     * @covers ColorThief::getColorIndex
+     */
+    public function testGetColorIndex5bits($r, $g, $b, $index)
+    {
+        $this->assertSame(
+            $index,
+            ColorThief::getColorIndex($r, $g, $b)
+        );
+    }
+
+    /**
+     * @dataProvider provide8bitsColorIndex
+     * @covers ColorThief::getColorsFromIndex
+     */
+    public function testGetColorsFromIndex8bits($r, $g, $b, $index)
+    {
+        $this->assertSame(
+            array($r, $g, $b),
+            ColorThief::getColorsFromIndex($index, 0)
+        );
+    }
+
+    /**
+     * @dataProvider provideNaturalOrderComparison
+     * @covers ColorThief::naturalOrder
+     */
+    public function testNaturalOrder($left, $right, $expected)
+    {
+        $this->assertSame(
+            $expected,
+            ColorThief::naturalOrder($left, $right)
+        );
+    }
+
+    /**
+     * @covers ColorThief::getHisto
+     */
+    public function testGetHisto()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'getHisto');
+        $method->setAccessible(true);
+
+        // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
+        // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
+        $pixels = array(15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920);
+
+        $expectedHisto = array (
+            29510 => 2,
+            16496 => 3,
+            28589 => 1,
+            27811 => 1,
+            30234 => 1
+        );
+
+        $this->assertSame($expectedHisto, $method->invoke(null, $pixels));
+    }
+
+    /**
+     * @covers ColorThief::vboxFromPixels
+     */
+    public function testVboxFromPixels()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromPixels');
+        $method->setAccessible(true);
+
+        // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
+        // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
+        $pixels = array(15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920);
+
+        $histo = array (
+            29510 => 2,
+            16496 => 3,
+            28589 => 1,
+            27811 => 1,
+            30234 => 1
+        );
+
+        $result = $method->invoke(null, $pixels, $histo);
+
+        $this->assertInstanceOf('\ColorThief\VBox', $result);
+        $this->assertSame($histo, $result->histo);
+        $this->assertSame(16, $result->r1);
+        $this->assertSame(29, $result->r2);
+        $this->assertSame(3, $result->g1);
+        $this->assertSame(29, $result->g2);
+        $this->assertSame(3, $result->b1);
+        $this->assertSame(26, $result->b2);
+    }
+
+    /**
+     * @covers ColorThief::doCut
+     */
+    public function testDoCutLeftLetherThanRight()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
+        $method->setAccessible(true);
+
+        $histo = array (
+            29510 => 2,
+            16496 => 3,
+            28589 => 1,
+            27811 => 1,
+            30234 => 1
+        );
+
+        // $left <= $right
+        $result = $method->invoke(
+            null,
+            "g",
+            new \ColorThief\VBox(0, 20, 0, 31, 0, 31, null),
+            array(38,149,556,1222,1830,2656,3638,4744,6039,7412,9039,10686,12244,13715,15091,16355,17599,18768,19771,
+                20925,22257,24094,25782,27585,28796,29794,30258,30290,30298,30301,30301,30301),
+            30301,
+            array(30263,30152,29745,29079,28471,27645,26663,25557,24262,22889,21262,19615,18057,16586,15210,13946,
+                12702,11533,10530,9376,8044,6207,4519,2716,1505,507,43,11,3,0,0,0)
+        );
+
+        $this->assertEquals(new \ColorThief\VBox(0, 20, 0, 23, 0, 31, null), $result[0]);
+        $this->assertEquals(new \ColorThief\VBox(0, 20, 24, 31, 0, 31, null), $result[1]);
+    }
+
+    /**
+     * @covers ColorThief::doCut
+     */
+    public function testDoCutLeftGreaterThanRight()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
+        $method->setAccessible(true);
+
+        $histo = array (
+            29510 => 2,
+            16496 => 3,
+            28589 => 1,
+            27811 => 1,
+            30234 => 1
+        );
+
+        // $left > $right
+        $result = $method->invoke(
+            null,
+            "g",
+            new \ColorThief\VBox(0, 13, 0, 17, 0, 10, null),
+            array(38,149,512,1151,1741,2554,3530,4624,5899,7247,8788,10261,11645,12906,13969,14871,15654,16329),
+            16329,
+            array(16291,16180,15817,15178,14588,13775,12799,11705,10430,9082,7541,6068,4684,3423,2360,1458,675,0)
+        );
+
+        $this->assertEquals(new \ColorThief\VBox(0, 13, 0, 4, 0, 10, null), $result[0]);
+        $this->assertEquals(new \ColorThief\VBox(0, 13, 5, 17, 0, 10, null), $result[1]);
     }
 }
