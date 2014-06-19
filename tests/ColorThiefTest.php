@@ -123,7 +123,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provide8bitsColorIndex
-     * @covers ColorThief::getColorIndex
      */
     public function testGetColorIndex8bits($r, $g, $b, $index)
     {
@@ -135,7 +134,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provide5bitsColorIndex
-     * @covers ColorThief::getColorIndex
      */
     public function testGetColorIndex5bits($r, $g, $b, $index)
     {
@@ -147,7 +145,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provide8bitsColorIndex
-     * @covers ColorThief::getColorsFromIndex
      */
     public function testGetColorsFromIndex8bits($r, $g, $b, $index)
     {
@@ -159,7 +156,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideNaturalOrderComparison
-     * @covers ColorThief::naturalOrder
      */
     public function testNaturalOrder($left, $right, $expected)
     {
@@ -169,9 +165,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @covers ColorThief::getHisto
-     */
     public function testGetHisto()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'getHisto');
@@ -192,9 +185,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedHisto, $method->invoke(null, $pixels));
     }
 
-    /**
-     * @covers ColorThief::vboxFromPixels
-     */
     public function testVboxFromPixels()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromPixels');
@@ -224,9 +214,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(26, $result->b2);
     }
 
-    /**
-     * @covers ColorThief::doCut
-     */
     public function testDoCutLeftLetherThanRight()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
@@ -256,9 +243,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new \ColorThief\VBox(0, 20, 24, 31, 0, 31, null), $result[1]);
     }
 
-    /**
-     * @covers ColorThief::doCut
-     */
     public function testDoCutLeftGreaterThanRight()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
