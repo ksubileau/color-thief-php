@@ -8,7 +8,8 @@ class ImagickImage implements IImageAdapter
 {
     protected $image;
 
-    public function load($resource) {
+    public function load($resource)
+    {
         if (!($resource instanceof Imagick)) {
             throw new InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
@@ -16,7 +17,8 @@ class ImagickImage implements IImageAdapter
         $this->image = $resource;
     }
 
-    public function loadFile($file) {
+    public function loadFile($file)
+    {
         $this->image = null;
 
         $i = new Imagick();
@@ -29,20 +31,24 @@ class ImagickImage implements IImageAdapter
         $this->image = $i;
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         $this->image->clear();
         $this->image = null;
     }
 
-    public function getHeight() {
+    public function getHeight()
+    {
         return $this->image->getImageHeight();
     }
 
-    public function getWidth() {
+    public function getWidth()
+    {
         return $this->image->getImageWidth();
     }
 
-    public function getPixelColor($x, $y) {
+    public function getPixelColor($x, $y)
+    {
         $pixel = $this->image->getImagePixelColor($x, $y);
 
         $colorArray = $pixel->getColor();

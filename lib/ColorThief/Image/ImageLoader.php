@@ -16,31 +16,24 @@ class ImageLoader
                 throw new RuntimeException("Image '".$source."' is not readable or does not exists.");
             }
 
-            if(extension_loaded("imagick")) {
+            if (extension_loaded("imagick")) {
                 $image = new ImagickImage();
             } else {
                 $image = new GDImage();
             }
 
             $image->loadFile($source);
-        }
-        else {
+        } else {
             if ((is_resource($source) && get_resource_type($source) == 'gd')) {
                 $image = new GDImage();
-
-            } else if (is_a($source, 'Imagick')) {
-
+            } elseif (is_a($source, 'Imagick')) {
                 $image = new ImagickImage();
-
-            }
-            else {
+            } else {
                 throw new InvalidArgumentException("Passed variable is not a valid image source");
             }
             $image->load($source);
-
         }
 
         return $image;
-
     }
 }

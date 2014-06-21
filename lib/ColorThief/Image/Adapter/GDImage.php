@@ -6,14 +6,17 @@ class GDImage implements IImageAdapter
 {
     protected $image;
 
-    public function load($resource) {
-        if (!is_resource($resource) || get_resource_type($resource) != 'gd')
+    public function load($resource)
+    {
+        if (!is_resource($resource) || get_resource_type($resource) != 'gd') {
             throw new InvalidArgumentException("Passed variable is not a valid GD resource");
+        }
 
         $this->image = $resource;
     }
 
-    public function loadFile($file) {
+    public function loadFile($file)
+    {
         list(, , $type) = @getImageSize($file);
         switch ($type) {
             case IMAGETYPE_GIF:
@@ -34,20 +37,24 @@ class GDImage implements IImageAdapter
         }
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         imagedestroy($this->image);
         $this->image = null;
     }
 
-    public function getHeight() {
+    public function getHeight()
+    {
         return imagesy($this->image);
     }
 
-    public function getWidth() {
+    public function getWidth()
+    {
         return imagesx($this->image);
     }
 
-    public function getPixelColor($x, $y) {
+    public function getPixelColor($x, $y)
+    {
         $rgba = imagecolorat($this->image, $x, $y);
         $color = imagecolorsforindex($this->image, $rgba);
         return (object)$color;
