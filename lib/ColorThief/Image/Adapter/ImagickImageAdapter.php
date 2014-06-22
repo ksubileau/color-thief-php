@@ -4,22 +4,20 @@ namespace ColorThief\Image\Adapter;
 
 use Imagick;
 
-class ImagickImage implements IImageAdapter
+class ImagickImageAdapter extends ImageAdapter
 {
-    protected $image;
-
     public function load($resource)
     {
         if (!($resource instanceof Imagick)) {
             throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
 
-        $this->image = $resource;
+        parent::load($resource);
     }
 
     public function loadFile($file)
     {
-        $this->image = null;
+        $this->resource = null;
 
         $i = new Imagick();
         $success = $i->readImage($file);
@@ -28,28 +26,28 @@ class ImagickImage implements IImageAdapter
             throw new \RuntimeException("Could not read image '".$file."' or format is not recognized.");
         }
 
-        $this->image = $i;
+        $this->resource = $i;
     }
 
     public function destroy()
     {
-        $this->image->clear();
-        $this->image = null;
+        $this->resource->clear();
+        parent::destroy();
     }
 
     public function getHeight()
     {
-        return $this->image->getImageHeight();
+        return $this->resource->getImageHeight();
     }
 
     public function getWidth()
     {
-        return $this->image->getImageWidth();
+        return $this->resource->getImageWidth();
     }
 
     public function getPixelColor($x, $y)
     {
-        $pixel = $this->image->getImagePixelColor($x, $y);
+        $pixel = $this->resource->getImagePixelColor($x, $y);
 
         $colorArray = $pixel->getColor();
         $color = new \stdClass();

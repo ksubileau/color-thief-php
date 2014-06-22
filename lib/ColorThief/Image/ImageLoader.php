@@ -2,8 +2,8 @@
 
 namespace ColorThief\Image;
 
-use ColorThief\Image\Adapter\GDImage;
-use ColorThief\Image\Adapter\ImagickImage;
+use ColorThief\Image\Adapter\GDImageAdapter;
+use ColorThief\Image\Adapter\ImagickImageAdapter;
 
 class ImageLoader
 {
@@ -17,17 +17,17 @@ class ImageLoader
             }
 
             if (extension_loaded("imagick")) {
-                $image = new ImagickImage();
+                $image = new ImagickImageAdapter();
             } else {
-                $image = new GDImage();
+                $image = new GDImageAdapter();
             }
 
             $image->loadFile($source);
         } else {
             if ((is_resource($source) && get_resource_type($source) == 'gd')) {
-                $image = new GDImage();
+                $image = new GDImageAdapter();
             } elseif (is_a($source, 'Imagick')) {
-                $image = new ImagickImage();
+                $image = new ImagickImageAdapter();
             } else {
                 throw new \InvalidArgumentException("Passed variable is not a valid image source");
             }

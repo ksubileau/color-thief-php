@@ -2,17 +2,15 @@
 
 namespace ColorThief\Image\Adapter;
 
-class GDImage implements IImageAdapter
+class GDImageAdapter extends ImageAdapter
 {
-    protected $image;
-
     public function load($resource)
     {
         if (!is_resource($resource) || get_resource_type($resource) != 'gd') {
             throw new \InvalidArgumentException("Passed variable is not a valid GD resource");
         }
 
-        $this->image = $resource;
+        parent::load($resource);
     }
 
     public function loadFile($file)
@@ -20,15 +18,15 @@ class GDImage implements IImageAdapter
         list(, , $type) = @getImageSize($file);
         switch ($type) {
             case IMAGETYPE_GIF:
-                $this->image = imagecreatefromgif($file);
+                $this->resource = imagecreatefromgif($file);
                 break;
 
             case IMAGETYPE_JPEG:
-                $this->image = imagecreatefromjpeg($file);
+                $this->resource = imagecreatefromjpeg($file);
                 break;
 
             case IMAGETYPE_PNG:
-                $this->image = imagecreatefrompng($file);
+                $this->resource = imagecreatefrompng($file);
                 break;
 
             default:
@@ -39,24 +37,24 @@ class GDImage implements IImageAdapter
 
     public function destroy()
     {
-        imagedestroy($this->image);
-        $this->image = null;
+        imagedestroy($this->resource);
+        parent::destroy();
     }
 
     public function getHeight()
     {
-        return imagesy($this->image);
+        return imagesy($this->resource);
     }
 
     public function getWidth()
     {
-        return imagesx($this->image);
+        return imagesx($this->resource);
     }
 
     public function getPixelColor($x, $y)
     {
-        $rgba = imagecolorat($this->image, $x, $y);
-        $color = imagecolorsforindex($this->image, $rgba);
+        $rgba = imagecolorat($this->resource, $x, $y);
+        $color = imagecolorsforindex($this->resource, $rgba);
         return (object)$color;
     }
 }
