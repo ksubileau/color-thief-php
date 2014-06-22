@@ -47,4 +47,11 @@ interface IImageAdapter
      * @param string $file
      */
     public function getPixelColor($x, $y);
+
+    /**
+     * Get the raw resource
+     *
+     * @return mixed
+     */
+    public function getResource();
 }
