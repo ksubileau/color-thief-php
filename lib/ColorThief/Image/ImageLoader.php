@@ -13,7 +13,7 @@ class ImageLoader
 
         if (is_string($source)) {
             if (!file_exists($source) || !is_readable($source)) {
-                throw new RuntimeException("Image '".$source."' is not readable or does not exists.");
+                throw new \RuntimeException("Image '".$source."' is not readable or does not exists.");
             }
 
             if (extension_loaded("imagick")) {
@@ -29,7 +29,7 @@ class ImageLoader
             } elseif (is_a($source, 'Imagick')) {
                 $image = new ImagickImage();
             } else {
-                throw new InvalidArgumentException("Passed variable is not a valid image source");
+                throw new \InvalidArgumentException("Passed variable is not a valid image source");
             }
             $image->load($source);
         }

@@ -11,7 +11,7 @@ class ImagickImage implements IImageAdapter
     public function load($resource)
     {
         if (!($resource instanceof Imagick)) {
-            throw new InvalidArgumentException("Passed variable is not an instance of Imagick");
+            throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
 
         $this->image = $resource;
@@ -25,7 +25,7 @@ class ImagickImage implements IImageAdapter
         $success = $i->readImage($file);
 
         if (!$success) {
-            throw new RuntimeException("Could not read image '".$file."' or format is not recognized.");
+            throw new \RuntimeException("Could not read image '".$file."' or format is not recognized.");
         }
 
         $this->image = $i;

@@ -9,7 +9,7 @@ class GDImage implements IImageAdapter
     public function load($resource)
     {
         if (!is_resource($resource) || get_resource_type($resource) != 'gd') {
-            throw new InvalidArgumentException("Passed variable is not a valid GD resource");
+            throw new \InvalidArgumentException("Passed variable is not a valid GD resource");
         }
 
         $this->image = $resource;
@@ -32,7 +32,7 @@ class GDImage implements IImageAdapter
                 break;
 
             default:
-                throw new RuntimeException("Could not read image '".$file."' or format is not recognized.");
+                throw new \RuntimeException("Could not read image '".$file."' or format is not recognized.");
                 break;
         }
     }
