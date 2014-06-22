@@ -23,7 +23,7 @@ class ImagickImageAdapter extends ImageAdapter
         $success = $i->readImage($file);
 
         if (!$success) {
-            throw new \RuntimeException("Could not read image '".$file."' or format is not recognized.");
+            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.");
         }
 
         $this->resource = $i;

@@ -30,7 +30,7 @@ class GDImageAdapter extends ImageAdapter
                 break;
 
             default:
-                throw new \RuntimeException("Could not read image '".$file."' or format is not recognized.");
+                throw new \RuntimeException("Image '".$file."' is not readable or does not exists.");
                 break;
         }
     }
