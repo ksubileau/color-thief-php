@@ -19,14 +19,11 @@ class ImagickImageAdapter extends ImageAdapter
     {
         $this->resource = null;
 
-        $i = new Imagick();
-        $success = $i->readImage($file);
-
-        if (!$success) {
-            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.");
+        try {
+            $this->resource = new Imagick($file);
+        } catch (\ImagickException $e) {
+            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
         }
-
-        $this->resource = $i;
     }
 
     public function destroy()
