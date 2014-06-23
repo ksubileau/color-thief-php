@@ -28,7 +28,7 @@ before_script:
   - date
   - composer self-update
   - composer install
-  - pecl install imagick
+  - printf "\n" | pecl install imagick
   - if [ "$PHPCS" == 1 ]; then pyrus install pear/PHP_CodeSniffer; fi;
   - phpenv rehash
 
