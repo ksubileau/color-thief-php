@@ -142,7 +142,8 @@ class ColorThief
 
     private static function loadImage($sourceImage, $quality)
     {
-        $image = ImageLoader::load($sourceImage);
+        $loader = new ImageLoader();
+        $image = $loader->load($sourceImage);
 
         $width = $image->getWidth();
         $height = $image->getHeight();

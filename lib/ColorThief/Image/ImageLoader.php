@@ -2,12 +2,9 @@
 
 namespace ColorThief\Image;
 
-use ColorThief\Image\Adapter\GDImageAdapter;
-use ColorThief\Image\Adapter\ImagickImageAdapter;
-
 class ImageLoader
 {
-    public static function load($source)
+    public function load($source)
     {
         $image = null;
 
@@ -16,18 +13,18 @@ class ImageLoader
                 throw new \RuntimeException("Image '".$source."' is not readable or does not exists.");
             }
 
-            if (extension_loaded("imagick")) {
-                $image = new ImagickImageAdapter();
+            if ($this->isImagickLoaded()) {
+                $image = $this->getAdapter("Imagick");
             } else {
-                $image = new GDImageAdapter();
+                $image = $this->getAdapter("GD");
             }
 
             $image->loadFile($source);
         } else {
             if ((is_resource($source) && get_resource_type($source) == 'gd')) {
-                $image = new GDImageAdapter();
+                $image = $this->getAdapter("GD");
             } elseif (is_a($source, 'Imagick')) {
-                $image = new ImagickImageAdapter();
+                $image = $this->getAdapter("Imagick");
             } else {
                 throw new \InvalidArgumentException("Passed variable is not a valid image source");
             }
@@ -35,5 +32,16 @@ class ImageLoader
         }
 
         return $image;
+    }
+
+    public function isImagickLoaded()
+    {
+        return extension_loaded("imagick");
+    }
+
+    public function getAdapter($adapterType)
+    {
+        $classname = "\ColorThief\Image\Adapter\\".$adapterType."ImageAdapter";
+        return new $classname();
     }
 }
