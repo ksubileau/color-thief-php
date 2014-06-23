@@ -28,8 +28,7 @@ class ImagickImageAdapter extends ImageAdapter
 
     public function destroy()
     {
-        if ($this->resource)
-        {
+        if ($this->resource) {
             $this->resource->clear();
         }
         parent::destroy();

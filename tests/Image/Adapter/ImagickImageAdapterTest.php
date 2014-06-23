@@ -36,5 +36,4 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
-
 }

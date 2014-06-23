@@ -37,8 +37,7 @@ class GDImageAdapter extends ImageAdapter
 
     public function destroy()
     {
-        if ($this->resource)
-        {
+        if ($this->resource) {
             imagedestroy($this->resource);
         }
         parent::destroy();
