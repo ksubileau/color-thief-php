@@ -14,8 +14,12 @@
     ],
 
     "require": {
-        "php": ">=5.3.0",
-        "ext-gd": "*"
+        "php": ">=5.3.0"
+    },
+
+    "suggest": {
+        "ext-gd": "to use the GD image adapter.",
+        "ext-imagick": "to use the Imagick image adapter."
     },
 
     "autoload": {
