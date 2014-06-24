@@ -98,6 +98,14 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    protected function getBlankImage($width = 20, $height = 30)
+    {
+        $img = imagecreatetruecolor($width, $height);
+        $bg = imagecolorallocate($img, 255, 255, 255);
+        imagefilledrectangle($img, 0, 0, $width, $height, $bg);
+        return $img;
+    }
+
     /**
      * @dataProvider provideImageDominantColor
      */
@@ -119,6 +127,44 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
         //$this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The number of palette colors
+     */
+    public function testGetPaletteWithTooFewColors()
+    {
+        ColorThief::getPalette("foo.jpg", 1);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The number of palette colors
+     */
+    public function testGetPaletteWithTooManyColors()
+    {
+        ColorThief::getPalette("foo.jpg", 120000);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage quality argument
+     */
+    public function testGetPaletteWithInvalidQuality()
+    {
+        ColorThief::getPalette("foo.jpg", 5, 0);
+    }
+
+    /**
+     * @see Issue #11
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage blank or transparent image
+     * @expectedExceptionCode 1
+     */
+    public function testGetPaletteWithBlankImage()
+    {
+        ColorThief::getPalette($this->getBlankImage());
     }
 
     /**

@@ -103,18 +103,16 @@ class ColorThief
     {
         // short-circuit
         if ($colorCount < 2 || $colorCount > 256) {
-            // echo 'wrong number of maxcolors'."\n";
-            return false;
+            throw new \InvalidArgumentException("The number of palette colors must be between 2 and 256 inclusive.");
         }
         // short-circuit
         if ($quality < 1) {
-            // echo 'wrong number of maxcolors'."\n";
-            return false;
+            throw new \InvalidArgumentException("The quality argument must be an integer greater than one.");
         }
 
         $pixelArray = static::loadImage($sourceImage, $quality);
-        if ($pixelArray === false) {
-            return false;
+        if (!count($pixelArray)) {
+            throw new \RuntimeException("Unable to compute the color palette of a blank or transparent image.", 1);
         }
 
         // Send array to quantize function which clusters values
@@ -383,9 +381,9 @@ class ColorThief
         $histo = static::getHisto($pixels);
 
         // check that we aren't below maxcolors already
-        if (count($histo) <= $maxcolors) {
+        //if (count($histo) <= $maxcolors) {
             // XXX: generate the new colors from the histo and return
-        }
+        //}
 
         $vbox = static::vboxFromPixels($pixels, $histo);
 
