@@ -31,6 +31,7 @@
 namespace ColorThief;
 
 use SplFixedArray;
+use ColorThief\Image\ImageLoader;
 
 class ColorThief
 {
@@ -141,29 +142,11 @@ class ColorThief
 
     private static function loadImage($sourceImage, $quality)
     {
-        $ext = strtolower(pathinfo($sourceImage, PATHINFO_EXTENSION));
+        $loader = new ImageLoader();
+        $image = $loader->load($sourceImage);
 
-        switch ($ext) {
-            case 'jpg':
-            case 'jpeg':
-                $image = imagecreatefromjpeg($sourceImage);
-                break;
-            case 'gif':
-                $image = imagecreatefromgif($sourceImage);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($sourceImage);
-                break;
-            default:
-                return false;
-        }
-
-        if ($image === false) {
-            return false;
-        }
-
-        $width = imagesx($image);
-        $height = imagesy($image);
+        $width = $image->getWidth();
+        $height = $image->getHeight();
         $pixelCount = $width * $height;
 
         // Store the RGB values in an array format suitable for quantize function
@@ -174,21 +157,20 @@ class ColorThief
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
             $x = $i % $width;
             $y = (int) ($i / $width);
-            $rgba = imagecolorat($image, $x, $y);
-            $colors = imagecolorsforindex($image, $rgba);
-            $alpha = $colors['alpha'];
+            $color = $image->getPixelColor($x, $y);
 
             // If pixel is mostly opaque and not white
-            if ($alpha <= 62) {
-                if (! ($colors['red'] > 250 && $colors['green'] > 250 && $colors['blue'] > 250)) {
-                    $pixelArray[$j++] = self::getColorIndex($colors['red'], $colors['green'], $colors['blue'], 8);
+            if ($color->alpha <= 62) {
+                if (! ($color->red > 250 && $color->green > 250 && $color->blue > 250)) {
+                    $pixelArray[$j++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
                 }
             }
         }
 
         $pixelArray->setSize($j);
 
-        imagedestroy($image);
+        // TODO : Don't destroy a ressource passed by the user !
+        $image->destroy();
 
         return $pixelArray;
     }
