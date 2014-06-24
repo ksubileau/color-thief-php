@@ -169,8 +169,10 @@ class ColorThief
 
         $pixelArray->setSize($j);
 
-        // TODO : Don't destroy a ressource passed by the user !
-        $image->destroy();
+        // Don't destroy a ressource passed by the user !
+        if (is_string($sourceImage)) {
+            $image->destroy();
+        }
 
         return $pixelArray;
     }
