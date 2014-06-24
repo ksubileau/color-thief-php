@@ -346,17 +346,16 @@ class ColorThief
             }
             // do the cut
             $vboxes = static::medianCutApply($histo, $vbox);
-            $vbox1 = $vboxes[0];
-            $vbox2 = $vboxes[1];
 
-            if (! $vbox1) {
+            if (! (is_array($vboxes) && isset($vboxes[0]))) {
                 // echo "vbox1 not defined; shouldn't happen!"."\n";
                 return;
             }
 
-            $lh->push($vbox1);
-            if ($vbox2) { /* vbox2 can be null */
-                $lh->push($vbox2);
+            $lh->push($vboxes[0]);
+
+            if (isset($vboxes[1])) { /* vbox2 can be null */
+                $lh->push($vboxes[1]);
                 $ncolors++;
             }
 
