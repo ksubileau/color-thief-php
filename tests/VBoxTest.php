@@ -11,19 +11,11 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
      */
     protected $vbox;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
         $this->vbox = new VBox(0, 255, 0, 255, 0, 255, null);
     }
 
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
     protected function tearDown()
     {
         $this->vbox = null;
@@ -31,7 +23,6 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ColorThief\VBox::volume
-     * @todo   Implement testVolume().
      */
     public function testVolume()
     {
