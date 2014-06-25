@@ -14,7 +14,7 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 ## Requirements
 
 - PHP >= 5.3
-- GD >= 2.0
+- GD >= 2.0 and/or Imagick >= 2.0
 - Support JPEG, PNG and GIF images.
 
 ##How to use
@@ -32,7 +32,7 @@ Next, update your project's composer.json file to include Color Thief:
 ```javascript
 {
     "require": {
-        "ksubileau/color-thief-php": "~1.0"
+        "ksubileau/color-thief-php": "~1.1"
     }
 }
 ```
@@ -43,7 +43,7 @@ require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $dominantColor = ColorThief::getColor($sourceImage);
 ```
-The `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
+The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, or an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance.
 
 ```php
 ColorThief::getColor($sourceImage[, $quality=10])
