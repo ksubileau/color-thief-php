@@ -7,9 +7,11 @@ Color Thief PHP
 [![Latest Unstable Version](https://poser.pugx.org/ksubileau/color-thief-php/v/unstable.png)](https://packagist.org/packages/ksubileau/color-thief-php)
 [![License](https://poser.pugx.org/ksubileau/color-thief-php/license.png)](https://packagist.org/packages/ksubileau/color-thief-php)
 
-A PHP class for grabbing the color palette from an image. Uses PHP and GD library to make it happen.
+A PHP class for **grabbing the color palette** from an image. Uses PHP and GD or Imagick libraries to make it happen.
 
 It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh/color-thief), using the MMCQ (modified median cut quantization) algorithm from the [Leptonica library](http://www.leptonica.com/).
+
+[**See examples**](http://www.kevinsubileau.fr/projets/color-thief-php?utm_campaign=github&utm_term=color-thief-php_readme)
 
 ## Requirements
 
