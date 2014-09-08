@@ -28,7 +28,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         return array(
                 array(
                         "http://28.media.tumblr.com/tumblr_lybw63nzPp1r5bvcto1_500.jpg",
-                        array(119, 133, 81)
+                        array(119, 133, 82)
                     ),
                 array(
                         "http://img70.imageshack.us/img70/9615/cutesquirrels15ac7.jpg",
