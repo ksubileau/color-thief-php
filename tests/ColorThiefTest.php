@@ -37,7 +37,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                 array(
                         "http://img70.imageshack.us/img70/4853/cutesquirrels27rn9.jpg",
                         array(69, 72, 73)
-                    )
+                    ),
             );
     }
 
@@ -137,9 +137,9 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideRemoteImage
      */
-    public function testRemoteImage($imageUrl, $expectedColor)
+    public function testRemoteImage($remoteImage, $expectedColor)
     {
-        $dominantColor = ColorThief::getColor($image);
+        $dominantColor = ColorThief::getColor($remoteImage);
         $this->assertSame($expectedColor, $dominantColor);
     }
 
