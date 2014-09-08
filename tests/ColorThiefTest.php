@@ -23,6 +23,24 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
             );
     }
 
+    public function provideRemoteImage()
+    {
+        return array(
+                array(
+                        "http://28.media.tumblr.com/tumblr_lybw63nzPp1r5bvcto1_500.jpg",
+                        array(119, 133, 81)
+                    ),
+                array(
+                        "http://img70.imageshack.us/img70/9615/cutesquirrels15ac7.jpg",
+                        array(109, 107, 100)
+                    ),
+                array(
+                        "http://img70.imageshack.us/img70/4853/cutesquirrels27rn9.jpg",
+                        array(69, 72, 73)
+                    )
+            );
+    }
+
     public function provideImageColorPalette()
     {
         return array(
@@ -113,6 +131,15 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     {
         $dominantColor = ColorThief::getColor(__DIR__.$image);
 
+        $this->assertSame($expectedColor, $dominantColor);
+    }
+
+    /**
+     * @dataProvider provideRemoteImage
+     */
+    public function testRemoteImage($imageUrl, $expectedColor)
+    {
+        $dominantColor = ColorThief::getColor($image);
         $this->assertSame($expectedColor, $dominantColor);
     }
 
