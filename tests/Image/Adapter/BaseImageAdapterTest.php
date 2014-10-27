@@ -58,6 +58,17 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @see Issue #13
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage not readable or does not exists
+     */
+    public function testLoad404Url()
+    {
+        $adapter = $this->getAdapterInstance();
+        $adapter->loadFile("http://example.com/pixels.png");
+    }
+
+    /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage not readable or does not exists
      */
