@@ -48,6 +48,16 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @see Issue #13
+     */
+    public function testLoadUrl()
+    {
+        return $this->basetestLoadFile(
+            "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
+        );
+    }
+
+    /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage not readable or does not exists
      */
