@@ -10,7 +10,10 @@ class CMap
     public function __construct()
     {
         $this->vboxes = new PQueue(function ($a, $b) {
-            return ColorThief::naturalOrder($a['vbox']->count() * $a['vbox']->volume(), $b['vbox']->count() * $b['vbox']->volume());
+            return ColorThief::naturalOrder(
+                $a['vbox']->count() * $a['vbox']->volume(),
+                $b['vbox']->count() * $b['vbox']->volume()
+            );
         });
     }
 
