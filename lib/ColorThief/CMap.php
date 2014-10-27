@@ -10,7 +10,7 @@ class CMap
     public function __construct()
     {
         $this->vboxes = new PQueue(function ($a, $b) {
-            return naturalOrder($a['vbox']->count() * $a['vbox']->volume(), $b['vbox']->count() * $b['vbox']->volume());
+            return ColorThief::naturalOrder($a['vbox']->count() * $a['vbox']->volume(), $b['vbox']->count() * $b['vbox']->volume());
         });
     }
 
@@ -49,8 +49,9 @@ class CMap
 
     public function nearest($color)
     {
+        $pColor = null;
         $vboxes_size = $this->vboxes->size();
-        for ($i = 0; i < $vboxes_size; $i ++) {
+        for ($i = 0; $i < $vboxes_size; $i++) {
             $vbox = $this->vboxes->peek($i);
             $d2 = sqrt(
                 pow($color[0] - $vbox['color'][0], 2) +
