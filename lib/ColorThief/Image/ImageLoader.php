@@ -9,7 +9,8 @@ class ImageLoader
         $image = null;
 
         if (is_string($source)) {
-            if (!file_exists($source) || !is_readable($source)) {
+            $is_remote = filter_var($source, FILTER_VALIDATE_URL);
+            if (!$is_remote && (!file_exists($source) || !is_readable($source))) {
                 throw new \RuntimeException("Image '".$source."' is not readable or does not exists.");
             }
 

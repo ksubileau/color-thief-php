@@ -24,7 +24,7 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         // Checks object state
         $image = $adapter->getResource();
         $this->assertInstanceOf('\Imagick', $image);
-        $this->assertSame(realpath($path), $image->getImageFilename());
+        $this->assertTrue($image->valid());
     }
 
     /**
