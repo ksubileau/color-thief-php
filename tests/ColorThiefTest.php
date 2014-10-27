@@ -16,10 +16,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                         "/images/field_1024x683.jpg",
                         array(107, 172, 222)
                     ),
-                array(
-                        "/images/vegetables_1500x995.png",
-                        array(211, 198, 172)
-                    ),
             );
     }
 
@@ -38,20 +34,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                         array(29, 68, 84),
                         array(120, 124, 101),
                         array(212, 76, 60)
-                    )
-                ),
-                array(
-                    "/images/field_1024x683.jpg",
-                    array(
-                        array(69, 52, 37),
-                        array(91, 166, 223),
-                        array(146, 188, 219),
-                        array(186, 212, 228),
-                        array(42, 140, 216),
-                        array(132, 145, 146),
-                        array(60, 92, 120),
-                        array(168, 140, 88),
-                        array(93, 116, 125)
                     )
                 ),
                 array(
