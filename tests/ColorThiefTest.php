@@ -10,11 +10,23 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         return array(
                 array(
                         "/images/rails_600x406.gif",
+                        null,
                         array(88, 70, 80)
                     ),
                 array(
                         "/images/field_1024x683.jpg",
+                        null,
                         array(107, 172, 222)
+                    ),
+                array(  // Area targeting
+                        "/images/vegetables_1500x995.png",
+                        array('x' => 670, 'y' => 215, 'w' => 230, 'h' => 120),
+                        array(63, 112, 24)
+                    ),
+                array(  // Area targeting with default values for y and width.
+                        "/images/vegetables_1500x995.png",
+                        array('x' => 1300, 'h' => 500),
+                        array(54, 60, 33)
                     ),
             );
     }
@@ -24,6 +36,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         return array(
                 array(
                     "/images/rails_600x406.gif",
+                    null,
                     array(
                         array(87, 68, 79),
                         array(210, 170, 127),
@@ -38,6 +51,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                 ),
                 array(
                     "/images/vegetables_1500x995.png",
+                    null,
                     array(
                         array(45, 58, 23),
                         array(227, 217, 199),
@@ -91,9 +105,9 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideImageDominantColor
      */
-    public function testDominantColor($image, $expectedColor)
+    public function testDominantColor($image, $area, $expectedColor)
     {
-        $dominantColor = ColorThief::getColor(__DIR__.$image);
+        $dominantColor = ColorThief::getColor(__DIR__.$image, 10, $area);
 
         $this->assertSame($expectedColor, $dominantColor);
     }
@@ -112,11 +126,11 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideImageColorPalette
      */
-    public function testPalette($image, $expectedPalette)
+    public function testPalette($image, $area, $expectedPalette)
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
-        $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
+        $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30, $area);
 
         //$this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);

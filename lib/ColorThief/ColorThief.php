@@ -74,9 +74,9 @@ class ColorThief
      * visually most dominant color.
      *
      */
-    public static function getColor($sourceImage, $quality = 10)
+    public static function getColor($sourceImage, $quality = 10, array $area = null)
     {
-        $palette = static::getPalette($sourceImage, 5, $quality);
+        $palette = static::getPalette($sourceImage, 5, $quality, $area);
 
         return $palette?$palette[0]:false;
     }
@@ -99,7 +99,7 @@ class ColorThief
      * the faster the palette generation but the greater the likelihood that
      * colors will be missed.
      */
-    public static function getPalette($sourceImage, $colorCount = 10, $quality = 10)
+    public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
     {
         // short-circuit
         if ($colorCount < 2 || $colorCount > 256) {
@@ -110,7 +110,7 @@ class ColorThief
             throw new \InvalidArgumentException("The quality argument must be an integer greater than one.");
         }
 
-        $pixelArray = static::loadImage($sourceImage, $quality);
+        $pixelArray = static::loadImage($sourceImage, $quality, $area);
         if (!count($pixelArray)) {
             throw new \RuntimeException("Unable to compute the color palette of a blank or transparent image.", 1);
         }
@@ -138,13 +138,26 @@ class ColorThief
         return $histo;
     }
 
-    private static function loadImage($sourceImage, $quality)
+    private static function loadImage($sourceImage, $quality, array $area = null)
     {
         $loader = new ImageLoader();
-        $image = $loader->load($sourceImage);
-
-        $width = $image->getWidth();
+        $image  = $loader->load($sourceImage);
+        $startx = 0;
+        $starty = 0;
+        $width  = $image->getWidth();
         $height = $image->getHeight();
+
+        if ($area) {
+            $startx = isset($area['x']) ? $area['x'] : 0;
+            $starty = isset($area['y']) ? $area['y'] : 0;
+            $width  = isset($area['w']) ? $area['w'] : ($width  - $startx);
+            $height = isset($area['h']) ? $area['h'] : ($height - $starty);
+
+            if ((($startx + $width) > $image->getWidth()) || (($starty + $height) > $image->getHeight())) {
+                throw new \InvalidArgumentException("Area is out of image bounds.");
+            }
+        }
+
         $pixelCount = $width * $height;
 
         // Store the RGB values in an array format suitable for quantize function
@@ -153,8 +166,8 @@ class ColorThief
 
         $j = 0;
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
-            $x = $i % $width;
-            $y = (int) ($i / $width);
+            $x = $startx + ($i % $width);
+            $y = (int) ($starty + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
             // If pixel is mostly opaque and not white
