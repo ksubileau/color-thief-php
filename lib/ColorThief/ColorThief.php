@@ -61,7 +61,7 @@ class ColorThief
     }
 
     /*
-     * getColor(sourceImage[, quality])
+     * getColor(sourceImage[, quality, area])
      * returns {r: num, g: num, b: num}
      *
      * Use the median cut algorithm to cluster similar colors and
@@ -71,7 +71,18 @@ class ColorThief
      * There is a trade-off between quality and speed.
      * The bigger the number, the faster a color will be returned
      * but the greater the likelihood that it will not be the
-     * visually most dominant color.
+     * visually most dominant color. Area is also an optional
+     * argument. It allows you to specify a rectangular area in
+     * the image in order to get colors only for this area. It
+     * needs to be an associative array with the following keys :
+     *  - $area['x'] : The x-coordinate of the top left corner 
+     *                 of the area. Default to 0.
+     *  - $area['y'] : The y-coordinate of the top left corner 
+     *                 of the area. Default to 0.
+     *  - $area['w'] : The width of the area. Default to the 
+     *                 the width of the image minus x-coordinate.
+     *  - $area['h'] : The height of the area. Default to the 
+     *                 the height of the image minus y-coordinate.
      *
      */
     public static function getColor($sourceImage, $quality = 10, array $area = null)
@@ -82,7 +93,7 @@ class ColorThief
     }
 
     /*
-     * getPalette(sourceImage[, colorCount, quality])
+     * getPalette(sourceImage[, colorCount, quality, area])
      * returns array[ {r: num, g: num, b: num}, {r: num, g: num, b: num}, ...]
      *
      * Use the median cut algorithm to cluster similar colors.
@@ -93,11 +104,22 @@ class ColorThief
      * BUGGY: Function does not always return the requested amount of colors.
      * It can be +/- 2.
      *
-     * quality is an optional argument. It needs to be an integer.
+     * Quality is an optional argument. It needs to be an integer.
      * 1 is the highest quality settings. 10 is the default.
      * There is a trade-off between quality and speed. The bigger the number,
      * the faster the palette generation but the greater the likelihood that
-     * colors will be missed.
+     * colors will be missed. Area is also an optional
+     * argument. It allows you to specify a rectangular area in
+     * the image in order to get colors only for this area. It
+     * needs to be an associative array with the following keys :
+     *  - $area['x'] : The x-coordinate of the top left corner 
+     *                 of the area. Default to 0.
+     *  - $area['y'] : The y-coordinate of the top left corner 
+     *                 of the area. Default to 0.
+     *  - $area['w'] : The width of the area. Default to the 
+     *                 width of the image minus x-coordinate.
+     *  - $area['h'] : The height of the area. Default to the 
+     *                 height of the image minus y-coordinate.
      */
     public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
     {

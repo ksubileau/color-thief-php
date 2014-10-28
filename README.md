@@ -48,7 +48,7 @@ $dominantColor = ColorThief::getColor($sourceImage);
 The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, or an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance.
 
 ```php
-ColorThief::getColor($sourceImage[, $quality=10])
+ColorThief::getColor($sourceImage[, $quality=10, $area=null])
 returns array(r: num, g: num, b: num)
 ```
 
@@ -56,6 +56,12 @@ This function returns an array of three integer values, corresponding to the RGB
 
 You can pass an additional argument (`$quality`) to adjust the calculation accuracy of the dominant color. 1 is the highest quality settings, 10 is the default. But be aware that there is a trade-off between quality and speed/memory consumption !
 If the quality settings are too high (close to 1) relative to the image size (pixel counts), it may **exceed the memory limit** set in the PHP configuration (and computation will be slow).
+
+You can also pass another additional argument (`$area`) to specify a rectangular area in the image in order to get dominant colors only inside this area. This argument must be an associative array with the following keys :
+- `$area['x']` : The x-coordinate of the top left corner of the area. Default to 0.
+- `$area['y']` : The y-coordinate of the top left corner of the area. Default to 0.
+- `$area['w']` : The width of the area. Default to the width of the image minus x-coordinate.
+- `$area['h']` : The height of the area. Default to the height of the image minus y-coordinate.
 
 
 ###Build a color palette from an image
@@ -71,13 +77,13 @@ $palette = ColorThief::getPalette($sourceImage, 8);
 Again, the `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
 
 ```php
-ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10])
+ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null])
 returns array(array(num, num, num), array(num, num, num), ... )
 ```
 
 The `$colorCount` argument determines the size of the palette; the number of colors returned. If not set, it defaults to 10.
 
-The `$quality` argument works as in the previous function.
+The `$quality` and `$area` arguments work as in the previous function.
 
 ##Credits and license
 
