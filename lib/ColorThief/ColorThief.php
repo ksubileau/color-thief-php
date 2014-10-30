@@ -223,7 +223,7 @@ class ColorThief
 
         // find min/max
         foreach ($histo as $index => $count) {
-            list($rval, $gval, $bval) = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);;
+            list($rval, $gval, $bval) = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);
 
             if ($rval < $rmin) {
                 $rmin = $rval;

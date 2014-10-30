@@ -41,12 +41,14 @@ class VBox
     {
         if (! $this->count_set || $force) {
             $npix = 0;
-            // Select the fastest way (i.e. with the fewest iterations) to count the number of pixels contained in this vbox.
-            if($this->volume() > count($this->histo)) {
+
+            // Select the fastest way (i.e. with the fewest iterations) to count
+            // the number of pixels contained in this vbox.
+            if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
-                foreach($this->histo as $rgb => $count) {
+                foreach ($this->histo as $rgb => $count) {
                     $rgb_array =  ColorThief::getColorsFromIndex($rgb, 0, ColorThief::SIGBITS);
-                    if($this->contains($rgb_array, 0)) {
+                    if ($this->contains($rgb_array, 0)) {
                         $npix += $count;
                     }
                 }
