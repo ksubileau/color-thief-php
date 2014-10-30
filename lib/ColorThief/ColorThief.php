@@ -197,6 +197,7 @@ class ColorThief
             if ($color->alpha <= 62) {
                 if (! ($color->red > 250 && $color->green > 250 && $color->blue > 250)) {
                     $pixelArray[$j++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
+                    // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
                 }
             }
         }
@@ -211,18 +212,18 @@ class ColorThief
         return $pixelArray;
     }
 
-    private static function vboxFromPixels($pixels, array $histo)
+    private static function vboxFromHistogram(array $histo)
     {
-        $rmin = 1000000;
+        $rmin = PHP_INT_MAX;
         $rmax = 0;
-        $gmin = 1000000;
+        $gmin = PHP_INT_MAX;
         $gmax = 0;
-        $bmin = 1000000;
+        $bmin = PHP_INT_MAX;
         $bmax = 0;
 
         // find min/max
-        foreach ($pixels as $rgb) {
-            list($rval, $gval, $bval) = static::getColorsFromIndex($rgb);
+        foreach ($histo as $index => $count) {
+            list($rval, $gval, $bval) = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);;
 
             if ($rval < $rmin) {
                 $rmin = $rval;
@@ -416,7 +417,7 @@ class ColorThief
             // XXX: generate the new colors from the histo and return
         //}
 
-        $vbox = static::vboxFromPixels($pixels, $histo);
+        $vbox = static::vboxFromHistogram($histo);
 
         $pq = new PQueue(function ($a, $b) {
             return ColorThief::naturalOrder($a->count(), $b->count());
