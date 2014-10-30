@@ -64,6 +64,40 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ColorThief\VBox::count
+     */
+    public function testCount()
+    {
+        $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
+        $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
+        $this->vbox->g1 = 180 >> ColorThief::RSHIFT;
+        $this->vbox->g2 = 189 >> ColorThief::RSHIFT;
+        $this->vbox->b1 = 130 >> ColorThief::RSHIFT;
+        $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
+
+        //$pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
+        $this->vbox->histo = array (
+            29427 => 1,
+            26355 => 1,
+            32499 => 1,
+            28883 => 1,
+            29491 => 1,
+            29420 => 1,
+            29433 => 1,
+        );
+
+        $this->assertEquals(1, $this->vbox->count());
+
+        $this->vbox->histo[29427] = 2;
+        $this->vbox->histo[30449] = 1;
+
+        // Previous result should be cached.
+        $this->assertEquals(1, $this->vbox->count());
+        // Forcing refresh should now give the right result
+        $this->assertEquals(3, $this->vbox->count(true));
+    }
+
+    /**
      * @covers ColorThief\VBox::contains
      */
     public function testContains()

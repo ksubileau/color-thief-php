@@ -46,11 +46,12 @@ class ColorThief
         return ($r << (2 * $sigbits)) + ($g << $sigbits) + $b;
     }
     // get red, green and blue components from reduced-space color index for a pixel
-    public static function getColorsFromIndex($index, $rshift = self::RSHIFT)
+    public static function getColorsFromIndex($index, $rshift = self::RSHIFT, $sigbits = 8)
     {
-        $rval = (($index >> 16) & 0xFF) >> $rshift;
-        $gval = (($index >> 8) & 0xFF) >> $rshift;
-        $bval = ($index & 0xFF) >> $rshift;
+        $mask = (1 << $sigbits) - 1;
+        $rval = (($index >> (2 * $sigbits)) & $mask) >> $rshift;
+        $gval = (($index >> $sigbits) & $mask) >> $rshift;
+        $bval = ($index & $mask) >> $rshift;
         return array($rval, $gval, $bval);
     }
 
@@ -241,16 +242,14 @@ class ColorThief
                 $bmax = $bval;
             }
         }
-        ;
 
         return new VBox($rmin, $rmax, $gmin, $gmax, $bmin, $bmax, $histo);
     }
 
-    private static function doCut($color, $vbox, $partialsum, $total, $lookaheadsum)
+    private static function doCut($color, $vbox, $partialsum, $total)
     {
         $dim1 = $color . '1';
         $dim2 = $color . '2';
-        $count2 = 0;
 
         for ($i = $vbox->$dim1; $i <= $vbox->$dim2; $i++) {
             if ($partialsum[$i] > $total / 2) {
@@ -259,25 +258,25 @@ class ColorThief
                 $left = $i - $vbox->$dim1;
                 $right = $vbox->$dim2 - $i;
 
+                // Choose the cut plane within the greater of the (left, right) sides
+                // of the bin in which the median pixel resides
                 if ($left <= $right) {
                     $d2 = min($vbox->$dim2 - 1, ~ ~ ($i + $right / 2));
-                } else {
+                } else { /* left > right */
                     $d2 = max($vbox->$dim1, ~ ~ ($i - 1 - $left / 2));
-                    // avoid 0-count boxes
                 }
 
                 while (empty($partialsum[$d2])) {
                     $d2 ++;
                 }
-
-                $count2 = $lookaheadsum[$d2];
-                while (! $count2 && !empty($partialsum[$d2 - 1])) {
-                    $count2 = $lookaheadsum[--$d2];
-                    // set dimensions
+                // Avoid 0-count boxes
+                while ($partialsum[$d2] >= $total  && !empty($partialsum[$d2 - 1])) {
+                    --$d2;
                 }
 
+                // set dimensions
                 $vbox1->$dim2 = $d2;
-                $vbox2->$dim1 = $vbox1->$dim2 + 1;
+                $vbox2->$dim1 = $d2 + 1;
 
                 // echo 'vbox counts: '.$vbox->count().' '.$vbox1->count().' '.$vbox2->count()."\n";
                 return array($vbox1, $vbox2);
@@ -291,15 +290,16 @@ class ColorThief
             return;
         }
 
+        // If the vbox occupies just one element in color space, it can't be split
+        if ($vbox->count() == 1) {
+            return array ($vbox->copy());
+        }
+
+        // Select the longest axis for splitting
         $rw = $vbox->r2 - $vbox->r1 + 1;
         $gw = $vbox->g2 - $vbox->g1 + 1;
         $bw = $vbox->b2 - $vbox->b1 + 1;
         $maxw = max($rw, $gw, $bw);
-
-        // only one pixel, no split
-        if ($vbox->count() == 1) {
-            return array ($vbox->copy());
-        }
 
         /* Find the partial sum arrays along the selected axis. */
         $total = 0;
@@ -350,17 +350,13 @@ class ColorThief
             }
         }
 
-        foreach ($partialsum as $i => $d) {
-            $lookaheadsum[$i] = $total - $d;
-        }
-
-        // determine the cut planes
+        // Determine the cut planes
         if ($maxw == $rw) {
-            return static::doCut('r', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('r', $vbox, $partialsum, $total);
         } elseif ($maxw == $gw) {
-            return static::doCut('g', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('g', $vbox, $partialsum, $total);
         } else {
-            return static::doCut('b', $vbox, $partialsum, $total, $lookaheadsum);
+            return static::doCut('b', $vbox, $partialsum, $total);
         }
     }
 
@@ -431,22 +427,18 @@ class ColorThief
         static::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
-        $pq2 = new PQueue(function ($a, $b) {
+        $pq->setComparator(function ($a, $b) {
             return ColorThief::naturalOrder($a->count() * $a->volume(), $b->count() * $b->volume());
         });
 
-        for ($i = $pq->size(); $i > 0; $i--) {
-            $pq2->push($pq->pop());
-        }
-
         // next set - generate the median cuts using the (npix * vol) sorting.
-        static::quantizeIter($pq2, $maxcolors - $pq2->size(), $histo);
+        static::quantizeIter($pq, $maxcolors - $pq->size(), $histo);
 
         // calculate the actual colors
         $cmap = new CMap();
 
-        for ($i = $pq2->size(); $i > 0; $i--) {
-            $cmap->push($pq2->pop());
+        for ($i = $pq->size(); $i > 0; $i--) {
+            $cmap->push($pq->pop());
         }
 
         return $cmap;

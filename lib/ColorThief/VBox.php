@@ -41,12 +41,24 @@ class VBox
     {
         if (! $this->count_set || $force) {
             $npix = 0;
-            for ($i = $this->r1; $i <= $this->r2; $i++) {
-                for ($j = $this->g1; $j <= $this->g2; $j++) {
-                    for ($k = $this->b1; $k <= $this->b2; $k++) {
-                        $index = ColorThief::getColorIndex($i, $j, $k);
-                        if (isset($this->histo[$index])) {
-                            $npix += $this->histo[$index];
+            // Select the fastest way (i.e. with the fewest iterations) to count the number of pixels contained in this vbox.
+            if($this->volume() > count($this->histo)) {
+                // Iterate over the histogram if the size of this histogram is lower than the vbox volume
+                foreach($this->histo as $rgb => $count) {
+                    $rgb_array =  ColorThief::getColorsFromIndex($rgb, 0, ColorThief::SIGBITS);
+                    if($this->contains($rgb_array, 0)) {
+                        $npix += $count;
+                    }
+                }
+            } else {
+                // Or iterate over points of the vbox if the size of the histogram is greater than the vbox volume
+                for ($i = $this->r1; $i <= $this->r2; $i++) {
+                    for ($j = $this->g1; $j <= $this->g2; $j++) {
+                        for ($k = $this->b1; $k <= $this->b2; $k++) {
+                            $index = ColorThief::getColorIndex($i, $j, $k);
+                            if (isset($this->histo[$index])) {
+                                $npix += $this->histo[$index];
+                            }
                         }
                     }
                 }
@@ -54,7 +66,6 @@ class VBox
             $this->count = $npix;
             $this->count_set = true;
         }
-
         return $this->count;
     }
 
@@ -104,11 +115,11 @@ class VBox
         return $this->avg;
     }
 
-    public function contains(array $pixel)
+    public function contains(array $pixel, $rshift = ColorThief::RSHIFT)
     {
-        $rval = $pixel[0] >> ColorThief::RSHIFT;
-        $gval = $pixel[1] >> ColorThief::RSHIFT;
-        $bval = $pixel[2] >> ColorThief::RSHIFT;
+        $rval = $pixel[0] >> $rshift;
+        $gval = $pixel[1] >> $rshift;
+        $bval = $pixel[2] >> $rshift;
 
         return
             $rval >= $this->r1 &&

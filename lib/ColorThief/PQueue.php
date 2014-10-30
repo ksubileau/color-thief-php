@@ -11,7 +11,7 @@ class PQueue
 
     public function __construct($comparator)
     {
-        $this->comparator = $comparator;
+        $this->setComparator($comparator);
     }
 
     private function sort()
@@ -56,6 +56,12 @@ class PQueue
     public function map($function)
     {
         return array_map($function, $this->contents);
+    }
+
+    public function setComparator($function)
+    {
+        $this->comparator = $function;
+        $this->sorted = false;
     }
 
     public function debug()
