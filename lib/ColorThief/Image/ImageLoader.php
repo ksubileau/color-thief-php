@@ -40,6 +40,10 @@ class ImageLoader
         return extension_loaded("imagick");
     }
 
+    /**
+     * @param string $adapterType
+     * @return Adapter\ImageAdapter
+     */
     public function getAdapter($adapterType)
     {
         $classname = "\ColorThief\Image\Adapter\\".$adapterType."ImageAdapter";
