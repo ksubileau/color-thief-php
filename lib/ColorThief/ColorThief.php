@@ -161,6 +161,12 @@ class ColorThief
         return $histo;
     }
 
+    /**
+     * @param string $sourceImage path or http
+     * @param int $quality
+     * @param array|null $area
+     * @return SplFixedArray
+     */
     private static function loadImage($sourceImage, $quality, array $area = null)
     {
         $loader = new ImageLoader();
@@ -210,11 +216,19 @@ class ColorThief
         return $pixelArray;
     }
 
+    /**
+     * @param object $color
+     * @return bool
+     */
     protected static function isClearlyVisible($color)
     {
         return $color->alpha <= 62;
     }
 
+    /**
+     * @param object $color
+     * @return bool
+     */
     protected static function isNonWhite($color)
     {
         return $color->red <= 250 && $color->green <= 250 && $color->blue <= 250;
