@@ -194,11 +194,9 @@ class ColorThief
             $color = $image->getPixelColor($x, $y);
 
             // If pixel is mostly opaque and not white
-            if ($color->alpha <= 62) {
-                if (! ($color->red > 250 && $color->green > 250 && $color->blue > 250)) {
-                    $pixelArray[$j++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
-                    // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
-                }
+            if (self::isClearlyVisible($color) && self::isNonWhite($color)) {
+                $pixelArray[$j++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
+                // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
             }
         }
 
@@ -210,6 +208,16 @@ class ColorThief
         }
 
         return $pixelArray;
+    }
+
+    protected static function isClearlyVisible($color)
+    {
+        return $color->alpha <= 62;
+    }
+
+    protected static function isNonWhite($color)
+    {
+        return $color->red <= 250 && $color->green <= 250 && $color->blue <= 250;
     }
 
     private static function vboxFromHistogram(array $histo)
