@@ -43,15 +43,15 @@ class ColorThief
     /**
      * Get reduced-space color index for a pixel
      *
-     * @param int $r
-     * @param int $g
-     * @param int $b
+     * @param int $red
+     * @param int $green
+     * @param int $blue
      * @param int $sigBits
      * @return int
      */
-    public static function getColorIndex($r, $g, $b, $sigBits = self::SIGBITS)
+    public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        return ($r << (2 * $sigBits)) + ($g << $sigBits) + $b;
+        return ($red << (2 * $sigBits)) + ($green << $sigBits) + $blue;
     }
 
     /**
@@ -65,10 +65,10 @@ class ColorThief
     public static function getColorsFromIndex($index, $rShift = self::RSHIFT, $sigBits = 8)
     {
         $mask = (1 << $sigBits) - 1;
-        $rval = (($index >> (2 * $sigBits)) & $mask) >> $rShift;
-        $gval = (($index >> $sigBits) & $mask) >> $rShift;
-        $bval = ($index & $mask) >> $rShift;
-        return array($rval, $gval, $bval);
+        $red = (($index >> (2 * $sigBits)) & $mask) >> $rShift;
+        $green = (($index >> $sigBits) & $mask) >> $rShift;
+        $blue = ($index & $mask) >> $rShift;
+        return array($red, $green, $blue);
     }
 
 
@@ -85,29 +85,22 @@ class ColorThief
     }
 
     /**
-     * Use the median cut algorithm to cluster similar colors and
-     * return the base color from the largest cluster. Quality is
-     * an optional argument. It needs to be an integer.
-     * 1 is the highest quality settings. 10 is the default.
-     * There is a trade-off between quality and speed.
-     * The bigger the number, the faster a color will be returned
-     * but the greater the likelihood that it will not be the
-     * visually most dominant color. Area is also an optional
-     * argument. It allows you to specify a rectangular area in
-     * the image in order to get colors only for this area. It
-     * needs to be an associative array with the following keys :
-     *  - $area['x'] : The x-coordinate of the top left corner
-     *                 of the area. Default to 0.
-     *  - $area['y'] : The y-coordinate of the top left corner
-     *                 of the area. Default to 0.
-     *  - $area['w'] : The width of the area. Default to the
-     *                 the width of the image minus x-coordinate.
-     *  - $area['h'] : The height of the area. Default to the
-     *                 the height of the image minus y-coordinate.
+     * Use the median cut algorithm to cluster similar colors.
      *
-     * @param string $sourceImage
-     * @param int $quality
-     * @param array $area[x,y,w,h]
+     * @bug Function does not always return the requested amount of colors. It can be +/- 2.
+     *
+     * @param string     $sourceImage   path or url to the image
+     * @param int        $quality       1 is the highest quality. There is a trade-off between quality and speed.
+     *                                  The bigger the number, the faster the palette generation but the greater the
+     *                                  likelihood that colors will be missed.
+     * @param array|null $area[x,y,w,h] It allows you to specify a rectangular area in the image in order to get
+     *                                  colors only for this area. It needs to be an associative array with the
+     *                                  following keys:
+     *                                  $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                  $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                  $area['w']: The width of the area. Default to the width of the image minus x-coordinate.
+     *                                  $area['h']: The height of the area. Default to the height of the image minus y-coordinate.
+     *
      * @return array|bool
      */
     public static function getColor($sourceImage, $quality = 10, array $area = null)
@@ -120,33 +113,13 @@ class ColorThief
     /**
      * Use the median cut algorithm to cluster similar colors.
      *
-     * colorCount determines the size of the palette; the number of colors
-     * returned. If not set, it defaults to 10.
+     * @bug Function does not always return the requested amount of colors. It can be +/- 2.
      *
-     * BUGGY: Function does not always return the requested amount of colors.
-     * It can be +/- 2.
+     * @param string     $sourceImage   path or url to the image
+     * @param int        $colorCount    It determines the size of the palette; the number of colors returned.
+     * @param int        $quality       1 is the highest quality.
+     * @param array|null $area[x,y,w,h]
      *
-     * Quality is an optional argument. It needs to be an integer.
-     * 1 is the highest quality settings. 10 is the default.
-     * There is a trade-off between quality and speed. The bigger the number,
-     * the faster the palette generation but the greater the likelihood that
-     * colors will be missed. Area is also an optional
-     * argument. It allows you to specify a rectangular area in
-     * the image in order to get colors only for this area. It
-     * needs to be an associative array with the following keys :
-     *  - $area['x'] : The x-coordinate of the top left corner
-     *                 of the area. Default to 0.
-     *  - $area['y'] : The y-coordinate of the top left corner
-     *                 of the area. Default to 0.
-     *  - $area['w'] : The width of the area. Default to the
-     *                 width of the image minus x-coordinate.
-     *  - $area['h'] : The height of the area. Default to the
-     *                 height of the image minus y-coordinate.
-     *
-     * @param string $sourceImage
-     * @param int $colorCount
-     * @param int $quality
-     * @param array $area[x,y,w,h]
      * @return array
      */
     public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
@@ -173,15 +146,20 @@ class ColorThief
         return $palette;
     }
 
-    // histo (1-d array, giving the number of pixels in
-    // each quantized region of color space), or null on error
+
+    /**
+     * Histo: 1-d array, giving the number of pixels in each quantized region of color space
+     *
+     * @param array $pixels
+     * @return array
+     */
     private static function getHisto($pixels)
     {
         $histo = array();
 
         foreach ($pixels as $rgb) {
-            list($rval, $gval, $bval) = static::getColorsFromIndex($rgb);
-            $index = self::getColorIndex($rval, $gval, $bval);
+            list($red, $green, $blue) = static::getColorsFromIndex($rgb);
+            $index = self::getColorIndex($red, $green, $blue);
             $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
         }
 
@@ -261,6 +239,10 @@ class ColorThief
         return $color->red <= 250 && $color->green <= 250 && $color->blue <= 250;
     }
 
+    /**
+     * @param array $histo
+     * @return VBox
+     */
     private static function vboxFromHistogram(array $histo)
     {
         $rmin = PHP_INT_MAX;
@@ -296,13 +278,21 @@ class ColorThief
         return new VBox($rmin, $rmax, $gmin, $gmax, $bmin, $bmax, $histo);
     }
 
-    private static function doCut($color, $vbox, $partialsum, $total)
+    /**
+     * @param $color
+     * @param $vbox
+     * @param $partialSum
+     * @param $total
+     *
+     * @return array
+     */
+    private static function doCut($color, $vbox, $partialSum, $total)
     {
         $dim1 = $color . '1';
         $dim2 = $color . '2';
 
         for ($i = $vbox->$dim1; $i <= $vbox->$dim2; $i++) {
-            if ($partialsum[$i] > $total / 2) {
+            if ($partialSum[$i] > $total / 2) {
                 $vbox1 = $vbox->copy();
                 $vbox2 = $vbox->copy();
                 $left = $i - $vbox->$dim1;
@@ -316,11 +306,11 @@ class ColorThief
                     $d2 = max($vbox->$dim1, ~ ~ ($i - 1 - $left / 2));
                 }
 
-                while (empty($partialsum[$d2])) {
+                while (empty($partialSum[$d2])) {
                     $d2 ++;
                 }
                 // Avoid 0-count boxes
-                while ($partialsum[$d2] >= $total  && !empty($partialsum[$d2 - 1])) {
+                while ($partialSum[$d2] >= $total  && !empty($partialSum[$d2 - 1])) {
                     --$d2;
                 }
 
@@ -334,6 +324,11 @@ class ColorThief
         }
     }
 
+    /**
+     * @param array $histo
+     * @param $vbox
+     * @return array|void
+     */
     private static function medianCutApply($histo, $vbox)
     {
         if (!$vbox->count()) {
@@ -353,8 +348,7 @@ class ColorThief
 
         /* Find the partial sum arrays along the selected axis. */
         $total = 0;
-        $partialsum = array ();
-        $lookaheadsum = array ();
+        $partialsum = array();
 
         if ($maxw == $rw) {
             for ($i = $vbox->r1; $i <= $vbox->r2; $i++) {
@@ -411,7 +405,14 @@ class ColorThief
     }
 
 
-    // inner function to do the iteration
+
+    /**
+     * Inner function to do the iteration
+     *
+     * @param PQueue $lh
+     * @param float $target
+     * @param array $histo
+     */
     private static function quantizeIter(&$lh, $target, $histo)
     {
         $ncolors = 1;
@@ -451,10 +452,15 @@ class ColorThief
         }
     }
 
-    private static function quantize($pixels, $maxcolors)
+    /**
+     * @param SplFixedArray $pixels
+     * @param $maxColors
+     * @return bool|CMap
+     */
+    private static function quantize($pixels, $maxColors)
     {
         // short-circuit
-        if (! count($pixels) || $maxcolors < 2 || $maxcolors > 256) {
+        if (! count($pixels) || $maxColors < 2 || $maxColors > 256) {
             // echo 'wrong number of maxcolors'."\n";
             return false;
         }
@@ -474,7 +480,7 @@ class ColorThief
         $pq->push($vbox);
 
         // first set of colors, sorted by population
-        static::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxcolors, $histo);
+        static::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $pq->setComparator(function ($a, $b) {
@@ -482,7 +488,7 @@ class ColorThief
         });
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        static::quantizeIter($pq, $maxcolors - $pq->size(), $histo);
+        static::quantizeIter($pq, $maxColors - $pq->size(), $histo);
 
         // calculate the actual colors
         $cmap = new CMap();
