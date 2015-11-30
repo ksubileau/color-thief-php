@@ -9,21 +9,19 @@ interface IImageAdapter
     /**
      * Loads an image from file.
      *
-     * @param string $file
+     * @param string $path
      */
     public function loadFile($path);
 
     /**
-     * Loads an image ressource.
+     * Loads an image resource.
      *
-     * @param mixed $ressource
+     * @param mixed $resource
      */
-    public function load($ressource);
+    public function load($resource);
 
     /**
      * Destroys the image.
-     *
-     * @param string $file
      */
     public function destroy();
 
@@ -44,7 +42,9 @@ interface IImageAdapter
     /**
      * Returns the color of the specified pixel.
      *
-     * @param string $file
+     * @param int $x
+     * @param int $y
+     * @return object
      */
     public function getPixelColor($x, $y);
 
