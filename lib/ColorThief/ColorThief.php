@@ -58,16 +58,16 @@ class ColorThief
      * Get red, green and blue components from reduced-space color index for a pixel
      *
      * @param int $index
-     * @param int $rShift
+     * @param int $rightShift
      * @param int $sigBits
      * @return array
      */
-    public static function getColorsFromIndex($index, $rShift = self::RSHIFT, $sigBits = 8)
+    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8)
     {
         $mask = (1 << $sigBits) - 1;
-        $red = (($index >> (2 * $sigBits)) & $mask) >> $rShift;
-        $green = (($index >> $sigBits) & $mask) >> $rShift;
-        $blue = ($index & $mask) >> $rShift;
+        $red = (($index >> (2 * $sigBits)) & $mask) >> $rightShift;
+        $green = (($index >> $sigBits) & $mask) >> $rightShift;
+        $blue = ($index & $mask) >> $rightShift;
         return array($red, $green, $blue);
     }
 
@@ -124,11 +124,10 @@ class ColorThief
      */
     public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
     {
-        // short-circuit
         if ($colorCount < 2 || $colorCount > 256) {
             throw new \InvalidArgumentException("The number of palette colors must be between 2 and 256 inclusive.");
         }
-        // short-circuit
+
         if ($quality < 1) {
             throw new \InvalidArgumentException("The quality argument must be an integer greater than one.");
         }
