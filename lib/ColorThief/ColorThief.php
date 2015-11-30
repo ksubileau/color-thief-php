@@ -235,7 +235,7 @@ class ColorThief
      */
     protected static function isNonWhite($color)
     {
-        return $color->red <= 250 && $color->green <= 250 && $color->blue <= 250;
+        return !($color->red > 250 && $color->green > 250 && $color->blue > 250);
     }
 
     /**
