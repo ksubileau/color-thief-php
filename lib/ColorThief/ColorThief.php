@@ -40,31 +40,51 @@ class ColorThief
     const MAX_ITERATIONS=1000;
     const FRACT_BY_POPULATIONS=0.75;
 
-    // get reduced-space color index for a pixel
-    public static function getColorIndex($r, $g, $b, $sigbits = self::SIGBITS)
+    /**
+     * Get reduced-space color index for a pixel
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $sigBits
+     * @return int
+     */
+    public static function getColorIndex($r, $g, $b, $sigBits = self::SIGBITS)
     {
-        return ($r << (2 * $sigbits)) + ($g << $sigbits) + $b;
+        return ($r << (2 * $sigBits)) + ($g << $sigBits) + $b;
     }
-    // get red, green and blue components from reduced-space color index for a pixel
-    public static function getColorsFromIndex($index, $rshift = self::RSHIFT, $sigbits = 8)
+
+    /**
+     * Get red, green and blue components from reduced-space color index for a pixel
+     *
+     * @param int $index
+     * @param int $rShift
+     * @param int $sigBits
+     * @return array
+     */
+    public static function getColorsFromIndex($index, $rShift = self::RSHIFT, $sigBits = 8)
     {
-        $mask = (1 << $sigbits) - 1;
-        $rval = (($index >> (2 * $sigbits)) & $mask) >> $rshift;
-        $gval = (($index >> $sigbits) & $mask) >> $rshift;
-        $bval = ($index & $mask) >> $rshift;
+        $mask = (1 << $sigBits) - 1;
+        $rval = (($index >> (2 * $sigBits)) & $mask) >> $rShift;
+        $gval = (($index >> $sigBits) & $mask) >> $rShift;
+        $bval = ($index & $mask) >> $rShift;
         return array($rval, $gval, $bval);
     }
 
-    /* Miscellaneous functions */
+
+    /**
+     * Natural sorting
+     *
+     * @param int $a
+     * @param int $b
+     * @return int
+     */
     public static function naturalOrder($a, $b)
     {
         return ($a < $b) ? - 1 : (($a > $b) ? 1 : 0);
     }
 
-    /*
-     * getColor(sourceImage[, quality, area])
-     * returns {r: num, g: num, b: num}
-     *
+    /**
      * Use the median cut algorithm to cluster similar colors and
      * return the base color from the largest cluster. Quality is
      * an optional argument. It needs to be an integer.
@@ -76,27 +96,28 @@ class ColorThief
      * argument. It allows you to specify a rectangular area in
      * the image in order to get colors only for this area. It
      * needs to be an associative array with the following keys :
-     *  - $area['x'] : The x-coordinate of the top left corner 
+     *  - $area['x'] : The x-coordinate of the top left corner
      *                 of the area. Default to 0.
-     *  - $area['y'] : The y-coordinate of the top left corner 
+     *  - $area['y'] : The y-coordinate of the top left corner
      *                 of the area. Default to 0.
-     *  - $area['w'] : The width of the area. Default to the 
+     *  - $area['w'] : The width of the area. Default to the
      *                 the width of the image minus x-coordinate.
-     *  - $area['h'] : The height of the area. Default to the 
+     *  - $area['h'] : The height of the area. Default to the
      *                 the height of the image minus y-coordinate.
      *
+     * @param string $sourceImage
+     * @param int $quality
+     * @param array $area[x,y,w,h]
+     * @return array|bool
      */
     public static function getColor($sourceImage, $quality = 10, array $area = null)
     {
         $palette = static::getPalette($sourceImage, 5, $quality, $area);
 
-        return $palette?$palette[0]:false;
+        return $palette ? $palette[0] : false;
     }
 
-    /*
-     * getPalette(sourceImage[, colorCount, quality, area])
-     * returns array[ {r: num, g: num, b: num}, {r: num, g: num, b: num}, ...]
-     *
+    /**
      * Use the median cut algorithm to cluster similar colors.
      *
      * colorCount determines the size of the palette; the number of colors
@@ -113,14 +134,20 @@ class ColorThief
      * argument. It allows you to specify a rectangular area in
      * the image in order to get colors only for this area. It
      * needs to be an associative array with the following keys :
-     *  - $area['x'] : The x-coordinate of the top left corner 
+     *  - $area['x'] : The x-coordinate of the top left corner
      *                 of the area. Default to 0.
-     *  - $area['y'] : The y-coordinate of the top left corner 
+     *  - $area['y'] : The y-coordinate of the top left corner
      *                 of the area. Default to 0.
-     *  - $area['w'] : The width of the area. Default to the 
+     *  - $area['w'] : The width of the area. Default to the
      *                 width of the image minus x-coordinate.
-     *  - $area['h'] : The height of the area. Default to the 
+     *  - $area['h'] : The height of the area. Default to the
      *                 height of the image minus y-coordinate.
+     *
+     * @param string $sourceImage
+     * @param int $colorCount
+     * @param int $quality
+     * @param array $area[x,y,w,h]
+     * @return array
      */
     public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
     {
