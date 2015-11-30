@@ -165,18 +165,18 @@ class ColorThief
     {
         $loader = new ImageLoader();
         $image  = $loader->load($sourceImage);
-        $startx = 0;
-        $starty = 0;
+        $startX = 0;
+        $startY = 0;
         $width  = $image->getWidth();
         $height = $image->getHeight();
 
         if ($area) {
-            $startx = isset($area['x']) ? $area['x'] : 0;
-            $starty = isset($area['y']) ? $area['y'] : 0;
-            $width  = isset($area['w']) ? $area['w'] : ($width  - $startx);
-            $height = isset($area['h']) ? $area['h'] : ($height - $starty);
+            $startX = isset($area['x']) ? $area['x'] : 0;
+            $startY = isset($area['y']) ? $area['y'] : 0;
+            $width  = isset($area['w']) ? $area['w'] : ($width  - $startX);
+            $height = isset($area['h']) ? $area['h'] : ($height - $startY);
 
-            if ((($startx + $width) > $image->getWidth()) || (($starty + $height) > $image->getHeight())) {
+            if ((($startX + $width) > $image->getWidth()) || (($startY + $height) > $image->getHeight())) {
                 throw new \InvalidArgumentException("Area is out of image bounds.");
             }
         }
@@ -187,22 +187,22 @@ class ColorThief
         // SplFixedArray is faster and more memory-efficient than normal PHP array.
         $pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
 
-        $j = 0;
+        $size = 0;
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
-            $x = $startx + ($i % $width);
-            $y = (int) ($starty + $i / $width);
+            $x = $startX + ($i % $width);
+            $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
             // If pixel is mostly opaque and not white
             if (self::isClearlyVisible($color) && self::isNonWhite($color)) {
-                $pixelArray[$j++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
+                $pixelArray[$size++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
                 // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
             }
         }
 
-        $pixelArray->setSize($j);
+        $pixelArray->setSize($size);
 
-        // Don't destroy a ressource passed by the user !
+        // Don't destroy a resource passed by the user !
         if (is_string($sourceImage)) {
             $image->destroy();
         }
