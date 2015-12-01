@@ -363,17 +363,17 @@ class ColorThief
 
     private static function favorRed()
     {
-        return ['r', 'g', 'b'];
+        return array('r', 'g', 'b');
     }
 
     private static function favorGreen()
     {
-        return ['g', 'r', 'b'];
+        return array('g', 'r', 'b');
     }
 
     private static function favorBlue()
     {
-        return ['b', 'r', 'g'];
+        return array('b', 'r', 'g');
     }
 
     /**
