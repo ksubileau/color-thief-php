@@ -322,64 +322,58 @@ class ColorThief
 
     /**
      * @param array $histo
-     * @param VBox $vbox
+     * @param VBox $vBox
      * @return array|void
      */
-    private static function medianCutApply($histo, $vbox)
+    private static function medianCutApply($histo, $vBox)
     {
-        if (!$vbox->count()) {
+        if (!$vBox->count()) {
             return;
         }
 
         // If the vbox occupies just one element in color space, it can't be split
-        if ($vbox->count() == 1) {
+        if ($vBox->count() == 1) {
             return array(
-                $vbox->copy()
+                $vBox->copy()
             );
         }
 
         // Select the longest axis for splitting
-        $rw   = $vbox->r2 - $vbox->r1 + 1;
-        $gw = $vbox->g2 - $vbox->g1 + 1;
-        $bw  = $vbox->b2 - $vbox->b1 + 1;
-        $maxw = max($rw, $gw, $bw);
+        $redWidth   = $vBox->r2 - $vBox->r1 + 1;
+        $greenWidth = $vBox->g2 - $vBox->g1 + 1;
+        $blueWidth  = $vBox->b2 - $vBox->b1 + 1;
+        $maxWidth = max($redWidth, $greenWidth, $blueWidth);
 
         // Determine the cut planes
-        switch ($maxw) {
-            case $rw:
-                $colorCode = 'r';
-                list($total, $partialSum) = self::sumRedColors($histo, $vbox);
+        switch ($maxWidth) {
+            case $redWidth:
+                list($total, $partialSum, $favorColor) = self::sumColors(self::favorRed(), $histo, $vBox);
                 break;
-            case $gw:
-                $colorCode = 'g';
-                list($total, $partialSum) = self::sumGreenColors($histo, $vbox);
+            case $greenWidth:
+                list($total, $partialSum, $favorColor) = self::sumColors(self::favorGreen(), $histo, $vBox);
                 break;
-            case $bw:
+            case $blueWidth:
             default:
-                $colorCode = 'b';
-                list($total, $partialSum) = self::sumBlueColors($histo, $vbox);
+                list($total, $partialSum, $favorColor) = self::sumColors(self::favorBlue(), $histo, $vBox);
                 break;
         }
 
-        return static::doCut($colorCode, $vbox, $partialSum, $total);
+        return static::doCut($favorColor, $vBox, $partialSum, $total);
     }
 
-    private static function sumRedColors($histo, $vBox)
+    private static function favorRed()
     {
-        $order = ['r', 'g', 'b'];
-        return self::sumColors($order, $histo, $vBox);
+        return ['r', 'g', 'b'];
     }
 
-    private static function sumGreenColors($histo, $vBox)
+    private static function favorGreen()
     {
-        $order = ['g', 'r', 'b'];
-        return self::sumColors($order, $histo, $vBox);
+        return ['g', 'r', 'b'];
     }
 
-    private static function sumBlueColors($histo, $vBox)
+    private static function favorBlue()
     {
-        $order = ['b', 'r', 'g'];
-        return self::sumColors($order, $histo, $vBox);
+        return ['b', 'r', 'g'];
     }
 
     /**
@@ -412,7 +406,8 @@ class ColorThief
             $total += $sum;
             $partialSum[$firstColor] = $total;
         }
-        return array($total, $partialSum);
+        $favorColor = $order[0];
+        return array($total, $partialSum, $favorColor);
     }
 
     /**
