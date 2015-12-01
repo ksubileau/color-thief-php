@@ -344,65 +344,117 @@ class ColorThief
         $bw  = $vbox->b2 - $vbox->b1 + 1;
         $maxw = max($rw, $gw, $bw);
 
-        /* Find the partial sum arrays along the selected axis. */
-        $total = 0;
-        $partialsum = array();
-
-        if ($maxw == $rw) {
-            for ($i = $vbox->r1; $i <= $vbox->r2; $i++) {
-                $sum = 0;
-                for ($j = $vbox->g1; $j <= $vbox->g2; $j++) {
-                    for ($k = $vbox->b1; $k <= $vbox->b2; $k++) {
-                        $index = self::getColorIndex($i, $j, $k);
-                        if (isset($histo[$index])) {
-                            $sum += $histo[$index];
-                        }
-                    }
-                }
-                $total += $sum;
-                $partialsum[$i] = $total;
-            }
-        } elseif ($maxw == $gw) {
-            for ($i = $vbox->g1; $i <= $vbox->g2; $i++) {
-                $sum = 0;
-                for ($j = $vbox->r1; $j <= $vbox->r2; $j++) {
-                    for ($k = $vbox->b1; $k <= $vbox->b2; $k++) {
-                        $index = self::getColorIndex($j, $i, $k);
-                        if (isset($histo[$index])) {
-                            $sum += $histo[$index];
-                        }
-                    }
-                }
-                $total += $sum;
-                $partialsum[$i] = $total;
-            }
-        } else { /* maxw == bw */
-            for ($i = $vbox->b1; $i <= $vbox->b2; $i++) {
-                $sum = 0;
-                for ($j = $vbox->r1; $j <= $vbox->r2; $j++) {
-                    for ($k = $vbox->g1; $k <= $vbox->g2; $k++) {
-                        $index = self::getColorIndex($j, $k, $i);
-                        if (isset($histo [$index])) {
-                            $sum += $histo[$index];
-                        }
-                    }
-                }
-                $total += $sum;
-                $partialsum[$i] = $total;
-            }
-        }
-
         // Determine the cut planes
-        if ($maxw == $rw) {
-            return static::doCut('r', $vbox, $partialsum, $total);
-        } elseif ($maxw == $gw) {
-            return static::doCut('g', $vbox, $partialsum, $total);
-        } else {
-            return static::doCut('b', $vbox, $partialsum, $total);
+        switch ($maxw) {
+            case $rw:
+                $colorCode = 'r';
+                list($total, $partialSum) = self::sumRedColors($histo, $vbox);
+                break;
+            case $gw:
+                $colorCode = 'g';
+                list($total, $partialSum) = self::sumGreenColors($histo, $vbox);
+                break;
+            case $bw:
+            default:
+                $colorCode = 'b';
+                list($total, $partialSum) = self::sumBlueColors($histo, $vbox);
+                break;
         }
+
+        return static::doCut($colorCode, $vbox, $partialSum, $total);
     }
 
+    private static function sumRedColors($histo, $vBox)
+    {
+        $order = ['r', 'g', 'b'];
+        return self::sumColors($order, $histo, $vBox);
+    }
 
+    private static function sumGreenColors($histo, $vBox)
+    {
+        $order = ['g', 'r', 'b'];
+        return self::sumColors($order, $histo, $vBox);
+    }
+
+    private static function sumBlueColors($histo, $vBox)
+    {
+        $order = ['b', 'r', 'g'];
+        return self::sumColors($order, $histo, $vBox);
+    }
+
+    /**
+     * Find the partial sum arrays along the selected axis.
+     *
+     * @param array $order[r,g,b] in any order
+     * @param array $histo
+     * @param VBox $vBox
+     * @return array [$total, $partialSum]
+     */
+    private static function sumColors($order, $histo, $vBox)
+    {
+        $total = 0;
+        $partialSum = array();
+
+        list($firstRange, $secondRange, $thirdRange) = self::getVBoxColorRanges($vBox, $order);
+
+        foreach($firstRange as $firstColor) {
+            $sum = 0;
+            foreach($secondRange as $secondColor) {
+                foreach($thirdRange as $thirdColor) {
+                    list($red, $green, $blue) = self::rearrangeColors($order, $firstColor, $secondColor, $thirdColor);
+                    $index = self::getColorIndex($red, $green, $blue);
+
+                    if (isset($histo[$index])) {
+                        $sum += $histo[$index];
+                    }
+                }
+            }
+            $total += $sum;
+            $partialSum[$firstColor] = $total;
+        }
+        return array($total, $partialSum);
+    }
+
+    /**
+     * @param array $order
+     * @param int $color1
+     * @param int $color2
+     * @param int $color3
+     * @return array
+     */
+    private static function rearrangeColors(array $order, $color1, $color2, $color3)
+    {
+        $data = array(
+            $order[0] => $color1,
+            $order[1] => $color2,
+            $order[2] => $color3,
+        );
+        return array(
+            $data['r'],
+            $data['g'],
+            $data['b']
+        );
+    }
+
+    /**
+     * @param VBox $vBox
+     * @param array $order
+     * @return array
+     */
+    private static function getVBoxColorRanges(VBox $vBox, array $order)
+    {
+        $ranges = array(
+            'r' => range($vBox->r1, $vBox->r2),
+            'g' => range($vBox->g1, $vBox->g2),
+            'b' => range($vBox->b1, $vBox->b2)
+        );
+
+        return array(
+            $ranges[ $order[0] ],
+            $ranges[ $order[1] ],
+            $ranges[ $order[2] ],
+        );
+    }
 
     /**
      * Inner function to do the iteration
