@@ -498,7 +498,7 @@ class ColorThief
     }
 
     /**
-     * @param SplFixedArray $pixels
+     * @param SplFixedArray|array $pixels
      * @param $maxColors
      * @return bool|CMap
      */
