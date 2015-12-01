@@ -145,7 +145,6 @@ class ColorThief
         return $palette;
     }
 
-
     /**
      * Histo: 1-d array, giving the number of pixels in each quantized region of color space
      *
@@ -203,7 +202,6 @@ class ColorThief
             $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
-            // If pixel is mostly opaque and not white
             if (self::isClearlyVisible($color) && self::isNonWhite($color)) {
                 $pixelArray[$size++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
                 // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
@@ -278,35 +276,35 @@ class ColorThief
     }
 
     /**
-     * @param $color
-     * @param $vbox
-     * @param $partialSum
-     * @param $total
+     * @param string $color
+     * @param VBox $vBox
+     * @param array $partialSum
+     * @param int $total
      *
      * @return array
      */
-    private static function doCut($color, $vbox, $partialSum, $total)
+    private static function doCut($color, $vBox, $partialSum, $total)
     {
         $dim1 = $color . '1';
         $dim2 = $color . '2';
 
-        for ($i = $vbox->$dim1; $i <= $vbox->$dim2; $i++) {
+        for ($i = $vBox->$dim1; $i <= $vBox->$dim2; $i++) {
             if ($partialSum[$i] > $total / 2) {
-                $vbox1 = $vbox->copy();
-                $vbox2 = $vbox->copy();
-                $left = $i - $vbox->$dim1;
-                $right = $vbox->$dim2 - $i;
+                $vBox1 = $vBox->copy();
+                $vBox2 = $vBox->copy();
+                $left = $i - $vBox->$dim1;
+                $right = $vBox->$dim2 - $i;
 
                 // Choose the cut plane within the greater of the (left, right) sides
                 // of the bin in which the median pixel resides
                 if ($left <= $right) {
-                    $d2 = min($vbox->$dim2 - 1, ~ ~ ($i + $right / 2));
+                    $d2 = min($vBox->$dim2 - 1, ~ ~ ($i + $right / 2));
                 } else { /* left > right */
-                    $d2 = max($vbox->$dim1, ~ ~ ($i - 1 - $left / 2));
+                    $d2 = max($vBox->$dim1, ~ ~ ($i - 1 - $left / 2));
                 }
 
                 while (empty($partialSum[$d2])) {
-                    $d2 ++;
+                    $d2++;
                 }
                 // Avoid 0-count boxes
                 while ($partialSum[$d2] >= $total  && !empty($partialSum[$d2 - 1])) {
@@ -314,18 +312,17 @@ class ColorThief
                 }
 
                 // set dimensions
-                $vbox1->$dim2 = $d2;
-                $vbox2->$dim1 = $d2 + 1;
+                $vBox1->$dim2 = $d2;
+                $vBox2->$dim1 = $d2 + 1;
 
-                // echo 'vbox counts: '.$vbox->count().' '.$vbox1->count().' '.$vbox2->count()."\n";
-                return array($vbox1, $vbox2);
+                return array($vBox1, $vBox2);
             }
         }
     }
 
     /**
      * @param array $histo
-     * @param $vbox
+     * @param VBox $vbox
      * @return array|void
      */
     private static function medianCutApply($histo, $vbox)
@@ -336,13 +333,15 @@ class ColorThief
 
         // If the vbox occupies just one element in color space, it can't be split
         if ($vbox->count() == 1) {
-            return array ($vbox->copy());
+            return array(
+                $vbox->copy()
+            );
         }
 
         // Select the longest axis for splitting
-        $rw = $vbox->r2 - $vbox->r1 + 1;
+        $rw   = $vbox->r2 - $vbox->r1 + 1;
         $gw = $vbox->g2 - $vbox->g1 + 1;
-        $bw = $vbox->b2 - $vbox->b1 + 1;
+        $bw  = $vbox->b2 - $vbox->b1 + 1;
         $maxw = max($rw, $gw, $bw);
 
         /* Find the partial sum arrays along the selected axis. */
@@ -408,43 +407,43 @@ class ColorThief
     /**
      * Inner function to do the iteration
      *
-     * @param PQueue $lh
+     * @param PQueue $priorityQueue
      * @param float $target
      * @param array $histo
      */
-    private static function quantizeIter(&$lh, $target, $histo)
+    private static function quantizeIter(&$priorityQueue, $target, $histo)
     {
-        $ncolors = 1;
-        $niters = 0;
+        $nColors = 1;
+        $nIterations = 0;
 
-        while ($niters < self::MAX_ITERATIONS) {
-            $vbox = $lh->pop();
+        while ($nIterations < self::MAX_ITERATIONS) {
+            $vBox = $priorityQueue->pop();
 
-            if (! $vbox->count()) { /* just put it back */
-                $lh->push($vbox);
-                $niters++;
+            if (!$vBox->count()) { /* just put it back */
+                $priorityQueue->push($vBox);
+                $nIterations++;
                 continue;
             }
             // do the cut
-            $vboxes = static::medianCutApply($histo, $vbox);
+            $vBoxes = static::medianCutApply($histo, $vBox);
 
-            if (! (is_array($vboxes) && isset($vboxes[0]))) {
+            if (!(is_array($vBoxes) && isset($vBoxes[0]))) {
                 // echo "vbox1 not defined; shouldn't happen!"."\n";
                 return;
             }
 
-            $lh->push($vboxes[0]);
+            $priorityQueue->push($vBoxes[0]);
 
-            if (isset($vboxes[1])) { /* vbox2 can be null */
-                $lh->push($vboxes[1]);
-                $ncolors++;
+            if (isset($vBoxes[1])) { /* vbox2 can be null */
+                $priorityQueue->push($vBoxes[1]);
+                $nColors++;
             }
 
-            if ($ncolors >= $target) {
+            if ($nColors >= $target) {
                 return;
             }
 
-            if ($niters++ > self::MAX_ITERATIONS) {
+            if ($nIterations++ > self::MAX_ITERATIONS) {
                 // echo "infinite loop; perhaps too few pixels!"."\n";
                 return;
             }
@@ -459,7 +458,7 @@ class ColorThief
     private static function quantize($pixels, $maxColors)
     {
         // short-circuit
-        if (! count($pixels) || $maxColors < 2 || $maxColors > 256) {
+        if (!count($pixels) || $maxColors < 2 || $maxColors > 256) {
             // echo 'wrong number of maxcolors'."\n";
             return false;
         }
@@ -471,29 +470,29 @@ class ColorThief
             // XXX: generate the new colors from the histo and return
         //}
 
-        $vbox = static::vboxFromHistogram($histo);
+        $vBox = static::vboxFromHistogram($histo);
 
-        $pq = new PQueue(function ($a, $b) {
+        $priorityQueue = new PQueue(function ($a, $b) {
             return ColorThief::naturalOrder($a->count(), $b->count());
         });
-        $pq->push($vbox);
+        $priorityQueue->push($vBox);
 
         // first set of colors, sorted by population
-        static::quantizeIter($pq, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
+        static::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
-        $pq->setComparator(function ($a, $b) {
+        $priorityQueue->setComparator(function ($a, $b) {
             return ColorThief::naturalOrder($a->count() * $a->volume(), $b->count() * $b->volume());
         });
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        static::quantizeIter($pq, $maxColors - $pq->size(), $histo);
+        static::quantizeIter($priorityQueue, $maxColors - $priorityQueue->size(), $histo);
 
         // calculate the actual colors
         $cmap = new CMap();
 
-        for ($i = $pq->size(); $i > 0; $i--) {
-            $cmap->push($pq->pop());
+        for ($i = $priorityQueue->size(); $i > 0; $i--) {
+            $cmap->push($priorityQueue->pop());
         }
 
         return $cmap;
