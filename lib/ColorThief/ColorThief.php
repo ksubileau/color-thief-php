@@ -345,35 +345,25 @@ class ColorThief
         $maxWidth = max($redWidth, $greenWidth, $blueWidth);
 
         // Determine the cut planes
+        $favorOrder = null;
         switch ($maxWidth) {
             case $redWidth:
-                list($total, $partialSum, $favorColor) = self::sumColors(self::favorRed(), $histo, $vBox);
+                $favorOrder = array('r', 'g', 'b');
                 break;
             case $greenWidth:
-                list($total, $partialSum, $favorColor) = self::sumColors(self::favorGreen(), $histo, $vBox);
+                $favorOrder = array('g', 'r', 'b');
                 break;
             case $blueWidth:
             default:
-                list($total, $partialSum, $favorColor) = self::sumColors(self::favorBlue(), $histo, $vBox);
+                $favorOrder = array('b', 'r', 'g');
                 break;
         }
 
-        return static::doCut($favorColor, $vBox, $partialSum, $total);
-    }
+        // Find the partial sum arrays along the selected axis.
+        list($total, $partialSum) = self::sumColors($favorOrder, $histo, $vBox);
+        $cutColor = $favorOrder[0];
 
-    private static function favorRed()
-    {
-        return array('r', 'g', 'b');
-    }
-
-    private static function favorGreen()
-    {
-        return array('g', 'r', 'b');
-    }
-
-    private static function favorBlue()
-    {
-        return array('b', 'r', 'g');
+        return static::doCut($cutColor, $vBox, $partialSum, $total);
     }
 
     /**
@@ -406,8 +396,7 @@ class ColorThief
             $total += $sum;
             $partialSum[$firstColor] = $total;
         }
-        $favorColor = $order[0];
-        return array($total, $partialSum, $favorColor);
+        return array($total, $partialSum);
     }
 
     /**
