@@ -131,4 +131,16 @@ class VBox
             $bval >= $this->b1 &&
             $bval <= $this->b2;
     }
+
+    /**
+     * Determines the longest axis
+     * @return string
+     */
+    public function longestAxis()
+    {
+        $colorWidth['r']   = $this->r2 - $this->r1;
+        $colorWidth['g'] = $this->g2 - $this->g1;
+        $colorWidth['b']  = $this->b2 - $this->b1;
+        return array_search(max($colorWidth),$colorWidth);
+    }
 }

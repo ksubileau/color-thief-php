@@ -121,4 +121,25 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->vbox->contains(array(225, 189, 200)));
 
     }
+
+    /**
+     * @covers ColorThief\VBox::longestAxis
+     */
+    public function testLongestAxis()
+    {
+        $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
+        $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
+        $this->vbox->g1 = 180 >> ColorThief::RSHIFT;
+        $this->vbox->g2 = 189 >> ColorThief::RSHIFT;
+        $this->vbox->b1 = 180 >> ColorThief::RSHIFT;
+        $this->vbox->b2 = 228 >> ColorThief::RSHIFT;
+
+        $this->assertEquals('b', $this->vbox->longestAxis());
+
+        $this->vbox->g1 = 110 >> ColorThief::RSHIFT;
+        $this->assertEquals('g', $this->vbox->longestAxis());
+
+        $this->vbox->r1 = 10 >> ColorThief::RSHIFT;
+        $this->assertEquals('r', $this->vbox->longestAxis());
+    }
 }
