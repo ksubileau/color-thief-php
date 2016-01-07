@@ -71,7 +71,6 @@ class ColorThief
         return array($red, $green, $blue);
     }
 
-
     /**
      * Natural sorting
      *
@@ -242,37 +241,24 @@ class ColorThief
      */
     private static function vboxFromHistogram(array $histo)
     {
-        $rmin = PHP_INT_MAX;
-        $rmax = 0;
-        $gmin = PHP_INT_MAX;
-        $gmax = 0;
-        $bmin = PHP_INT_MAX;
-        $bmax = 0;
+        $rgbMin = array(PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MAX);
+        $rgbMax = array(0, 0, 0);
 
         // find min/max
         foreach ($histo as $index => $count) {
-            list($rval, $gval, $bval) = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);
+            $rgb = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);
 
-            if ($rval < $rmin) {
-                $rmin = $rval;
-            } elseif ($rval > $rmax) {
-                $rmax = $rval;
-            }
-
-            if ($gval < $gmin) {
-                $gmin = $gval;
-            } elseif ($gval > $gmax) {
-                $gmax = $gval;
-            }
-
-            if ($bval < $bmin) {
-                $bmin = $bval;
-            } elseif ($bval > $bmax) {
-                $bmax = $bval;
+            // For each color components
+            for($i = 0; $i < 3; ++$i) {
+                if ($rgb[$i] < $rgbMin[$i]) {
+                    $rgbMin[$i] = $rgb[$i];
+                } elseif ($rgb[$i] > $rgbMax[$i]) {
+                    $rgbMax[$i] = $rgb[$i];
+                }
             }
         }
 
-        return new VBox($rmin, $rmax, $gmin, $gmax, $bmin, $bmax, $histo);
+        return new VBox($rgbMin[0], $rgbMax[0], $rgbMin[1], $rgbMax[1], $rgbMin[2], $rgbMax[2], $histo);
     }
 
     /**
