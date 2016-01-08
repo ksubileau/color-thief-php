@@ -89,7 +89,7 @@ class VBox
                 for ($j = $this->g1; $j <= $this->g2; $j++) {
                     for ($k = $this->b1; $k <= $this->b2; $k++) {
                         $histoindex = ColorThief::getColorIndex($i, $j, $k);
-                        $hval = isset ($this->histo[$histoindex]) ? $this->histo[$histoindex] : 0;
+                        $hval = isset($this->histo[$histoindex]) ? $this->histo[$histoindex] : 0;
                         $ntot += $hval;
                         $rsum += ($hval * ($i + 0.5) * $mult);
                         $gsum += ($hval * ($j + 0.5) * $mult);

@@ -1,11 +1,11 @@
 language: php
 
-# We want to test against PHP 5.3/5.4/5.5/5.6
 php:
   - 5.3
   - 5.4
   - 5.5
   - 5.6
+  - 7.0
   - hhvm
 
 env:
@@ -23,19 +23,21 @@ matrix:
         - PHPCS=1
     - php: hhvm
 
-before_script:
+before_install:
   - uname -a
   - date
-  - composer self-update
-  - composer install
-  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then printf "\n" | pecl install imagick; fi;
-  - if [ "$PHPCS" == 1 ]; then pyrus install pear/PHP_CodeSniffer; fi;
+
+install: ./.travis.sh
+
+before_script:
+  - travis_retry composer self-update
+  - travis_retry composer install
   - phpenv rehash
 
 script:
-  - if [ "$PHPCS" == 1 ]; then phpcs --standard=psr2 lib/ tests/; exit $?; fi;
-  - cd tests
-  - phpunit --coverage-text
+  - if [ "$PHPCS" == 1 ]; then ./vendor/bin/phpcs --standard=psr2 lib/ tests/; exit $?; fi;
+  - phpunit -c tests --coverage-text
 
 notifications:
   email: false
+
