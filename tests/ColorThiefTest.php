@@ -272,14 +272,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
         $method->setAccessible(true);
 
-        $histo = array (
-            29510 => 2,
-            16496 => 3,
-            28589 => 1,
-            27811 => 1,
-            30234 => 1
-        );
-
         // $left <= $right
         $result = $method->invoke(
             null,
@@ -300,14 +292,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
         $method->setAccessible(true);
-
-        $histo = array (
-            29510 => 2,
-            16496 => 3,
-            28589 => 1,
-            27811 => 1,
-            30234 => 1
-        );
 
         // $left > $right
         $result = $method->invoke(
