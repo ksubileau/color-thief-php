@@ -156,7 +156,7 @@ class ColorThief
 
         foreach ($pixels as $rgb) {
             list($red, $green, $blue) = static::getColorsFromIndex($rgb);
-            $index = self::getColorIndex($red, $green, $blue);
+            $index = static::getColorIndex($red, $green, $blue);
             $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
         }
 
@@ -201,8 +201,8 @@ class ColorThief
             $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
-            if (self::isClearlyVisible($color) && self::isNonWhite($color)) {
-                $pixelArray[$size++] = self::getColorIndex($color->red, $color->green, $color->blue, 8);
+            if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
+                $pixelArray[$size++] = static::getColorIndex($color->red, $color->green, $color->blue, 8);
                 // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
             }
         }
@@ -328,7 +328,7 @@ class ColorThief
         $cutColor = $vBox->longestAxis();
 
         // Find the partial sum arrays along the selected axis.
-        list($total, $partialSum) = self::sumColors($cutColor, $histo, $vBox);
+        list($total, $partialSum) = static::sumColors($cutColor, $histo, $vBox);
 
         return static::doCut($cutColor, $vBox, $partialSum, $total);
     }
@@ -351,14 +351,14 @@ class ColorThief
         array_unshift($colorIterateOrder, $axis);
 
         // Retrieves iteration ranges
-        list($firstRange, $secondRange, $thirdRange) = self::getVBoxColorRanges($vBox, $colorIterateOrder);
+        list($firstRange, $secondRange, $thirdRange) = static::getVBoxColorRanges($vBox, $colorIterateOrder);
 
         foreach($firstRange as $firstColor) {
             $sum = 0;
             foreach($secondRange as $secondColor) {
                 foreach($thirdRange as $thirdColor) {
-                    list($red, $green, $blue) = self::rearrangeColors($colorIterateOrder, $firstColor, $secondColor, $thirdColor);
-                    $index = self::getColorIndex($red, $green, $blue);
+                    list($red, $green, $blue) = static::rearrangeColors($colorIterateOrder, $firstColor, $secondColor, $thirdColor);
+                    $index = static::getColorIndex($red, $green, $blue);
 
                     if (isset($histo[$index])) {
                         $sum += $histo[$index];
@@ -424,7 +424,7 @@ class ColorThief
         $nColors = 1;
         $nIterations = 0;
 
-        while ($nIterations < self::MAX_ITERATIONS) {
+        while ($nIterations < static::MAX_ITERATIONS) {
             $vBox = $priorityQueue->pop();
 
             if (!$vBox->count()) { /* just put it back */
@@ -451,7 +451,7 @@ class ColorThief
                 return;
             }
 
-            if ($nIterations++ > self::MAX_ITERATIONS) {
+            if ($nIterations++ > static::MAX_ITERATIONS) {
                 // echo "infinite loop; perhaps too few pixels!"."\n";
                 return;
             }
@@ -486,7 +486,7 @@ class ColorThief
         $priorityQueue->push($vBox);
 
         // first set of colors, sorted by population
-        static::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
+        static::quantizeIter($priorityQueue, static::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $priorityQueue->setComparator(function ($a, $b) {
