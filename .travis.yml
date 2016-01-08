@@ -27,7 +27,9 @@ before_install:
   - uname -a
   - date
 
-install: ./.travis.sh
+install:
+  - if [ "$TRAVIS_PHP_VERSION" = "7.0" ]; then pear config-set preferred_state beta; fi;
+  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then printf "\n" | pecl install imagick; fi;
 
 before_script:
   - travis_retry composer self-update
