@@ -1,1 +1,10 @@
+### Miscellaneous
+.DS_Store
+Thumbs.db
+
+### Composer
+composer.lock
 /vendor
+
+### PHPStorm project directory
+.idea/
