@@ -15,28 +15,16 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 
 ## Requirements
 
-- PHP >= 5.3
+- PHP >= 5.3 or PHP 7.0
 - GD >= 2.0 and/or Imagick >= 2.0
 - Support JPEG, PNG and GIF images.
 
 ##How to use
-###Installing via Composer
+###Install via Composer
 The recommended way to install Color Thief is through
-[Composer](http://getcomposer.org).
-
+[Composer](http://getcomposer.org):
 ```bash
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-```
-
-Next, update your project's composer.json file to include Color Thief:
-
-```javascript
-{
-    "require": {
-        "ksubileau/color-thief-php": "~1.1"
-    }
-}
+composer require ksubileau/color-thief-php
 ```
 
 ###Get the dominant color from an image
