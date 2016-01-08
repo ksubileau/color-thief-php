@@ -34,7 +34,7 @@ class CMap
 
     public function size()
     {
-        return count($this->vboxes);
+        return $this->vboxes->size();
     }
 
     public function map($color)
