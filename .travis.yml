@@ -14,11 +14,11 @@ env:
 
 matrix:
   include:
-    - php: 5.4
+    - php: 5.6
       env:
         - PHPCS=1
   allow_failures:
-    - php: 5.4
+    - php: 5.6
       env:
         - PHPCS=1
     - php: hhvm
