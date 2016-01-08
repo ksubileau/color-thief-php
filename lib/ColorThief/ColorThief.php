@@ -39,6 +39,8 @@ class ColorThief
     const RSHIFT=3;
     const MAX_ITERATIONS=1000;
     const FRACT_BY_POPULATIONS=0.75;
+    const THRESHOLD_ALPHA = 62;
+    const THRESHOLD_WHITE = 250;
 
     /**
      * Get reduced-space color index for a pixel
@@ -223,7 +225,7 @@ class ColorThief
      */
     protected static function isClearlyVisible($color)
     {
-        return $color->alpha <= 62;
+        return $color->alpha <= self::THRESHOLD_ALPHA;
     }
 
     /**
@@ -232,7 +234,7 @@ class ColorThief
      */
     protected static function isNonWhite($color)
     {
-        return !($color->red > 250 && $color->green > 250 && $color->blue > 250);
+        return !($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE);
     }
 
     /**
