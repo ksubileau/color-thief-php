@@ -251,7 +251,7 @@ class ColorThief
             $rgb = static::getColorsFromIndex($index, 0, ColorThief::SIGBITS);
 
             // For each color components
-            for($i = 0; $i < 3; ++$i) {
+            for ($i = 0; $i < 3; ++$i) {
                 if ($rgb[$i] < $rgbMin[$i]) {
                     $rgbMin[$i] = $rgb[$i];
                 } elseif ($rgb[$i] > $rgbMax[$i]) {
@@ -355,10 +355,10 @@ class ColorThief
         // Retrieves iteration ranges
         list($firstRange, $secondRange, $thirdRange) = static::getVBoxColorRanges($vBox, $colorIterateOrder);
 
-        foreach($firstRange as $firstColor) {
+        foreach ($firstRange as $firstColor) {
             $sum = 0;
-            foreach($secondRange as $secondColor) {
-                foreach($thirdRange as $thirdColor) {
+            foreach ($secondRange as $secondColor) {
+                foreach ($thirdRange as $thirdColor) {
                     list($red, $green, $blue) = static::rearrangeColors($colorIterateOrder, $firstColor, $secondColor, $thirdColor);
                     $index = static::getColorIndex($red, $green, $blue);
 

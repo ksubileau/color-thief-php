@@ -59,7 +59,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @see Issue #13
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage not readable or does not exists
      */
     public function testLoad404Url()
@@ -69,7 +69,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage not readable or does not exists
      */
     public function testLoadFileMissing()
@@ -79,7 +79,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testLoadInvalidArgument()
     {

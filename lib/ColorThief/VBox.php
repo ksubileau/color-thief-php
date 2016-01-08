@@ -141,6 +141,6 @@ class VBox
         $colorWidth['r']   = $this->r2 - $this->r1;
         $colorWidth['g'] = $this->g2 - $this->g1;
         $colorWidth['b']  = $this->b2 - $this->b1;
-        return array_search(max($colorWidth),$colorWidth);
+        return array_search(max($colorWidth), $colorWidth);
     }
 }

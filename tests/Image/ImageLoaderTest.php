@@ -73,7 +73,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Passed variable is not a valid image source
      */
     public function testLoadInvalidResource()
@@ -108,7 +108,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage not readable or does not exists
      */
     public function testLoadFileMissing()

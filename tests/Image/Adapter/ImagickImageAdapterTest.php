@@ -28,7 +28,7 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Passed variable is not an instance of Imagick
      */
     public function testLoadInvalidArgument()

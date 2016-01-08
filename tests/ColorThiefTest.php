@@ -137,7 +137,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The number of palette colors
      */
     public function testGetPaletteWithTooFewColors()
@@ -146,7 +146,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The number of palette colors
      */
     public function testGetPaletteWithTooManyColors()
@@ -155,7 +155,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage quality argument
      */
     public function testGetPaletteWithInvalidQuality()
@@ -165,7 +165,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @see Issue #11
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage blank or transparent image
      * @expectedExceptionCode 1
      */

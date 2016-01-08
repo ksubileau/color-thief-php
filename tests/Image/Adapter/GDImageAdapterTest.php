@@ -24,7 +24,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Passed variable is not a valid GD resource
      */
     public function testLoadInvalidArgument()
