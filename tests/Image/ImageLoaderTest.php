@@ -81,9 +81,9 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
         $this->loader->load(42);
     }
 
-    protected function basetestLoadFile($adapterName, $isImagickLoaded, $path = false)
+    protected function baseTestLoadFile($adapterName, $isImagickLoaded, $path = false)
     {
-        if (!$path) {
+        if ($path === false) {
             $path = __DIR__."/../images/pixels.png";
         }
 
@@ -96,7 +96,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadFileWithGD()
     {
-        $this->basetestLoadFile('GD', false);
+        $this->baseTestLoadFile('GD', false);
     }
 
     /**
@@ -104,7 +104,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadFileWithImagick()
     {
-        $this->basetestLoadFile('Imagick', true);
+        $this->baseTestLoadFile('Imagick', true);
     }
 
     /**
@@ -118,7 +118,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadUrlWithGD()
     {
-        $this->basetestLoadFile(
+        $this->baseTestLoadFile(
             'GD',
             false,
             "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
@@ -130,11 +130,41 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadUrlWithImagick()
     {
-        $this->basetestLoadFile(
+        $this->baseTestLoadFile(
             'Imagick',
             true,
             "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
         );
+    }
+
+    protected function baseTestLoadBinaryString($adapterName, $isImagickLoaded, $data = false)
+    {
+        if ($data === false) {
+            $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
+                . 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
+                . 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
+                . '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+            $data = base64_decode($data);
+        }
+
+        $adapter = $this->getAdapterMock($adapterName, 'loadBinaryString', $data);
+
+        $loader = $this->getImageLoaderPartialMock($adapter, $adapterName, true, $isImagickLoaded);
+
+        $this->assertSame($adapter, $loader->load($data));
+    }
+
+    public function testLoadBinaryStringWithGD()
+    {
+        $this->baseTestLoadBinaryString('GD', false);
+    }
+
+    /**
+     * @requires extension imagick
+     */
+    public function testLoadBinaryStringWithImagick()
+    {
+        $this->baseTestLoadBinaryString('Imagick', true);
     }
 
     public function testGetAdapter()

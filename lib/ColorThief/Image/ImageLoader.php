@@ -9,18 +9,26 @@ class ImageLoader
         $image = null;
 
         if (is_string($source)) {
-            $is_remote = filter_var($source, FILTER_VALIDATE_URL);
-            if (!$is_remote && (!file_exists($source) || !is_readable($source))) {
-                throw new \RuntimeException("Image '".$source."' is not readable or does not exists.");
-            }
-
             if ($this->isImagickLoaded()) {
                 $image = $this->getAdapter("Imagick");
             } else {
                 $image = $this->getAdapter("GD");
             }
 
-            $image->loadFile($source);
+            // Tries to detect if the source string is a binary string or a path to an existing file
+            // This test is based on the way that PHP detects an invalid path and throws a warning
+            // saying "xxx expects to be a valid path, string given" (see zend_parse_arg_path_str).
+            if(strpos($source, "\0") !== false) {
+                // Binary string
+                $image->loadBinaryString($source);
+            } else {
+                // Path or URL
+                $is_remote = filter_var($source, FILTER_VALIDATE_URL);
+                if (!$is_remote && (!file_exists($source) || !is_readable($source))) {
+                    throw new \RuntimeException("Image '" . $source . "' is not readable or does not exists.");
+                }
+                $image->loadFile($source);
+            }
         } else {
             if ((is_resource($source) && get_resource_type($source) == 'gd')) {
                 $image = $this->getAdapter("GD");
@@ -46,7 +54,7 @@ class ImageLoader
      */
     public function getAdapter($adapterType)
     {
-        $classname = "\ColorThief\Image\Adapter\\".$adapterType."ImageAdapter";
+        $classname = "\\ColorThief\\Image\\Adapter\\".$adapterType."ImageAdapter";
         return new $classname();
     }
 }

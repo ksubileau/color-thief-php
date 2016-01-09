@@ -15,7 +15,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
         return new GDImageAdapter();
     }
 
-    protected function checkFileIsLoaded($path, $adapter)
+    protected function checkIsLoaded($adapter)
     {
         // Checks object state
         $image = $adapter->getResource();

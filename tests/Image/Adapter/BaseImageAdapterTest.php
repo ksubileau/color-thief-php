@@ -1,13 +1,21 @@
 <?php
 namespace ColorThief\Image\Adapter\Test;
 
+use ColorThief\Image\Adapter\IImageAdapter;
+
 abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @return resource
+     */
     abstract protected function getTestResourceInstance();
 
+    /**
+     * @return IImageAdapter
+     */
     abstract protected function getAdapterInstance();
 
-    abstract protected function checkFileIsLoaded($path, $adapter);
+    abstract protected function checkIsLoaded($adapter);
 
     public function testLoad()
     {
@@ -20,31 +28,31 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
         return $adapter;
     }
 
-    protected function basetestLoadFile($path)
+    protected function baseTestLoadFile($path)
     {
         // Loads image file
         $adapter = $this->getAdapterInstance();
         $adapter->loadFile($path);
 
         // Checks object state
-        $this->checkFileIsLoaded($path, $adapter);
+        $this->checkIsLoaded($adapter);
 
         return $adapter;
     }
 
     public function testLoadFilePng()
     {
-        return $this->basetestLoadFile(__DIR__."/../../images/pixels.png");
+        return $this->baseTestLoadFile(__DIR__."/../../images/pixels.png");
     }
 
     public function testLoadFileJpg()
     {
-        return $this->basetestLoadFile(__DIR__."/../../images/field_1024x683.jpg");
+        return $this->baseTestLoadFile(__DIR__."/../../images/field_1024x683.jpg");
     }
 
     public function testLoadFileGif()
     {
-        return $this->basetestLoadFile(__DIR__."/../../images/rails_600x406.gif");
+        return $this->baseTestLoadFile(__DIR__."/../../images/rails_600x406.gif");
     }
 
     /**
@@ -52,7 +60,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadUrl()
     {
-        return $this->basetestLoadFile(
+        return $this->baseTestLoadFile(
             "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
         );
     }
@@ -85,6 +93,32 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $adapter = $this->getAdapterInstance();
         $adapter->load("test");
+    }
+
+    public function testLoadBinaryString()
+    {
+        $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
+            . 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
+            . 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
+            . '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+        $data = base64_decode($data);
+
+        $adapter = $this->getAdapterInstance();
+        $adapter->loadBinaryString($data);
+
+        // Checks object state
+        $this->checkIsLoaded($adapter);
+
+        return $adapter;
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testLoadBinaryStringInvalidArgument()
+    {
+        $adapter = $this->getAdapterInstance();
+        $adapter->loadBinaryString("test");
     }
 
     /**

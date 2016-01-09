@@ -137,6 +137,20 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider provideImageColorPalette
+     */
+    public function testPaletteBinaryString($image, $area, $expectedPalette)
+    {
+        //$numColors = count($expectedPalette);
+        $numColors = 10;
+        $image = file_get_contents(__DIR__.$image);
+        $palette = ColorThief::getPalette($image, $numColors, 30, $area);
+
+        //$this->assertCount($numColors, $palette);
+        $this->assertSame($expectedPalette, $palette);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The number of palette colors
      */

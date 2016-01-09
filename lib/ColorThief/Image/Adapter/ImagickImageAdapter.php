@@ -6,6 +6,9 @@ use Imagick;
 
 class ImagickImageAdapter extends ImageAdapter
 {
+    /**
+     * @inheritdoc
+     */
     public function load($resource)
     {
         if (!($resource instanceof Imagick)) {
@@ -15,6 +18,22 @@ class ImagickImageAdapter extends ImageAdapter
         parent::load($resource);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function loadBinaryString($data)
+    {
+        $this->resource = new Imagick();
+        try {
+            $this->resource->readImageBlob($data);
+        } catch (\ImagickException $e) {
+            throw new \InvalidArgumentException("Passed binary string is empty or is not a valid image", 0, $e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function loadFile($file)
     {
         $this->resource = null;
@@ -26,6 +45,9 @@ class ImagickImageAdapter extends ImageAdapter
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function destroy()
     {
         if ($this->resource) {
@@ -34,16 +56,25 @@ class ImagickImageAdapter extends ImageAdapter
         parent::destroy();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getHeight()
     {
         return $this->resource->getImageHeight();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getWidth()
     {
         return $this->resource->getImageWidth();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getPixelColor($x, $y)
     {
         $pixel = $this->resource->getImagePixelColor($x, $y);

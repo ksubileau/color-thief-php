@@ -14,9 +14,16 @@ interface IImageAdapter
     public function loadFile($path);
 
     /**
+     * Loads an image from a binary string representation.
+     *
+     * @param string $data
+     */
+    public function loadBinaryString($data);
+
+    /**
      * Loads an image resource.
      *
-     * @param mixed $resource
+     * @param resource $resource
      */
     public function load($resource);
 
@@ -51,7 +58,7 @@ interface IImageAdapter
     /**
      * Get the raw resource
      *
-     * @return mixed
+     * @return resource
      */
     public function getResource();
 }
