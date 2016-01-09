@@ -23,7 +23,7 @@ interface IImageAdapter
     /**
      * Loads an image resource.
      *
-     * @param resource $resource
+     * @param resource|object $resource
      */
     public function load($resource);
 

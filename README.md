@@ -33,7 +33,7 @@ require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $dominantColor = ColorThief::getColor($sourceImage);
 ```
-The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, or an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance.
+The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, or an image in binary string format.
 
 ```php
 ColorThief::getColor($sourceImage[, $quality=10, $area=null])

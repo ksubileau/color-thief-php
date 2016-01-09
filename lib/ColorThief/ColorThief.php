@@ -90,7 +90,7 @@ class ColorThief
      *
      * @bug Function does not always return the requested amount of colors. It can be +/- 2.
      *
-     * @param string     $sourceImage   path or url to the image
+     * @param mixed      $sourceImage   Path/URL to the image, GD resource, Imagick instance, or image as binary string
      * @param int        $quality       1 is the highest quality. There is a trade-off between quality and speed.
      *                                  The bigger the number, the faster the palette generation but the greater the
      *                                  likelihood that colors will be missed.
@@ -116,7 +116,7 @@ class ColorThief
      *
      * @bug Function does not always return the requested amount of colors. It can be +/- 2.
      *
-     * @param string     $sourceImage   path or url to the image
+     * @param mixed      $sourceImage   Path/URL to the image, GD resource, Imagick instance, or image as binary string
      * @param int        $colorCount    It determines the size of the palette; the number of colors returned.
      * @param int        $quality       1 is the highest quality.
      * @param array|null $area[x,y,w,h]
@@ -166,7 +166,7 @@ class ColorThief
     }
 
     /**
-     * @param string $sourceImage path or http
+     * @param mixed $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
      * @param int $quality
      * @param array|null $area
      * @return SplFixedArray

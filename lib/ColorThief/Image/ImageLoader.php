@@ -4,6 +4,10 @@ namespace ColorThief\Image;
 
 class ImageLoader
 {
+    /**
+     * @param mixed $source Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @return Adapter\ImageAdapter
+     */
     public function load($source)
     {
         $image = null;
@@ -43,6 +47,10 @@ class ImageLoader
         return $image;
     }
 
+    /**
+     * Checks if Imagick extension is loaded
+     * @return bool
+     */
     public function isImagickLoaded()
     {
         return extension_loaded("imagick");

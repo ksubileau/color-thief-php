@@ -92,6 +92,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoadInvalidArgument()
     {
         $adapter = $this->getAdapterInstance();
+        /** @noinspection PhpParamsInspection */
         $adapter->load("test");
     }
 
