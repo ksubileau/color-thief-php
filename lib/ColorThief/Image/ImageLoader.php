@@ -15,6 +15,8 @@ class ImageLoader
         if (is_string($source)) {
             if ($this->isImagickLoaded()) {
                 $image = $this->getAdapter("Imagick");
+            } elseif ($this->isGmagickLoaded()) {
+                $image = $this->getAdapter("Gmagick");
             } else {
                 $image = $this->getAdapter("GD");
             }
@@ -22,7 +24,7 @@ class ImageLoader
             // Tries to detect if the source string is a binary string or a path to an existing file
             // This test is based on the way that PHP detects an invalid path and throws a warning
             // saying "xxx expects to be a valid path, string given" (see zend_parse_arg_path_str).
-            if(strpos($source, "\0") !== false) {
+            if (strpos($source, "\0") !== false) {
                 // Binary string
                 $image->loadBinaryString($source);
             } else {
@@ -38,6 +40,8 @@ class ImageLoader
                 $image = $this->getAdapter("GD");
             } elseif (is_a($source, 'Imagick')) {
                 $image = $this->getAdapter("Imagick");
+            } elseif (is_a($source, 'Gmagick')) {
+                $image = $this->getAdapter("Gmagick");
             } else {
                 throw new \InvalidArgumentException("Passed variable is not a valid image source");
             }
@@ -54,6 +58,15 @@ class ImageLoader
     public function isImagickLoaded()
     {
         return extension_loaded("imagick");
+    }
+
+    /**
+     * Checks if Gmagick extension is loaded
+     * @return bool
+     */
+    public function isGmagickLoaded()
+    {
+        return extension_loaded("gmagick");
     }
 
     /**
