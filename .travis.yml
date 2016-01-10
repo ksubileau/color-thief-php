@@ -8,6 +8,12 @@ php:
   - 7.0
   - hhvm
 
+addons:
+  apt:
+    packages:
+    - graphicsmagick
+    - libgraphicsmagick1-dev
+
 env:
   matrix:
     -
@@ -28,17 +34,24 @@ before_install:
   - date
 
 install:
-  - if [ "$TRAVIS_PHP_VERSION" = "7.0" ]; then pear config-set preferred_state beta; fi;
-  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then printf "\n" | pecl install imagick; fi;
+  - |
+    if [[ "$PHPCS" != 1 ]]; then
+      if [[ "$TRAVIS_PHP_VERSION" = "7.0" ]]; then pear config-set preferred_state beta; fi;
+      if [[ $TRAVIS_PHP_VERSION != 'hhvm' ]] ; then
+        pecl channel-update pecl.php.net;
+        if [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then printf "\n" | pecl install gmagick-1.1.7RC3; fi;
+        printf "\n" | pecl install imagick;
+      fi;
+    fi;
 
 before_script:
-  - travis_retry composer self-update
+  - travis_retry composer self-update && composer --version
   - travis_retry composer install
   - phpenv rehash
 
 script:
-  - if [ "$PHPCS" == 1 ]; then ./vendor/bin/phpcs --standard=psr2 lib/ tests/; exit $?; fi;
-  - phpunit -c tests --coverage-text
+  - if [[ "$PHPCS" == 1 ]]; then ./vendor/bin/phpcs --standard=psr2 lib/ tests/; exit $?; fi;
+  - phpunit -c tests --coverage-text --verbose
 
 notifications:
   email: false
