@@ -18,13 +18,14 @@
     },
 
     "require-dev": {
-        "phpunit/phpunit": "~4.3",
-        "squizlabs/php_codesniffer": "~1.5"
+        "phpunit/phpunit": "4.*",
+        "squizlabs/php_codesniffer": "2.*"
     },
 
     "suggest": {
         "ext-gd": "to use the GD image adapter.",
-        "ext-imagick": "to use the Imagick image adapter."
+        "ext-imagick": "to use the Imagick image adapter.",
+        "ext-gmagick": "to use the Gmagick image adapter."
     },
 
     "autoload": {
