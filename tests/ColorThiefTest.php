@@ -94,14 +94,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    protected function getBlankImage($width = 20, $height = 30)
-    {
-        $img = imagecreatetruecolor($width, $height);
-        $bg = imagecolorallocate($img, 255, 255, 255);
-        imagefilledrectangle($img, 0, 0, $width, $height, $bg);
-        return $img;
-    }
-
     /**
      * @dataProvider provideImageDominantColor
      */
@@ -182,11 +174,10 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
      * @expectedException \RuntimeException
      * @expectedExceptionMessage blank or transparent image
      * @expectedExceptionCode 1
-     * @requires extension gd
      */
     public function testGetPaletteWithBlankImage()
     {
-        ColorThief::getPalette($this->getBlankImage());
+        ColorThief::getPalette(__DIR__."/images/blank.png");
     }
 
     /**
