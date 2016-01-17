@@ -16,7 +16,7 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 ## Requirements
 
 - PHP >= 5.3 or PHP 7.0
-- GD >= 2.0 and/or Imagick >= 2.0
+- GD >= 2.0 and/or Imagick >= 2.0 and/or Gmagick >= 1.0
 - Support JPEG, PNG and GIF images.
 
 ##How to use
@@ -33,7 +33,7 @@ require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $dominantColor = ColorThief::getColor($sourceImage);
 ```
-The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, or an image in binary string format.
+The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
 ColorThief::getColor($sourceImage[, $quality=10, $area=null])
@@ -62,7 +62,7 @@ use ColorThief\ColorThief;
 $palette = ColorThief::getPalette($sourceImage, 8);
 ```
 
-Again, the `$sourceImage` variable must contain either the path (relative or absolute) of the image on the server, or a URL to the image.
+Again, the `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
 ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null])

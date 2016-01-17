@@ -1,5 +1,12 @@
 # Color Thief PHP Changelog
 
+## `1.3.0`
+
+ * Color Thief PHP now officially supports PHP 7 ! (see #19).
+ * Add GMagick support (see #15).
+ * Add capability to load an image from binary string (see #21).
+ * Code rewriting and refactoring, improved documentation (see #22, thank @kisPocok).
+
 ## `1.2.0`
 
  * Add support of area targeting (see #12).
