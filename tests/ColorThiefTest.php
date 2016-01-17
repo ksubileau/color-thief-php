@@ -182,6 +182,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
      * @expectedException \RuntimeException
      * @expectedExceptionMessage blank or transparent image
      * @expectedExceptionCode 1
+     * @requires extension gd
      */
     public function testGetPaletteWithBlankImage()
     {

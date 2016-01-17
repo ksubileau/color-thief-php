@@ -1,34 +1,34 @@
 <?php
 namespace ColorThief\Image\Adapter\Test;
 
-use ColorThief\Image\Adapter\GDImageAdapter;
+use ColorThief\Image\Adapter\GmagickImageAdapter;
+use Gmagick;
 
 /**
- * @requires extension gd
+ * @requires extension gmagick
  */
-class GDImageAdapterTest extends BaseImageAdapterTest
+class GmagickImageAdapterTest extends BaseImageAdapterTest
 {
     protected function getTestResourceInstance()
     {
-        return imagecreate(80, 20);
+        return new Gmagick();
     }
 
     protected function getAdapterInstance()
     {
-        return new GDImageAdapter();
+        return new GmagickImageAdapter();
     }
 
     protected function checkIsLoaded($adapter)
     {
         // Checks object state
         $image = $adapter->getResource();
-        $this->assertInternalType('resource', $image);
-        $this->assertSame('gd', get_resource_type($image));
+        $this->assertInstanceOf('\Gmagick', $image);
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Passed variable is not a valid GD resource
+     * @expectedExceptionMessage Passed variable is not an instance of Gmagick
      */
     public function testLoadInvalidArgument()
     {

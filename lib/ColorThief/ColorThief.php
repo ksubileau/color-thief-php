@@ -212,6 +212,7 @@ class ColorThief
         $pixelArray->setSize($size);
 
         // Don't destroy a resource passed by the user !
+        // TODO Add a method in ImageLoader to know if the image should be destroy (or to know the detected image source type)
         if (is_string($sourceImage)) {
             $image->destroy();
         }
