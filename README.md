@@ -1,11 +1,13 @@
 Color Thief PHP
 ==============
 
-[![Build Status](https://travis-ci.org/ksubileau/color-thief-php.png?branch=master)](https://travis-ci.org/ksubileau/color-thief-php)
-[![Latest Stable Version](https://poser.pugx.org/ksubileau/color-thief-php/v/stable.png)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![Total Downloads](https://poser.pugx.org/ksubileau/color-thief-php/downloads.png)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![Latest Unstable Version](https://poser.pugx.org/ksubileau/color-thief-php/v/unstable.png)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![License](https://poser.pugx.org/ksubileau/color-thief-php/license.png)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Latest Stable Version](https://img.shields.io/packagist/v/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Build Status](https://img.shields.io/travis/ksubileau/color-thief-php.svg?style=flat-square)](https://travis-ci.org/ksubileau/color-thief-php)
+[![GitHub issues](https://img.shields.io/github/issues/ksubileau/color-thief-php.svg?style=flat-square)](https://github.com/ksubileau/color-thief-php/issues)
+[![HHVM](https://img.shields.io/hhvm/ksubileau/color-thief-php.svg?style=flat-square)](https://travis-ci.org/ksubileau/color-thief-php)
+[![Dependency Status](https://www.versioneye.com/php/ksubileau:color-thief-php/badge?style=flat)](https://www.versioneye.com/php/ksubileau:color-thief-php)
+[![Packagist](https://img.shields.io/packagist/dm/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![License](https://img.shields.io/packagist/l/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
 
 A PHP class for **grabbing the color palette** from an image. Uses PHP and GD or Imagick libraries to make it happen.
 
