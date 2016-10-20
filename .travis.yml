@@ -6,6 +6,7 @@ php:
   - 5.5
   - 5.6
   - 7.0
+  - 7.1
   - hhvm
 
 addons:
@@ -35,11 +36,17 @@ before_install:
 
 install:
   - |
-    if [[ "$PHPCS" != 1 ]]; then
-      if [[ "$TRAVIS_PHP_VERSION" = "7.0" ]]; then pear config-set preferred_state beta; fi;
-      if [[ $TRAVIS_PHP_VERSION != 'hhvm' ]] ; then
-        pecl channel-update pecl.php.net;
-        if [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then printf "\n" | pecl install gmagick-1.1.7RC3; fi;
+    if [[ "$PHPCS" != 1 ]] && [[ $TRAVIS_PHP_VERSION != 'hhvm' ]] ; then
+      pear config-set preferred_state beta;
+      pecl channel-update pecl.php.net;
+      if [[ $TRAVIS_PHP_VERSION == '7.1' ]] || [[ $TRAVIS_PHP_VERSION == '7.0' ]] ; then
+        printf "\n" | pecl install gmagick;
+        printf "\n" | pecl install imagick;
+      elif [[ $TRAVIS_PHP_VERSION == '5.3' ]] ; then
+        printf "\n" | pecl install gmagick-1.1.7RC3;
+        printf "\n" | pecl install imagick-2.3.0;
+      else
+        printf "\n" | pecl install gmagick-1.1.7RC3;
         printf "\n" | pecl install imagick;
       fi;
     fi;
