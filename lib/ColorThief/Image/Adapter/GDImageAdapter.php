@@ -33,23 +33,30 @@ class GDImageAdapter extends ImageAdapter
     public function loadFile($file)
     {
         list(, , $type) = @getImageSize($file);
+
         switch ($type) {
             case IMAGETYPE_GIF:
-                $this->resource = imagecreatefromgif($file);
+                $resource = @imagecreatefromgif($file);
                 break;
 
             case IMAGETYPE_JPEG:
-                $this->resource = imagecreatefromjpeg($file);
+                $resource = @imagecreatefromjpeg($file);
                 break;
 
             case IMAGETYPE_PNG:
-                $this->resource = imagecreatefrompng($file);
+                $resource = @imagecreatefrompng($file);
                 break;
 
             default:
-                throw new \RuntimeException("Image '".$file."' is not readable or does not exists.");
+                throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
                 break;
         }
+
+        if ($resource === false) {
+            throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
+        }
+
+        $this->resource = $resource;
     }
 
     /**

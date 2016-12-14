@@ -35,4 +35,14 @@ class GDImageAdapterTest extends BaseImageAdapterTest
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
+
+    /**
+     * @see Issue #30
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage is not readable or does not exists
+     */
+    public function testLoadFileJpgCorrupted()
+    {
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/corrupted_PR30.jpg");
+    }
 }
