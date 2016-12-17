@@ -58,7 +58,7 @@ before_script:
 
 script:
   - if [[ "$PHPCS" == 1 ]]; then ./vendor/bin/phpcs --standard=psr2 lib/ tests/; exit $?; fi;
-  - phpunit -c tests --coverage-text --verbose
+  - ./vendor/phpunit/phpunit/phpunit -c tests --coverage-text --verbose
 
 notifications:
   email: false
