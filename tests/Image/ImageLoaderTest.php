@@ -14,10 +14,14 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
 
     protected function getAdapterMock($adapterName, $method, $image)
     {
-        $adapter = $this->getMock('\ColorThief\Image\Adapter\\'.$adapterName.'ImageAdapter', array($method));
+        $adapter = $this->getMockBuilder("ColorThief\\Image\\Adapter\\{$adapterName}ImageAdapter")
+            ->setMethods(array($method))
+            ->getMock();
+
         $adapter->expects($this->once())
-                ->method($method)
-                ->with($this->equalTo($image));
+            ->method($method)
+            ->with($this->equalTo($image));
+
         return $adapter;
     }
 
@@ -37,7 +41,10 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             $methods[] = 'isGmagickLoaded';
         }
 
-        $loader = $this->getMock('\ColorThief\Image\ImageLoader', $methods);
+        $loader = $this->getMockBuilder("ColorThief\\Image\\ImageLoader")
+            ->setMethods($methods)
+            ->getMock();
+
         $loader->expects($this->once())
                 ->method('getAdapter')
                 ->with($this->equalTo($adapterName))
