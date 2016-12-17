@@ -34,37 +34,51 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     public function provideImageColorPalette()
     {
         return array(
+            array(
+                "/images/rails_600x406.gif",
                 array(
-                    "/images/rails_600x406.gif",
-                    null,
-                    array(
-                        array(87, 68, 79),
-                        array(210, 170, 127),
-                        array(158, 113, 84),
-                        array(157, 190, 175),
-                        array(107, 119, 129),
-                        array(52, 136, 211),
-                        array(29, 68, 84),
-                        array(120, 124, 101),
-                        array(212, 76, 60)
-                    )
-                ),
+                    array(87, 68, 79),
+                    array(210, 170, 127),
+                    array(158, 113, 84),
+                    array(157, 190, 175),
+                    array(107, 119, 129),
+                    array(52, 136, 211),
+                    array(29, 68, 84),
+                    array(120, 124, 101),
+                    array(212, 76, 60)
+                )
+            ),
+            array(
+                "/images/vegetables_1500x995.png",
                 array(
-                    "/images/vegetables_1500x995.png",
-                    null,
-                    array(
-                        array(45, 58, 23),
-                        array(227, 217, 199),
-                        array(96, 59, 49),
-                        array(117, 122, 46),
-                        array(107, 129, 102),
-                        array(176, 153, 102),
-                        array(191, 180, 144),
-                        array(159, 132, 146),
-                        array(60, 148, 44)
-                    )
+                    array(45, 58, 23),
+                    array(227, 217, 199),
+                    array(96, 59, 49),
+                    array(117, 122, 46),
+                    array(107, 129, 102),
+                    array(176, 153, 102),
+                    array(191, 180, 144),
+                    array(159, 132, 146),
+                    array(60, 148, 44)
+                )
+            ),
+            /* @see Issue #24 */
+            array(
+                "/images/issue_24.jpg",
+                array(
+                    array(236, 243, 247),
+                    array(244, 244, 251),
+                    array(247, 252, 252),
+                    array(72, 72, 80),
+                    array(204, 204, 212),
+                    array(212, 212, 220),
+                    array(240, 232, 240),
+                    array(248, 252, 255),
+                    array(248, 252, 255)
                 ),
-            );
+                10
+            ),
+        );
     }
 
     public function provide8bitsColorIndex()
@@ -118,11 +132,11 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideImageColorPalette
      */
-    public function testPalette($image, $area, $expectedPalette)
+    public function testPalette($image, $expectedPalette, $quality = 30, $area = null)
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
-        $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30, $area);
+        $palette = ColorThief::getPalette(__DIR__ . $image, $numColors, $quality, $area);
 
         //$this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
@@ -131,12 +145,12 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideImageColorPalette
      */
-    public function testPaletteBinaryString($image, $area, $expectedPalette)
+    public function testPaletteBinaryString($image, $expectedPalette, $quality = 30, $area = null)
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
         $image = file_get_contents(__DIR__.$image);
-        $palette = ColorThief::getPalette($image, $numColors, 30, $area);
+        $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
         //$this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);

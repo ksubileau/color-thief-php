@@ -111,6 +111,9 @@ class VBox
                         ~ ~ ($mult * ($this->g1 + $this->g2 + 1) / 2),
                         ~ ~ ($mult * ($this->b1 + $this->b2 + 1) / 2)
                 );
+
+                // Ensure all channel values are leather or equal 255 (Issue #24)
+                $this->avg = array_map(function ($val) { return min($val, 255); }, $this->avg);
             }
         }
 
