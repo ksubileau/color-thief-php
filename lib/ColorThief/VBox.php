@@ -100,16 +100,16 @@ class VBox
 
             if ($ntot) {
                 $this->avg = array (
-                        ~ ~ ($rsum / $ntot),
-                        ~ ~ ($gsum / $ntot),
-                        ~ ~ ($bsum / $ntot)
+                    intval($rsum / $ntot),
+                    intval($gsum / $ntot),
+                    intval($bsum / $ntot)
                 );
             } else {
                 // echo 'empty box'."\n";
                 $this->avg = array (
-                        ~ ~ ($mult * ($this->r1 + $this->r2 + 1) / 2),
-                        ~ ~ ($mult * ($this->g1 + $this->g2 + 1) / 2),
-                        ~ ~ ($mult * ($this->b1 + $this->b2 + 1) / 2)
+                        intval($mult * ($this->r1 + $this->r2 + 1) / 2),
+                        intval($mult * ($this->g1 + $this->g2 + 1) / 2),
+                        intval($mult * ($this->b1 + $this->b2 + 1) / 2)
                 );
 
                 // Ensure all channel values are leather or equal 255 (Issue #24)

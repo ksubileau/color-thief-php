@@ -287,9 +287,9 @@ class ColorThief
                 // Choose the cut plane within the greater of the (left, right) sides
                 // of the bin in which the median pixel resides
                 if ($left <= $right) {
-                    $d2 = min($vBox->$dim2 - 1, ~ ~ ($i + $right / 2));
+                    $d2 = min($vBox->$dim2 - 1, intval($i + $right / 2));
                 } else { /* left > right */
-                    $d2 = max($vBox->$dim1, ~ ~ ($i - 1 - $left / 2));
+                    $d2 = max($vBox->$dim1, intval($i - 1 - $left / 2));
                 }
 
                 while (empty($partialSum[$d2])) {
