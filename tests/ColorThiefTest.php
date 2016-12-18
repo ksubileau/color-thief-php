@@ -62,22 +62,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                     array(60, 148, 44)
                 )
             ),
-            /* @see Issue #24 */
-            array(
-                "/images/issue_24.jpg",
-                array(
-                    array(236, 243, 247),
-                    array(244, 244, 251),
-                    array(247, 252, 252),
-                    array(72, 72, 80),
-                    array(204, 204, 212),
-                    array(212, 212, 220),
-                    array(240, 232, 240),
-                    array(248, 252, 255),
-                    array(248, 252, 255)
-                ),
-                10
-            ),
         );
     }
 

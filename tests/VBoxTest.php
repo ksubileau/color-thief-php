@@ -142,4 +142,20 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->vbox->r1 = 10 >> ColorThief::RSHIFT;
         $this->assertEquals('r', $this->vbox->longestAxis());
     }
+
+    /**
+     * Test that avg() always returns values leather than 255
+     * @see Issue #24
+     */
+    public function testAvgLimitAt255()
+    {
+        $this->vbox->r1 = 30;
+        $this->vbox->r2 = 31;
+        $this->vbox->g1 = 31;
+        $this->vbox->g2 = 31;
+        $this->vbox->b1 = 32;
+        $this->vbox->b2 = 31;
+
+        $this->assertSame(array(248, 252, 255), $this->vbox->avg());
+    }
 }
