@@ -41,7 +41,7 @@ class ImagickImageAdapter extends ImageAdapter
         try {
             $this->resource = new Imagick($file);
         } catch (\ImagickException $e) {
-            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
+            throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
         }
     }
 

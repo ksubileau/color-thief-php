@@ -35,10 +35,10 @@ use ColorThief\Image\ImageLoader;
 
 class ColorThief
 {
-    const SIGBITS=5;
-    const RSHIFT=3;
-    const MAX_ITERATIONS=1000;
-    const FRACT_BY_POPULATIONS=0.75;
+    const SIGBITS = 5;
+    const RSHIFT = 3;
+    const MAX_ITERATIONS = 1000;
+    const FRACT_BY_POPULATIONS = 0.75;
     const THRESHOLD_ALPHA = 62;
     const THRESHOLD_WHITE = 250;
 
@@ -82,7 +82,7 @@ class ColorThief
      */
     public static function naturalOrder($a, $b)
     {
-        return ($a < $b) ? - 1 : (($a > $b) ? 1 : 0);
+        return ($a < $b) ? -1 : (($a > $b) ? 1 : 0);
     }
 
     /**
@@ -99,8 +99,8 @@ class ColorThief
      *                                  following keys:
      *                                  $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
      *                                  $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                  $area['w']: The width of the area. Default to the width of the image minus x-coordinate.
-     *                                  $area['h']: The height of the area. Default to the height of the image minus y-coordinate.
+     *                                  $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                  $area['h']: The height of the area. Default to image height minus y-coordinate.
      *
      * @return array|bool
      */
@@ -195,12 +195,12 @@ class ColorThief
 
         // Store the RGB values in an array format suitable for quantize function
         // SplFixedArray is faster and more memory-efficient than normal PHP array.
-        $pixelArray = new SplFixedArray(ceil($pixelCount/$quality));
+        $pixelArray = new SplFixedArray(ceil($pixelCount / $quality));
 
         $size = 0;
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
             $x = $startX + ($i % $width);
-            $y = (int) ($startY + $i / $width);
+            $y = (int)($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
             if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
@@ -212,7 +212,8 @@ class ColorThief
         $pixelArray->setSize($size);
 
         // Don't destroy a resource passed by the user !
-        // TODO Add a method in ImageLoader to know if the image should be destroy (or to know the detected image source type)
+        // TODO Add a method in ImageLoader to know if the image should be destroy
+        // (or to know the detected image source type)
         if (is_string($sourceImage)) {
             $image->destroy();
         }
@@ -235,7 +236,11 @@ class ColorThief
      */
     protected static function isNonWhite($color)
     {
-        return !($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE);
+        return !(
+            $color->red > self::THRESHOLD_WHITE &&
+            $color->green > self::THRESHOLD_WHITE &&
+            $color->blue > self::THRESHOLD_WHITE
+        );
     }
 
     /**
@@ -296,7 +301,7 @@ class ColorThief
                     $d2++;
                 }
                 // Avoid 0-count boxes
-                while ($partialSum[$d2] >= $total  && !empty($partialSum[$d2 - 1])) {
+                while ($partialSum[$d2] >= $total && !empty($partialSum[$d2 - 1])) {
                     --$d2;
                 }
 
@@ -360,7 +365,13 @@ class ColorThief
             $sum = 0;
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
-                    list($red, $green, $blue) = static::rearrangeColors($colorIterateOrder, $firstColor, $secondColor, $thirdColor);
+                    list($red, $green, $blue) = static::rearrangeColors(
+                        $colorIterateOrder,
+                        $firstColor,
+                        $secondColor,
+                        $thirdColor
+                    );
+                    
                     $index = static::getColorIndex($red, $green, $blue);
 
                     if (isset($histo[$index])) {
@@ -409,9 +420,9 @@ class ColorThief
         );
 
         return array(
-            $ranges[ $order[0] ],
-            $ranges[ $order[1] ],
-            $ranges[ $order[2] ],
+            $ranges[$order[0]],
+            $ranges[$order[1]],
+            $ranges[$order[2]],
         );
     }
 

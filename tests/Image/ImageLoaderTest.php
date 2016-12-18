@@ -46,14 +46,14 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $loader->expects($this->once())
-                ->method('getAdapter')
-                ->with($this->equalTo($adapterName))
-                ->will($this->returnValue($adapter));
+            ->method('getAdapter')
+            ->with($this->equalTo($adapterName))
+            ->will($this->returnValue($adapter));
 
         if ($mockIsImagickLoaded) {
             $loader->expects($this->once())
-                    ->method('isImagickLoaded')
-                    ->will($this->returnValue($isImagickLoaded));
+                ->method('isImagickLoaded')
+                ->will($this->returnValue($isImagickLoaded));
         }
 
         if ($mockIsGmagickLoaded) {
@@ -105,12 +105,19 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
     protected function baseTestLoadFile($adapterName, $isImagickLoaded, $isGmagickLoaded, $path = false)
     {
         if ($path === false) {
-            $path = __DIR__."/../images/pixels.png";
+            $path = __DIR__ . "/../images/pixels.png";
         }
 
         $adapter = $this->getAdapterMock($adapterName, 'loadFile', $path);
 
-        $loader = $this->getImageLoaderPartialMock($adapter, $adapterName, true, $isImagickLoaded, true, $isGmagickLoaded);
+        $loader = $this->getImageLoaderPartialMock(
+            $adapter,
+            $adapterName,
+            true,
+            $isImagickLoaded,
+            true,
+            $isGmagickLoaded
+        );
 
         $this->assertSame($adapter, $loader->load($path));
     }
@@ -199,7 +206,14 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
 
         $adapter = $this->getAdapterMock($adapterName, 'loadBinaryString', $data);
 
-        $loader = $this->getImageLoaderPartialMock($adapter, $adapterName, true, $isImagickLoaded, true, $isGmagickLoaded);
+        $loader = $this->getImageLoaderPartialMock(
+            $adapter,
+            $adapterName,
+            true,
+            $isImagickLoaded,
+            true,
+            $isGmagickLoaded
+        );
 
         $this->assertSame($adapter, $loader->load($data));
     }

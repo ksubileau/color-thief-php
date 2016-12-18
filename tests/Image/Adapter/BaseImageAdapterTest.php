@@ -42,17 +42,17 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadFilePng()
     {
-        return $this->baseTestLoadFile(__DIR__."/../../images/pixels.png");
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/pixels.png");
     }
 
     public function testLoadFileJpg()
     {
-        return $this->baseTestLoadFile(__DIR__."/../../images/field_1024x683.jpg");
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/field_1024x683.jpg");
     }
 
     public function testLoadFileGif()
     {
-        return $this->baseTestLoadFile(__DIR__."/../../images/rails_600x406.gif");
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/rails_600x406.gif");
     }
 
     /**

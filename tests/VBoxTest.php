@@ -50,7 +50,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
      */
     public function testCopy()
     {
-        $this->vbox->histo = array (25 => 8);
+        $this->vbox->histo = array(25 => 8);
         $copy = $this->vbox->copy();
 
         $this->assertInstanceOf('ColorThief\VBox', $copy);
@@ -76,7 +76,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
 
         //$pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
-        $this->vbox->histo = array (
+        $this->vbox->histo = array(
             29427 => 1,
             26355 => 1,
             32499 => 1,
@@ -119,7 +119,6 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->vbox->contains(array(225, 189, 100)));
         $this->assertFalse($this->vbox->contains(array(225, 189, 200)));
-
     }
 
     /**

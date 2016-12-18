@@ -75,7 +75,7 @@ class ImageLoader
      */
     public function getAdapter($adapterType)
     {
-        $classname = "\\ColorThief\\Image\\Adapter\\".$adapterType."ImageAdapter";
+        $classname = "\\ColorThief\\Image\\Adapter\\" . $adapterType . "ImageAdapter";
         return new $classname();
     }
 }

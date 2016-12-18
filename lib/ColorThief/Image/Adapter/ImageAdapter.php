@@ -3,8 +3,8 @@
 namespace ColorThief\Image\Adapter;
 
 /**
-* Base adapter implementation to handle image manipulation
-*/
+ * Base adapter implementation to handle image manipulation
+ */
 abstract class ImageAdapter implements IImageAdapter
 {
     /**

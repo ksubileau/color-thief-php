@@ -8,27 +8,27 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     public function provideImageDominantColor()
     {
         return array(
-                array(
-                        "/images/rails_600x406.gif",
-                        null,
-                        array(88, 70, 80)
-                    ),
-                array(
-                        "/images/field_1024x683.jpg",
-                        null,
-                        array(107, 172, 222)
-                    ),
-                array(  // Area targeting
-                        "/images/vegetables_1500x995.png",
-                        array('x' => 670, 'y' => 215, 'w' => 230, 'h' => 120),
-                        array(63, 112, 24)
-                    ),
-                array(  // Area targeting with default values for y and width.
-                        "/images/vegetables_1500x995.png",
-                        array('x' => 1300, 'h' => 500),
-                        array(54, 60, 33)
-                    ),
-            );
+            array(
+                "/images/rails_600x406.gif",
+                null,
+                array(88, 70, 80)
+            ),
+            array(
+                "/images/field_1024x683.jpg",
+                null,
+                array(107, 172, 222)
+            ),
+            array(  // Area targeting
+                "/images/vegetables_1500x995.png",
+                array('x' => 670, 'y' => 215, 'w' => 230, 'h' => 120),
+                array(63, 112, 24)
+            ),
+            array(  // Area targeting with default values for y and width.
+                "/images/vegetables_1500x995.png",
+                array('x' => 1300, 'h' => 500),
+                array(54, 60, 33)
+            ),
+        );
     }
 
     public function provideImageColorPalette()
@@ -68,27 +68,27 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     public function provide8bitsColorIndex()
     {
         return array(
-          array(  0,   0,   0,        0),
-          array(120, 120, 120,  7895160),
-          array(255, 255, 255, 16777215)
+            array(0, 0, 0, 0),
+            array(120, 120, 120, 7895160),
+            array(255, 255, 255, 16777215)
         );
     }
 
     public function provide5bitsColorIndex()
     {
         return array(
-          array(  0,   0,   0,      0),
-          array(120, 120, 120, 126840),
-          array(255, 255, 255, 269535)
+            array(0, 0, 0, 0),
+            array(120, 120, 120, 126840),
+            array(255, 255, 255, 269535)
         );
     }
 
     public function provideNaturalOrderComparison()
     {
         return array(
-          array(0, 5, -1),
-          array(10, -3, 1),
-          array(3, 3, 0)
+            array(0, 5, -1),
+            array(10, -3, 1),
+            array(3, 3, 0)
         );
     }
 
@@ -97,7 +97,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
      */
     public function testDominantColor($image, $area, $expectedColor)
     {
-        $dominantColor = ColorThief::getColor(__DIR__.$image, 10, $area);
+        $dominantColor = ColorThief::getColor(__DIR__ . $image, 10, $area);
 
         $this->assertSame($expectedColor, $dominantColor);
     }
@@ -133,7 +133,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
-        $image = file_get_contents(__DIR__.$image);
+        $image = file_get_contents(__DIR__ . $image);
         $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
         //$this->assertCount($numColors, $palette);
@@ -175,7 +175,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPaletteWithBlankImage()
     {
-        ColorThief::getPalette(__DIR__."/images/blank.png");
+        ColorThief::getPalette(__DIR__ . "/images/blank.png");
     }
 
     /**
@@ -231,7 +231,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
         $pixels = array(15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920);
 
-        $expectedHisto = array (
+        $expectedHisto = array(
             29510 => 2,
             16496 => 3,
             28589 => 1,
@@ -251,7 +251,7 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
         //$pixels = array(15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920);
 
-        $histo = array (
+        $histo = array(
             29510 => 2,
             16496 => 3,
             28589 => 1,

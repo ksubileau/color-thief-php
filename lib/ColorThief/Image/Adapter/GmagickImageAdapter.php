@@ -41,7 +41,7 @@ class GmagickImageAdapter extends ImageAdapter
         if (filter_var($file, FILTER_VALIDATE_URL)) {
             $image = @file_get_contents($file);
             if ($image === false) {
-                throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0);
+                throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0);
             }
             return $this->loadBinaryString($image);
         }
@@ -50,7 +50,7 @@ class GmagickImageAdapter extends ImageAdapter
         try {
             $this->resource = new Gmagick($file);
         } catch (\GmagickException $e) {
-            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
+            throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
         }
     }
 
@@ -95,10 +95,10 @@ class GmagickImageAdapter extends ImageAdapter
         // So we ask for normalized values, and then we un-normalize it ourselves.
         $colorArray = $pixel->getColor(true, true);
         $color = new \stdClass();
-        $color->red = (int) round($colorArray['r'] * 255);
-        $color->green = (int) round($colorArray['g'] * 255);
-        $color->blue = (int) round($colorArray['b'] * 255);
-        $color->alpha = (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127);
+        $color->red = (int)round($colorArray['r'] * 255);
+        $color->green = (int)round($colorArray['g'] * 255);
+        $color->blue = (int)round($colorArray['b'] * 255);
+        $color->alpha = (int)round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127);
 
         return $color;
     }

@@ -20,9 +20,9 @@ class CMap
     public function push($vbox)
     {
         $this->vboxes->push(array(
-                'vbox' => $vbox,
-                'color' => $vbox->avg()
-            ));
+            'vbox' => $vbox,
+            'color' => $vbox->avg()
+        ));
     }
 
     public function palette()
@@ -62,7 +62,7 @@ class CMap
                 pow($color[2] - $vbox['color'][2], 2)
             );
 
-            if (! isset($d1) || $d2 < $d1) {
+            if (!isset($d1) || $d2 < $d1) {
                 $d1 = $d2;
                 $pColor = $vbox['color'];
             }
@@ -73,21 +73,21 @@ class CMap
 
     public function forcebw()
     {
-            // XXX: won't work yet
-            /*
-             vboxes = this.vboxes;
-            vboxes.sort(function (a,b) { return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color) )});
+        // XXX: won't work yet
+        /*
+        vboxes = this.vboxes;
+        vboxes.sort(function (a,b) { return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color) )});
 
-            // force darkest color to black if everything < 5
-            var lowest = vboxes[0].color;
-            if (lowest[0] < 5 && lowest[1] < 5 && lowest[2] < 5)
-                vboxes[0].color = [0,0,0];
+        // force darkest color to black if everything < 5
+        var lowest = vboxes[0].color;
+        if (lowest[0] < 5 && lowest[1] < 5 && lowest[2] < 5)
+            vboxes[0].color = [0,0,0];
 
-            // force lightest color to white if everything > 251
-            var idx = vboxes.length-1,
-                highest = vboxes[idx].color;
-            if (highest[0] > 251 && highest[1] > 251 && highest[2] > 251)
-                vboxes[idx].color = [255,255,255];
-                */
+        // force lightest color to white if everything > 251
+        var idx = vboxes.length-1,
+            highest = vboxes[idx].color;
+        if (highest[0] > 251 && highest[1] > 251 && highest[2] > 251)
+            vboxes[idx].color = [255,255,255];
+        */
     }
 }

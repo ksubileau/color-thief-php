@@ -28,7 +28,7 @@ class PQueue
 
     public function peek($index = null)
     {
-        if (! $this->sorted) {
+        if (!$this->sorted) {
             $this->sort();
         }
 
@@ -41,7 +41,7 @@ class PQueue
 
     public function pop()
     {
-        if (! $this->sorted) {
+        if (!$this->sorted) {
             $this->sort();
         }
 
@@ -66,7 +66,7 @@ class PQueue
 
     public function debug()
     {
-        if (! $this->sorted) {
+        if (!$this->sorted) {
             $this->sort();
         }
 

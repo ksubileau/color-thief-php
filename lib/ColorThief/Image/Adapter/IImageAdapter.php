@@ -2,8 +2,8 @@
 namespace ColorThief\Image\Adapter;
 
 /**
-* Basic interface for all image adapters.
-*/
+ * Basic interface for all image adapters.
+ */
 interface IImageAdapter
 {
     /**

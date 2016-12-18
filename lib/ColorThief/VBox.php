@@ -30,7 +30,7 @@ class VBox
 
     public function volume($force = false)
     {
-        if (! $this->volume || $force) {
+        if (!$this->volume || $force) {
             $this->volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
         }
 
@@ -39,7 +39,7 @@ class VBox
 
     public function count($force = false)
     {
-        if (! $this->count_set || $force) {
+        if (!$this->count_set || $force) {
             $npix = 0;
 
             // Select the fastest way (i.e. with the fewest iterations) to count
@@ -47,7 +47,7 @@ class VBox
             if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
                 foreach ($this->histo as $rgb => $count) {
-                    $rgb_array =  ColorThief::getColorsFromIndex($rgb, 0, ColorThief::SIGBITS);
+                    $rgb_array = ColorThief::getColorsFromIndex($rgb, 0, ColorThief::SIGBITS);
                     if ($this->contains($rgb_array, 0)) {
                         $npix += $count;
                     }
@@ -78,7 +78,7 @@ class VBox
 
     public function avg($force = false)
     {
-        if (! $this->avg || $force) {
+        if (!$this->avg || $force) {
             $ntot = 0;
             $mult = 1 << (8 - ColorThief::SIGBITS);
             $rsum = 0;
@@ -99,21 +99,23 @@ class VBox
             }
 
             if ($ntot) {
-                $this->avg = array (
+                $this->avg = array(
                     intval($rsum / $ntot),
                     intval($gsum / $ntot),
                     intval($bsum / $ntot)
                 );
             } else {
                 // echo 'empty box'."\n";
-                $this->avg = array (
-                        intval($mult * ($this->r1 + $this->r2 + 1) / 2),
-                        intval($mult * ($this->g1 + $this->g2 + 1) / 2),
-                        intval($mult * ($this->b1 + $this->b2 + 1) / 2)
+                $this->avg = array(
+                    intval($mult * ($this->r1 + $this->r2 + 1) / 2),
+                    intval($mult * ($this->g1 + $this->g2 + 1) / 2),
+                    intval($mult * ($this->b1 + $this->b2 + 1) / 2)
                 );
 
                 // Ensure all channel values are leather or equal 255 (Issue #24)
-                $this->avg = array_map(function ($val) { return min($val, 255); }, $this->avg);
+                $this->avg = array_map(function ($val) {
+                    return min($val, 255);
+                }, $this->avg);
             }
         }
 
@@ -141,9 +143,9 @@ class VBox
      */
     public function longestAxis()
     {
-        $colorWidth['r']   = $this->r2 - $this->r1;
+        $colorWidth['r'] = $this->r2 - $this->r1;
         $colorWidth['g'] = $this->g2 - $this->g1;
-        $colorWidth['b']  = $this->b2 - $this->b1;
+        $colorWidth['b'] = $this->b2 - $this->b1;
         return array_search(max($colorWidth), $colorWidth);
     }
 }
