@@ -1,5 +1,12 @@
 # Color Thief PHP Changelog
 
+## `1.3.1`
+
+ * Improve handling of corrupted images: throw a RuntimeException if GD fails to load image. (see #30, thank @othmar52).
+ * Fix invalid color values under certain circumstances (see #24).
+ * Use a PSR-4 autoloader (see #28, thank @jbboehr).
+ * Test against PHP 7.1 (see #27, thank @jbboehr).
+
 ## `1.3.0`
 
  * Color Thief PHP now officially supports PHP 7 ! (see #19).
@@ -17,7 +24,7 @@
 ## `1.1.0`
 
  * Add support for Imagick and GD resources. In addition to the path or URL of the image, now you can also directly pass the GD resource or Imagick instance to the getColor and getPalette methods  (see #10).
- * Fix fatal error whith solid white images. An exception is now thrown in this case, allowing the caller to catch it (see #11).
+ * Fix fatal error with solid white images. An exception is now thrown in this case, allowing the caller to catch it (see #11).
  * Fix possible undefined offset under certain circumstances.
  * Change error handling policy : throw exceptions in case of errors instead of return false.
 
