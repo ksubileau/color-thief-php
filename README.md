@@ -21,15 +21,15 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 - GD >= 2.0 and/or Imagick >= 2.0 and/or Gmagick >= 1.0
 - Support JPEG, PNG and GIF images.
 
-##How to use
-###Install via Composer
+## How to use
+### Install via Composer
 The recommended way to install Color Thief is through
 [Composer](http://getcomposer.org):
 ```bash
 composer require ksubileau/color-thief-php
 ```
 
-###Get the dominant color from an image
+### Get the dominant color from an image
 ```php
 require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
@@ -54,7 +54,7 @@ You can also pass another additional argument (`$area`) to specify a rectangular
 - `$area['h']` : The height of the area. Default to the height of the image minus y-coordinate.
 
 
-###Build a color palette from an image
+### Build a color palette from an image
 
 In this example, we build an 8 color palette.
 
@@ -75,9 +75,9 @@ The `$colorCount` argument determines the size of the palette; the number of col
 
 The `$quality` and `$area` arguments work as in the previous function.
 
-##Credits and license
+## Credits and license
 
-###Author
+### Author
 by Kevin Subileau
 [kevinsubileau.fr](http://www.kevinsubileau.fr/?utm_campaign=github&utm_term=color-thief-php_readme)
 
@@ -85,11 +85,11 @@ Based on the fabulous work done by Lokesh Dhakar
 [lokeshdhakar.com](http://www.lokeshdhakar.com)
 [twitter.com/lokesh](http://twitter.com/lokesh)
 
-###Thanks
+### Thanks
 * Lokesh Dhakar - For creating the [original project](http://github.com/lokesh/color-thief).
 * Nick Rabinowitz - For creating quantize.js.
 
-###License
+### License
 Licensed under the [Creative Commons Attribution 2.5 License](http://creativecommons.org/licenses/by/2.5/)
 
 * Free for use in both personal and commercial projects.
