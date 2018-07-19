@@ -6,6 +6,8 @@ use Imagick;
 
 class ImagickImageAdapter extends ImageAdapter
 {
+    var $colorSpaceChecked = false;
+
     /**
      * @inheritdoc
      */
@@ -77,6 +79,10 @@ class ImagickImageAdapter extends ImageAdapter
      */
     public function getPixelColor($x, $y)
     {
+        if (! $this->colorSpaceChecked) {
+            $this->checkColorSpace();
+        }
+
         $pixel = $this->resource->getImagePixelColor($x, $y);
 
         // Un-normalized values don't give a full range 0-1 alpha channel
@@ -89,5 +95,16 @@ class ImagickImageAdapter extends ImageAdapter
         $color->alpha = 127 - round($colorArray['a'] * 127);
 
         return $color;
+    }
+
+    private function checkColorSpace()
+    {
+        if ($this->resource->getColorSpace() <> Imagick::COLORSPACE_SRGB) {
+            // Leave original object unmodified
+            $this->resource = clone $this->resource;
+            $this->resource->transformimagecolorspace(Imagick::COLORSPACE_SRGB);
+        }
+
+        $this->colorSpaceChecked = true;
     }
 }

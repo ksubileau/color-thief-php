@@ -6,6 +6,8 @@ use Gmagick;
 
 class GmagickImageAdapter extends ImageAdapter
 {
+    var $colorSpaceChecked = false;
+
     /**
      * @inheritdoc
      */
@@ -87,6 +89,10 @@ class GmagickImageAdapter extends ImageAdapter
      */
     public function getPixelColor($x, $y)
     {
+        if (! $this->colorSpaceChecked) {
+            $this->checkColorSpace();
+        }
+
         $cropped = clone $this->resource;    // No need to modify the original object.
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
         $pixel = array_shift($histogram);
@@ -102,4 +108,16 @@ class GmagickImageAdapter extends ImageAdapter
 
         return $color;
     }
+
+    private function checkColorSpace()
+    {
+        if ($this->resource->getImageColorSpace() <> Gmagick::COLORSPACE_SRGB) {
+            // Leave original object unmodified
+            $this->resource = clone $this->resource;
+            $this->resource->setImageColorspace(Gmagick::COLORSPACE_SRGB);
+        }
+
+        $this->colorSpaceChecked = true;
+    }
+
 }
