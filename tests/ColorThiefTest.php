@@ -92,6 +92,43 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function provideNonWhiteColors()
+    {
+        return array(
+            array(json_decode('{"red": 88, "green": 70, "blue": 80}')),
+            array(json_decode('{"red": 107, "green": 172, "blue": 222}')),
+            array(json_decode('{"red": 253, "green": 230, "blue": 44}')),
+            array(json_decode('{"red": 63, "green": 112, "blue": 24}')),
+            array(json_decode('{"red": 54, "green": 60, "blue": 33}')),
+            array(json_decode('{"red": 87, "green": 68, "blue": 79}')),
+            array(json_decode('{"red": 210, "green": 170, "blue": 127}')),
+            array(json_decode('{"red": 158, "green": 113, "blue": 84}')),
+            array(json_decode('{"red": 157, "green": 190, "blue": 175}')),
+            array(json_decode('{"red": 107, "green": 119, "blue": 129}')),
+            array(json_decode('{"red": 52, "green": 136, "blue": 211}')),
+            array(json_decode('{"red": 29, "green": 68, "blue": 84}')),
+            array(json_decode('{"red": 120, "green": 124, "blue": 101}')),
+            array(json_decode('{"red": 212, "green": 76, "blue": 60}')),
+            array(json_decode('{"red": 45, "green": 58, "blue": 23}')),
+            array(json_decode('{"red": 227, "green": 217, "blue": 199}')),
+            array(json_decode('{"red": 96, "green": 59, "blue": 49}')),
+            array(json_decode('{"red": 117, "green": 122, "blue": 46}')),
+            array(json_decode('{"red": 107, "green": 129, "blue": 102}')),
+            array(json_decode('{"red": 176, "green": 153, "blue": 102}')),
+            array(json_decode('{"red": 191, "green": 180, "blue": 144}')),
+            array(json_decode('{"red": 159, "green": 132, "blue": 146}')),
+            array(json_decode('{"red": 60, "green": 148, "blue": 44}')),
+        );
+    }
+
+    /**
+     * @dataProvider provideNonWhiteColors
+     */
+    public function testIsNonWhite($color)
+    {
+        $this->assertTrue(ColorThief::isNonWhite($color));
+    }
+
     /**
      * @dataProvider provideImageDominantColor
      */
