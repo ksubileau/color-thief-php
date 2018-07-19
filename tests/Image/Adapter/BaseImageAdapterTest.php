@@ -50,6 +50,11 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
         return $this->baseTestLoadFile(__DIR__ . "/../../images/field_1024x683.jpg");
     }
 
+    public function testLoadFileCmykJpg()
+    {
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/bookcover.jpg");
+    }
+
     public function testLoadFileGif()
     {
         return $this->baseTestLoadFile(__DIR__ . "/../../images/rails_600x406.gif");
@@ -165,6 +170,20 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
         $expected->blue = 255;
         $expected->alpha = 127;
         $this->assertEquals($expected, $adapter->getPixelColor(1, 4));
+    }
+
+    /**
+     * @depends testLoadFileCmykJpg
+     */
+    public function testGetPixelColorFromCmykJpg($adapter)
+    {
+        $expected = new \stdClass();
+        $expected->red = 255;
+        $expected->green = 229;
+        $expected->blue = 44;
+        $expected->alpha = 0;
+
+        $this->assertEquals($expected, $adapter->getPixelColor(20, 20));
     }
 
     /**
