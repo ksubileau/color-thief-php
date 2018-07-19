@@ -121,12 +121,28 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function provideWhiteColors()
+    {
+        return array(
+            array(json_decode('{"red": 255, "green": 255, "blue": 255}')),
+            array(json_decode('{"red": 251, "green": 251, "blue": 251}')),
+        );
+    }
+
     /**
      * @dataProvider provideNonWhiteColors
      */
     public function testIsNonWhite($color)
     {
         $this->assertTrue(ColorThief::isNonWhite($color));
+    }
+
+    /**
+     * @dataProvider provideWhiteColors
+     */
+    public function testIsWhite($color)
+    {
+        $this->assertFalse(ColorThief::isNonWhite($color));
     }
 
     /**
