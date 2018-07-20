@@ -6,8 +6,6 @@ use Imagick;
 
 class ImagickImageAdapter extends ImageAdapter
 {
-    var $colorSpaceChecked = false;
-
     /**
      * @inheritdoc
      */
@@ -15,6 +13,12 @@ class ImagickImageAdapter extends ImageAdapter
     {
         if (!($resource instanceof Imagick)) {
             throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
+        }
+
+        if ($resource->getColorSpace() <> Imagick::COLORSPACE_SRGB) {
+            // Leave original object unmodified
+            $resource = clone $resource;
+            $resource->transformimagecolorspace(Imagick::COLORSPACE_SRGB);
         }
 
         parent::load($resource);
@@ -25,12 +29,13 @@ class ImagickImageAdapter extends ImageAdapter
      */
     public function loadBinaryString($data)
     {
-        $this->resource = new Imagick();
+        $resource = new Imagick();
         try {
-            $this->resource->readImageBlob($data);
+            $resource->readImageBlob($data);
         } catch (\ImagickException $e) {
             throw new \InvalidArgumentException("Passed binary string is empty or is not a valid image", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
@@ -38,13 +43,12 @@ class ImagickImageAdapter extends ImageAdapter
      */
     public function loadFile($file)
     {
-        $this->resource = null;
-
         try {
-            $this->resource = new Imagick($file);
+            $resource = new Imagick($file);
         } catch (\ImagickException $e) {
             throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
@@ -79,10 +83,6 @@ class ImagickImageAdapter extends ImageAdapter
      */
     public function getPixelColor($x, $y)
     {
-        if (! $this->colorSpaceChecked) {
-            $this->checkColorSpace();
-        }
-
         $pixel = $this->resource->getImagePixelColor($x, $y);
 
         // Un-normalized values don't give a full range 0-1 alpha channel
@@ -97,14 +97,4 @@ class ImagickImageAdapter extends ImageAdapter
         return $color;
     }
 
-    private function checkColorSpace()
-    {
-        if ($this->resource->getColorSpace() <> Imagick::COLORSPACE_SRGB) {
-            // Leave original object unmodified
-            $this->resource = clone $this->resource;
-            $this->resource->transformimagecolorspace(Imagick::COLORSPACE_SRGB);
-        }
-
-        $this->colorSpaceChecked = true;
-    }
 }

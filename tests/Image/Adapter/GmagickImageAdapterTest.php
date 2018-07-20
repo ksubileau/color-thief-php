@@ -3,6 +3,7 @@ namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\GmagickImageAdapter;
 use Gmagick;
+use GmagickDraw;
 
 /**
  * @requires extension gmagick
@@ -11,7 +12,7 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
 {
     protected function getTestResourceInstance()
     {
-        return new Gmagick();
+        return new GMagick(__DIR__ . '/../../images/blank.png');
     }
 
     protected function getAdapterInstance()
