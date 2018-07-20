@@ -17,6 +17,11 @@ class GmagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException("Passed variable is not an instance of Gmagick");
         }
 
+        if ($resource->getImageColorSpace() <> Gmagick::COLORSPACE_RGB) {
+            $resource = clone $resource;
+            $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
+        }
+
         parent::load($resource);
     }
 
@@ -25,12 +30,13 @@ class GmagickImageAdapter extends ImageAdapter
      */
     public function loadBinaryString($data)
     {
-        $this->resource = new Gmagick();
+        $resource = new Gmagick();
         try {
-            $this->resource->readImageBlob($data);
+            $resource->readImageBlob($data);
         } catch (\GmagickException $e) {
             throw new \InvalidArgumentException("Passed binary string is empty or is not a valid image", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
@@ -48,12 +54,13 @@ class GmagickImageAdapter extends ImageAdapter
             return $this->loadBinaryString($image);
         }
 
-        $this->resource = null;
+        $resource = null;
         try {
-            $this->resource = new Gmagick($file);
+            $resource = new Gmagick($file);
         } catch (\GmagickException $e) {
             throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
@@ -89,10 +96,6 @@ class GmagickImageAdapter extends ImageAdapter
      */
     public function getPixelColor($x, $y)
     {
-        if (! $this->colorSpaceChecked) {
-            $this->checkColorSpace();
-        }
-
         $cropped = clone $this->resource;    // No need to modify the original object.
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
         $pixel = array_shift($histogram);
@@ -107,17 +110,6 @@ class GmagickImageAdapter extends ImageAdapter
         $color->alpha = (int)round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127);
 
         return $color;
-    }
-
-    private function checkColorSpace()
-    {
-        if ($this->resource->getImageColorSpace() <> Gmagick::COLORSPACE_SRGB) {
-            // Leave original object unmodified
-            $this->resource = clone $this->resource;
-            $this->resource->setImageColorspace(Gmagick::COLORSPACE_SRGB);
-        }
-
-        $this->colorSpaceChecked = true;
     }
 
 }
