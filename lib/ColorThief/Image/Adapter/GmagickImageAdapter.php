@@ -16,6 +16,7 @@ class GmagickImageAdapter extends ImageAdapter
         }
 
         if ($resource->getImageColorSpace() <> Gmagick::COLORSPACE_RGB) {
+            // Leave original object unmodified
             $resource = clone $resource;
             $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
         }
