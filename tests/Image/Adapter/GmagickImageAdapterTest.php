@@ -3,7 +3,6 @@ namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\GmagickImageAdapter;
 use Gmagick;
-use GmagickDraw;
 
 /**
  * @requires extension gmagick
