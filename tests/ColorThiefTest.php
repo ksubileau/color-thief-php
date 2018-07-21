@@ -123,8 +123,6 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
             array(json_decode('{"red": 191, "green": 180, "blue": 144}')),
             array(json_decode('{"red": 159, "green": 132, "blue": 146}')),
             array(json_decode('{"red": 60, "green": 148, "blue": 44}')),
-            array(json_decode('{"red": 253, "green": 230, "blue": 44}')),
-            array(json_decode('{"red": 254, "green": 219, "blue": 80}')),
         );
     }
 
