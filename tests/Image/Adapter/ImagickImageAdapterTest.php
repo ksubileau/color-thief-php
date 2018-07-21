@@ -12,8 +12,11 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
     protected function getTestResourceInstance()
     {
         $imagick = new Imagick();
+
+        // The loader requires a non-empty Imagick object for the color space check
         $imagick->setSize(10, 10);
         $imagick->setColorspace(Imagick::COLORSPACE_SRGB);
+
         return $imagick;
     }
 
