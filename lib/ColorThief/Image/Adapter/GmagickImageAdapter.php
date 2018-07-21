@@ -110,5 +110,4 @@ class GmagickImageAdapter extends ImageAdapter
 
         return $color;
     }
-
 }

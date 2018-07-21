@@ -11,7 +11,7 @@ class ImagickImageAdapter extends ImageAdapter
      */
     public function load($resource)
     {
-        if (!($resource instanceof Imagick)) {
+        if (! ($resource instanceof Imagick)) {
             throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
 
@@ -96,5 +96,4 @@ class ImagickImageAdapter extends ImageAdapter
 
         return $color;
     }
-
 }
