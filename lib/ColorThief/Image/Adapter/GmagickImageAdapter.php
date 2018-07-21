@@ -6,8 +6,6 @@ use Gmagick;
 
 class GmagickImageAdapter extends ImageAdapter
 {
-    var $colorSpaceChecked = false;
-
     /**
      * @inheritdoc
      */
