@@ -234,7 +234,7 @@ class ColorThief
      * @param object $color
      * @return bool
      */
-    public static function isNonWhite($color)
+    protected static function isNonWhite($color)
     {
         return !(
             $color->red > self::THRESHOLD_WHITE &&
