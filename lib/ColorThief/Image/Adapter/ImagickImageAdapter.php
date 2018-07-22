@@ -89,10 +89,10 @@ class ImagickImageAdapter extends ImageAdapter
         // So we ask for normalized values, and then we un-normalize it ourselves.
         $colorArray = $pixel->getColor(true);
         $color = new \stdClass();
-        $color->red = round($colorArray['r'] * 255);
-        $color->green = round($colorArray['g'] * 255);
-        $color->blue = round($colorArray['b'] * 255);
-        $color->alpha = 127 - round($colorArray['a'] * 127);
+        $color->red = (int)round($colorArray['r'] * 255);
+        $color->green = (int)round($colorArray['g'] * 255);
+        $color->blue = (int)round($colorArray['b'] * 255);
+        $color->alpha = (int)(127 - round($colorArray['a'] * 127));
 
         return $color;
     }
