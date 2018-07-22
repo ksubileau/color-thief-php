@@ -15,7 +15,7 @@ class GmagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException("Passed variable is not an instance of Gmagick");
         }
 
-        if ($resource->getImageColorSpace() <> Gmagick::COLORSPACE_RGB) {
+        if ($resource->getImageColorSpace() == Gmagick::COLORSPACE_CMYK) {
             // Leave original object unmodified
             $resource = clone $resource;
             $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
