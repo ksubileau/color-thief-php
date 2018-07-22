@@ -15,10 +15,10 @@ class ImagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
 
-        if ($resource->getColorSpace() <> Imagick::COLORSPACE_SRGB) {
+        if ($resource->getImageColorspace() <> Imagick::COLORSPACE_SRGB) {
             // Leave original object unmodified
             $resource = clone $resource;
-            $resource->transformimagecolorspace(Imagick::COLORSPACE_SRGB);
+            $resource->transformImageColorspace(Imagick::COLORSPACE_SRGB);
         }
 
         parent::load($resource);
