@@ -15,10 +15,18 @@ class ImagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException("Passed variable is not an instance of Imagick");
         }
 
-        if ($resource->getImageColorspace() <> Imagick::COLORSPACE_SRGB) {
+        if ($resource->getImageColorspace() == Imagick::COLORSPACE_CMYK) {
             // Leave original object unmodified
             $resource = clone $resource;
-            $resource->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+
+            // With ImageMagick version 6.7.7, CMYK images converted to RGB color space work as expected,
+            // but for later versions (6.9.7 and 7.0.8 have been tested), conversion to SRGB seems to be required
+            $version = Imagick::getVersion();
+            if ($version['versionNumber'] > 1655) {
+                $resource->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+            } else {
+                $resource->transformImageColorspace(Imagick::COLORSPACE_RGB);
+            }
         }
 
         parent::load($resource);
