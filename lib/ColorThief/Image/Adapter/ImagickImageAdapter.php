@@ -21,8 +21,8 @@ class ImagickImageAdapter extends ImageAdapter
 
             // With ImageMagick version 6.7.7, CMYK images converted to RGB color space work as expected,
             // but for later versions (6.9.7 and 7.0.8 have been tested), conversion to SRGB seems to be required
-            $version = Imagick::getVersion();
-            if ($version['versionNumber'] > 1655) {
+            $imageMagickVersion = $resource::getVersion();
+            if ($imageMagickVersion['versionNumber'] > 1655) {
                 $resource->transformImageColorspace(Imagick::COLORSPACE_SRGB);
             } else {
                 $resource->transformImageColorspace(Imagick::COLORSPACE_RGB);
