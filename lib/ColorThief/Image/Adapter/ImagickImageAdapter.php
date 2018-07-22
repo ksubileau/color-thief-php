@@ -19,6 +19,10 @@ class ImagickImageAdapter extends ImageAdapter
             // Leave original object unmodified
             $resource = clone $resource;
 
+            if (version_compare(phpversion("imagick"), '3.0.0') < 0) {
+                throw new \RuntimeException("Imagick extension version 3.0.0 or later is required for sampling CMYK images");
+            }
+
             // With ImageMagick version 6.7.7, CMYK images converted to RGB color space work as expected,
             // but for later versions (6.9.7 and 7.0.8 have been tested), conversion to SRGB seems to be required
             $imageMagickVersion = $resource->getVersion();
