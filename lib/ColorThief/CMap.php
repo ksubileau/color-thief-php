@@ -28,7 +28,13 @@ class CMap
     public function palette()
     {
         return $this->vboxes->map(function ($vb) {
-            return $vb['color'];
+            return array(
+                $vb['color'], 
+                array(
+                    $vb['vbox']->volume(),
+                    $vb['vbox']->count()
+                )
+            );
         });
     }
 
