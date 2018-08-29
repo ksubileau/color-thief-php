@@ -48,7 +48,7 @@ before_install:
         printf "\n" | pecl install imagick;
       elif [[ $TRAVIS_PHP_VERSION == '5.3' ]] ; then
         printf "\n" | pecl install gmagick-1.1.7RC3;
-        printf "\n" | pecl install imagick-2.3.0;
+        printf "\n" | pecl install imagick-3.0.0;
       else
         printf "\n" | pecl install gmagick-1.1.7RC3;
         printf "\n" | pecl install imagick;

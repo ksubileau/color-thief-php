@@ -11,7 +11,8 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
 {
     protected function getTestResourceInstance()
     {
-        return new Imagick();
+        // The loader requires a non-empty Imagick object for the color space check
+        return new Imagick(__DIR__ . '/../../images/blank.png');
     }
 
     protected function getAdapterInstance()

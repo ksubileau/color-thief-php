@@ -18,6 +18,11 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                 null,
                 array(107, 172, 222)
             ),
+            array(
+                "/images/bookcover.jpg",
+                null,
+                array(250, 226, 44)
+            ),
             array(  // Area targeting
                 "/images/vegetables_1500x995.png",
                 array('x' => 670, 'y' => 215, 'w' => 230, 'h' => 120),

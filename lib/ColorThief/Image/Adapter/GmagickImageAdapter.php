@@ -15,6 +15,12 @@ class GmagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException("Passed variable is not an instance of Gmagick");
         }
 
+        if ($resource->getImageColorSpace() == Gmagick::COLORSPACE_CMYK) {
+            // Leave original object unmodified
+            $resource = clone $resource;
+            $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
+        }
+
         parent::load($resource);
     }
 
@@ -23,12 +29,13 @@ class GmagickImageAdapter extends ImageAdapter
      */
     public function loadBinaryString($data)
     {
-        $this->resource = new Gmagick();
+        $resource = new Gmagick();
         try {
-            $this->resource->readImageBlob($data);
+            $resource->readImageBlob($data);
         } catch (\GmagickException $e) {
             throw new \InvalidArgumentException("Passed binary string is empty or is not a valid image", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
@@ -46,12 +53,13 @@ class GmagickImageAdapter extends ImageAdapter
             return $this->loadBinaryString($image);
         }
 
-        $this->resource = null;
+        $resource = null;
         try {
-            $this->resource = new Gmagick($file);
+            $resource = new Gmagick($file);
         } catch (\GmagickException $e) {
             throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
         }
+        $this->load($resource);
     }
 
     /**
