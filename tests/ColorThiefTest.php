@@ -19,9 +19,9 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                 array(107, 172, 222)
             ),
             array(
-                "/images/bookcover.jpg",
+                "/images/covers_cmyk_PR37.jpg",
                 null,
-                array(250, 226, 44)
+                array(135, 220, 248)
             ),
             array(  // Area targeting
                 "/images/vegetables_1500x995.png",
@@ -65,6 +65,20 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
                     array(191, 180, 144),
                     array(159, 132, 146),
                     array(60, 148, 44)
+                )
+            ),
+            array(
+                "/images/covers_cmyk_PR37.jpg",
+                array(
+                    array(224, 71, 106),
+                    array(21, 50, 129),
+                    array(143, 232, 249),
+                    array(238, 178, 162),
+                    array(163, 173, 59),
+                    array(94, 158, 245),
+                    array(99, 173, 248),
+                    array(120, 181, 170),
+                    array(68, 168, 168)
                 )
             ),
         );

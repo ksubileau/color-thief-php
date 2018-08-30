@@ -52,7 +52,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadFileCmykJpg()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/bookcover.jpg");
+        return $this->baseTestLoadFile(__DIR__ . "/../../images/pixels_cmyk_PR37.jpg");
     }
 
     public function testLoadFileGif()
@@ -178,12 +178,32 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetPixelColorFromCmykJpg($adapter)
     {
         $expected = new \stdClass();
+        $expected->red = 192;
+        $expected->green = 0;
+        $expected->blue = 0;
+        $expected->alpha = 0;
+
+        $this->assertEquals($expected, $adapter->getPixelColor(1, 0));
+
+        $expected->red = 78;
+        $expected->green = 255;
+        $expected->blue = 1;
+        $this->assertEquals($expected, $adapter->getPixelColor(1, 1));
+
         $expected->red = 255;
         $expected->green = 229;
         $expected->blue = 44;
-        $expected->alpha = 0;
+        $this->assertEquals($expected, $adapter->getPixelColor(0, 2));
 
-        $this->assertEquals($expected, $adapter->getPixelColor(20, 20));
+        $expected->red = 204;
+        $expected->green = 203;
+        $expected->blue = 204;
+        $this->assertEquals($expected, $adapter->getPixelColor(2, 2));
+
+        $expected->red = 255;
+        $expected->green = 255;
+        $expected->blue = 255;
+        $this->assertEquals($expected, $adapter->getPixelColor(2, 1));
     }
 
     /**
