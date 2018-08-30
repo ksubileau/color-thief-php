@@ -5,7 +5,7 @@ namespace ColorThief\Test;
 use ColorThief\VBox;
 use ColorThief\ColorThief;
 
-class VBoxTest extends \PHPUnit_Framework_TestCase
+class VBoxTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var VBox

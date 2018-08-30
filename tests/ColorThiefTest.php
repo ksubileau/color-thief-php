@@ -4,7 +4,7 @@ namespace ColorThief\Test;
 
 use ColorThief\ColorThief;
 
-class ColorThiefTest extends \PHPUnit_Framework_TestCase
+class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
     public function provideImageDominantColor()
     {
@@ -174,41 +174,34 @@ class ColorThiefTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedPalette, $palette);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The number of palette colors
-     */
     public function testGetPaletteWithTooFewColors()
     {
+        $this->setExpectedException('\InvalidArgumentException', 'The number of palette colors');
+
         ColorThief::getPalette('foo.jpg', 1);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The number of palette colors
-     */
     public function testGetPaletteWithTooManyColors()
     {
+        $this->setExpectedException('\InvalidArgumentException', 'The number of palette colors');
+
         ColorThief::getPalette('foo.jpg', 120000);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage quality argument
-     */
     public function testGetPaletteWithInvalidQuality()
     {
+        $this->setExpectedException('\InvalidArgumentException', 'quality argument');
+
         ColorThief::getPalette('foo.jpg', 5, 0);
     }
 
     /**
      * @see Issue #11
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage blank or transparent image
-     * @expectedExceptionCode 1
      */
     public function testGetPaletteWithBlankImage()
     {
+        $this->setExpectedException('\RuntimeException', 'blank or transparent image', 1);
+
         ColorThief::getPalette(__DIR__ . '/images/blank.png');
     }
 

@@ -4,7 +4,7 @@ namespace ColorThief\Image\Test;
 
 use ColorThief\Image\ImageLoader;
 
-class ImageLoaderTest extends \PHPUnit_Framework_TestCase
+class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 {
     protected $loader;
 
@@ -94,12 +94,10 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($adapter, $loader->load($image));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Passed variable is not a valid image source
-     */
     public function testLoadInvalidResource()
     {
+        $this->setExpectedException('\InvalidArgumentException', 'Passed variable is not a valid image source');
+
         $this->loader->load(42);
     }
 
@@ -147,12 +145,10 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
         $this->baseTestLoadFile('Gmagick', false, true);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage not readable or does not exists
-     */
     public function testLoadFileMissing()
     {
+        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+
         $this->loader->load('Not a file');
     }
 

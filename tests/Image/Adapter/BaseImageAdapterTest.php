@@ -4,7 +4,7 @@ namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\IImageAdapter;
 
-abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
+abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return resource
@@ -73,30 +73,27 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @see Issue #13
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage not readable or does not exists
      */
     public function testLoad404Url()
     {
+        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+
         $adapter = $this->getAdapterInstance();
         $adapter->loadFile('http://example.com/pixels.png');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage not readable or does not exists
-     */
     public function testLoadFileMissing()
     {
+        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+
         $adapter = $this->getAdapterInstance();
         $adapter->loadFile('Not a file');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testLoadInvalidArgument()
     {
+        $this->setExpectedException('\InvalidArgumentException');
+
         $adapter = $this->getAdapterInstance();
         /* @noinspection PhpParamsInspection */
         $adapter->load('test');
@@ -119,11 +116,10 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
         return $adapter;
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testLoadBinaryStringInvalidArgument()
     {
+        $this->setExpectedException('\InvalidArgumentException');
+
         $adapter = $this->getAdapterInstance();
         $adapter->loadBinaryString('test');
     }

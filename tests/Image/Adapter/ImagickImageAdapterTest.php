@@ -29,12 +29,10 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         $this->assertTrue($image->valid());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Passed variable is not an instance of Imagick
-     */
     public function testLoadInvalidArgument()
     {
+        $this->setExpectedException('\InvalidArgumentException', 'Passed variable is not an instance of Imagick');
+
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
