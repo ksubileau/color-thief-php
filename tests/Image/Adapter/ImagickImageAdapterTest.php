@@ -1,4 +1,5 @@
 <?php
+
 namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\ImagickImageAdapter;

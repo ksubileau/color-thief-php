@@ -1,4 +1,5 @@
 <?php
+
 namespace ColorThief\Image\Test;
 
 use ColorThief\Image\ImageLoader;
@@ -15,7 +16,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
     protected function getAdapterMock($adapterName, $method, $image)
     {
         $adapter = $this->getMockBuilder("ColorThief\\Image\\Adapter\\{$adapterName}ImageAdapter")
-            ->setMethods(array($method))
+            ->setMethods([$method])
             ->getMock();
 
         $adapter->expects($this->once())
@@ -33,7 +34,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
         $mockIsGmagickLoaded = false,
         $isGmagickLoaded = false
     ) {
-        $methods = array('getAdapter');
+        $methods = ['getAdapter'];
         if ($mockIsImagickLoaded) {
             $methods[] = 'isImagickLoaded';
         }
@@ -41,7 +42,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             $methods[] = 'isGmagickLoaded';
         }
 
-        $loader = $this->getMockBuilder("ColorThief\\Image\\ImageLoader")
+        $loader = $this->getMockBuilder('ColorThief\\Image\\ImageLoader')
             ->setMethods($methods)
             ->getMock();
 
@@ -105,7 +106,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
     protected function baseTestLoadFile($adapterName, $isImagickLoaded, $isGmagickLoaded, $path = false)
     {
         if ($path === false) {
-            $path = __DIR__ . "/../images/pixels.png";
+            $path = __DIR__ . '/../images/pixels.png';
         }
 
         $adapter = $this->getAdapterMock($adapterName, 'loadFile', $path);
@@ -152,7 +153,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadFileMissing()
     {
-        $this->loader->load("Not a file");
+        $this->loader->load('Not a file');
     }
 
     /**
@@ -164,7 +165,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             'GD',
             false,
             false,
-            "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
+            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
         );
     }
 
@@ -177,7 +178,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             'Imagick',
             true,
             false,
-            "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
+            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
         );
     }
 
@@ -190,7 +191,7 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
             'Gmagick',
             false,
             true,
-            "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
+            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
         );
     }
 
@@ -244,10 +245,10 @@ class ImageLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAdapter()
     {
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\ImagickImageAdapter', $this->loader->getAdapter("Imagick"));
+        $this->assertInstanceOf('\ColorThief\Image\Adapter\ImagickImageAdapter', $this->loader->getAdapter('Imagick'));
 
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\GDImageAdapter', $this->loader->getAdapter("GD"));
+        $this->assertInstanceOf('\ColorThief\Image\Adapter\GDImageAdapter', $this->loader->getAdapter('GD'));
 
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\GmagickImageAdapter', $this->loader->getAdapter("Gmagick"));
+        $this->assertInstanceOf('\ColorThief\Image\Adapter\GmagickImageAdapter', $this->loader->getAdapter('Gmagick'));
     }
 }

@@ -68,12 +68,13 @@ class VBox
             $this->count = $npix;
             $this->count_set = true;
         }
+
         return $this->count;
     }
 
     public function copy()
     {
-        return new VBox($this->r1, $this->r2, $this->g1, $this->g2, $this->b1, $this->b2, $this->histo);
+        return new self($this->r1, $this->r2, $this->g1, $this->g2, $this->b1, $this->b2, $this->histo);
     }
 
     public function avg($force = false)
@@ -99,18 +100,18 @@ class VBox
             }
 
             if ($ntot) {
-                $this->avg = array(
-                    intval($rsum / $ntot),
-                    intval($gsum / $ntot),
-                    intval($bsum / $ntot)
-                );
+                $this->avg = [
+                    (int) ($rsum / $ntot),
+                    (int) ($gsum / $ntot),
+                    (int) ($bsum / $ntot),
+                ];
             } else {
                 // echo 'empty box'."\n";
-                $this->avg = array(
-                    intval($mult * ($this->r1 + $this->r2 + 1) / 2),
-                    intval($mult * ($this->g1 + $this->g2 + 1) / 2),
-                    intval($mult * ($this->b1 + $this->b2 + 1) / 2)
-                );
+                $this->avg = [
+                    (int) ($mult * ($this->r1 + $this->r2 + 1) / 2),
+                    (int) ($mult * ($this->g1 + $this->g2 + 1) / 2),
+                    (int) ($mult * ($this->b1 + $this->b2 + 1) / 2),
+                ];
 
                 // Ensure all channel values are leather or equal 255 (Issue #24)
                 $this->avg = array_map(function ($val) {
@@ -138,7 +139,8 @@ class VBox
     }
 
     /**
-     * Determines the longest axis
+     * Determines the longest axis.
+     *
      * @return string
      */
     public function longestAxis()
@@ -146,6 +148,7 @@ class VBox
         $colorWidth['r'] = $this->r2 - $this->r1;
         $colorWidth['g'] = $this->g2 - $this->g1;
         $colorWidth['b'] = $this->b2 - $this->b1;
+
         return array_search(max($colorWidth), $colorWidth);
     }
 }

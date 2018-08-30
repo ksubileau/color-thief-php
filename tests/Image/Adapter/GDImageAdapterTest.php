@@ -1,4 +1,5 @@
 <?php
+
 namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\GDImageAdapter;
@@ -43,6 +44,6 @@ class GDImageAdapterTest extends BaseImageAdapterTest
      */
     public function testLoadFileJpgCorrupted()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/corrupted_PR30.jpg");
+        return $this->baseTestLoadFile(__DIR__ . '/../../images/corrupted_PR30.jpg');
     }
 }

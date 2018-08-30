@@ -1,4 +1,5 @@
 <?php
+
 namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\IImageAdapter;
@@ -42,22 +43,22 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadFilePng()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/pixels.png");
+        return $this->baseTestLoadFile(__DIR__ . '/../../images/pixels.png');
     }
 
     public function testLoadFileJpg()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/field_1024x683.jpg");
+        return $this->baseTestLoadFile(__DIR__ . '/../../images/field_1024x683.jpg');
     }
 
     public function testLoadFileCmykJpg()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/pixels_cmyk_PR37.jpg");
+        return $this->baseTestLoadFile(__DIR__ . '/../../images/pixels_cmyk_PR37.jpg');
     }
 
     public function testLoadFileGif()
     {
-        return $this->baseTestLoadFile(__DIR__ . "/../../images/rails_600x406.gif");
+        return $this->baseTestLoadFile(__DIR__ . '/../../images/rails_600x406.gif');
     }
 
     /**
@@ -66,7 +67,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoadUrl()
     {
         return $this->baseTestLoadFile(
-            "https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png"
+            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
         );
     }
 
@@ -78,7 +79,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoad404Url()
     {
         $adapter = $this->getAdapterInstance();
-        $adapter->loadFile("http://example.com/pixels.png");
+        $adapter->loadFile('http://example.com/pixels.png');
     }
 
     /**
@@ -88,7 +89,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoadFileMissing()
     {
         $adapter = $this->getAdapterInstance();
-        $adapter->loadFile("Not a file");
+        $adapter->loadFile('Not a file');
     }
 
     /**
@@ -97,8 +98,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoadInvalidArgument()
     {
         $adapter = $this->getAdapterInstance();
-        /** @noinspection PhpParamsInspection */
-        $adapter->load("test");
+        /* @noinspection PhpParamsInspection */
+        $adapter->load('test');
     }
 
     public function testLoadBinaryString()
@@ -124,11 +125,13 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLoadBinaryStringInvalidArgument()
     {
         $adapter = $this->getAdapterInstance();
-        $adapter->loadBinaryString("test");
+        $adapter->loadBinaryString('test');
     }
 
     /**
      * @depends testLoadFilePng
+     *
+     * @param \ColorThief\Image\Adapter\IImageAdapter $adapter
      */
     public function testGetHeight($adapter)
     {
@@ -137,6 +140,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testLoadFilePng
+     *
+     * @param \ColorThief\Image\Adapter\IImageAdapter $adapter
      */
     public function testGetWidth($adapter)
     {
@@ -145,6 +150,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testLoadFilePng
+     *
+     * @param \ColorThief\Image\Adapter\IImageAdapter $adapter
      */
     public function testGetPixelColor($adapter)
     {
@@ -174,6 +181,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testLoadFileCmykJpg
+     *
+     * @param \ColorThief\Image\Adapter\IImageAdapter $adapter
      */
     public function testGetPixelColorFromCmykJpg($adapter)
     {
@@ -208,6 +217,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testLoad
+     *
+     * @param \ColorThief\Image\Adapter\IImageAdapter $adapter
      */
     public function testDestroy($adapter)
     {

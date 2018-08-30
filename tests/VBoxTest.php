@@ -1,4 +1,5 @@
 <?php
+
 namespace ColorThief\Test;
 
 use ColorThief\VBox;
@@ -22,7 +23,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ColorThief\VBox::volume
+     * @covers \ColorThief\VBox::volume
      */
     public function testVolume()
     {
@@ -46,11 +47,11 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ColorThief\VBox::copy
+     * @covers \ColorThief\VBox::copy
      */
     public function testCopy()
     {
-        $this->vbox->histo = array(25 => 8);
+        $this->vbox->histo = [25 => 8];
         $copy = $this->vbox->copy();
 
         $this->assertInstanceOf('ColorThief\VBox', $copy);
@@ -64,7 +65,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ColorThief\VBox::count
+     * @covers \ColorThief\VBox::count
      */
     public function testCount()
     {
@@ -76,7 +77,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
 
         //$pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
-        $this->vbox->histo = array(
+        $this->vbox->histo = [
             29427 => 1,
             26355 => 1,
             32499 => 1,
@@ -84,7 +85,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
             29491 => 1,
             29420 => 1,
             29433 => 1,
-        );
+        ];
 
         $this->assertEquals(1, $this->vbox->count());
 
@@ -98,7 +99,7 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ColorThief\VBox::contains
+     * @covers \ColorThief\VBox::contains
      */
     public function testContains()
     {
@@ -109,20 +110,20 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->vbox->b1 = 158 >> ColorThief::RSHIFT;
         $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
 
-        $this->assertTrue($this->vbox->contains(array(225, 190, 158)));
+        $this->assertTrue($this->vbox->contains([225, 190, 158]));
 
-        $this->assertFalse($this->vbox->contains(array(200, 189, 158)));
-        $this->assertFalse($this->vbox->contains(array(255, 189, 158)));
+        $this->assertFalse($this->vbox->contains([200, 189, 158]));
+        $this->assertFalse($this->vbox->contains([255, 189, 158]));
 
-        $this->assertFalse($this->vbox->contains(array(225, 50, 158)));
-        $this->assertFalse($this->vbox->contains(array(225, 200, 158)));
+        $this->assertFalse($this->vbox->contains([225, 50, 158]));
+        $this->assertFalse($this->vbox->contains([225, 200, 158]));
 
-        $this->assertFalse($this->vbox->contains(array(225, 189, 100)));
-        $this->assertFalse($this->vbox->contains(array(225, 189, 200)));
+        $this->assertFalse($this->vbox->contains([225, 189, 100]));
+        $this->assertFalse($this->vbox->contains([225, 189, 200]));
     }
 
     /**
-     * @covers ColorThief\VBox::longestAxis
+     * @covers \ColorThief\VBox::longestAxis
      */
     public function testLongestAxis()
     {
@@ -143,7 +144,8 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that avg() always returns values leather than 255
+     * Test that avg() always returns values leather than 255.
+     *
      * @see Issue #24
      */
     public function testAvgLimitAt255()
@@ -155,6 +157,6 @@ class VBoxTest extends \PHPUnit_Framework_TestCase
         $this->vbox->b1 = 32;
         $this->vbox->b2 = 31;
 
-        $this->assertSame(array(248, 252, 255), $this->vbox->avg());
+        $this->assertSame([248, 252, 255], $this->vbox->avg());
     }
 }
