@@ -1,6 +1,8 @@
 ### Miscellaneous
 .DS_Store
 Thumbs.db
+.php_cs
+.php_cs.cache
 
 ### Composer
 composer.lock

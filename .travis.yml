@@ -27,11 +27,11 @@ env:
 
 matrix:
   include:
-    - php: 5.6
+    - php: 7.1
       env:
         - PHPCS=1
   allow_failures:
-    - php: 5.6
+    - php: 7.1
       env:
         - PHPCS=1
     - php: hhvm
@@ -51,11 +51,12 @@ before_install:
     fi;
 
 install:
+  - REMOVE_PACKAGE="friendsofphp/php-cs-fixer"; if [ "$PHPCS" = 1 ]; then REMOVE_PACKAGE="phpunit/phpunit"; fi; composer remove --no-update --no-scripts --dev $REMOVE_PACKAGE
   - travis_retry composer install --prefer-dist
   - phpenv rehash
 
 script:
-  - if [[ "$PHPCS" == 1 ]]; then ./vendor/bin/phpcs --standard=psr2 lib/ tests/; exit $?; fi;
+  - if [[ "$PHPCS" == 1 ]]; then ./vendor/bin/php-cs-fixer --diff --dry-run --verbose --using-cache=no fix; exit $?; fi;
   - ./vendor/phpunit/phpunit/phpunit -c tests --coverage-text --verbose
 
 notifications:
