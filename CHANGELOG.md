@@ -1,5 +1,11 @@
 # Color Thief PHP Changelog
 
+## `1.4.0`
+
+ * Drop support for PHP 5.3, now require 5.4+.
+ * Fix incorrect palette with CMYK images using Imagick or Gmagick (see #37, thank @crishoj).
+ * Test against PHP 7.2
+
 ## `1.3.1`
 
  * Improve handling of corrupted images: throw a RuntimeException if GD fails to load image. (see #30, thank @othmar52).
