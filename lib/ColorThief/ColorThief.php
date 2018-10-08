@@ -259,7 +259,7 @@ class ColorThief
     private static function vboxFromHistogram(array $histo)
     {
         $rgbMin = [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MAX];
-        $rgbMax = [PHP_INT_MIN, PHP_INT_MIN, PHP_INT_MIN];
+        $rgbMax = [-PHP_INT_MAX, -PHP_INT_MAX, -PHP_INT_MAX];
 
         // find min/max
         foreach ($histo as $index => $count) {
