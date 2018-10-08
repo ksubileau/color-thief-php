@@ -47,7 +47,7 @@ class VBox
             if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
                 foreach ($this->histo as $rgb => $count) {
-                    $rgb_array = ColorThief::getColorsFromIndex($rgb, 0, ColorThief::SIGBITS);
+                    $rgb_array = ColorThief::getColorsFromIndex($rgb);
                     if ($this->contains($rgb_array, 0)) {
                         $npix += $count;
                     }
@@ -81,7 +81,6 @@ class VBox
     {
         if (!$this->avg || $force) {
             $ntot = 0;
-            $mult = 1 << (8 - ColorThief::SIGBITS);
             $rsum = 0;
             $gsum = 0;
             $bsum = 0;
@@ -92,9 +91,9 @@ class VBox
                         $histoindex = ColorThief::getColorIndex($i, $j, $k);
                         $hval = isset($this->histo[$histoindex]) ? $this->histo[$histoindex] : 0;
                         $ntot += $hval;
-                        $rsum += ($hval * ($i + 0.5) * $mult);
-                        $gsum += ($hval * ($j + 0.5) * $mult);
-                        $bsum += ($hval * ($k + 0.5) * $mult);
+                        $rsum += ($hval * ($i + 0.5));
+                        $gsum += ($hval * ($j + 0.5));
+                        $bsum += ($hval * ($k + 0.5));
                     }
                 }
             }
@@ -108,9 +107,9 @@ class VBox
             } else {
                 // echo 'empty box'."\n";
                 $this->avg = [
-                    (int) ($mult * ($this->r1 + $this->r2 + 1) / 2),
-                    (int) ($mult * ($this->g1 + $this->g2 + 1) / 2),
-                    (int) ($mult * ($this->b1 + $this->b2 + 1) / 2),
+                    (int) (($this->r1 + $this->r2 + 1) / 2),
+                    (int) (($this->g1 + $this->g2 + 1) / 2),
+                    (int) (($this->b1 + $this->b2 + 1) / 2),
                 ];
 
                 // Ensure all channel values are leather or equal 255 (Issue #24)

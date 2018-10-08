@@ -54,26 +54,25 @@ class ColorThief
      */
     public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        return ($red << (2 * $sigBits)) + ($green << $sigBits) + $blue;
+        $mask = 255 ^ ((1 << (8-$sigBits)) - 1);
+
+        return (($red & $mask) << 16) + (($green & $mask) << 8) + ($blue & $mask);
     }
 
     /**
      * Get red, green and blue components from reduced-space color index for a pixel.
      *
      * @param int $index
-     * @param int $rightShift
-     * @param int $sigBits
      *
      * @return array
      */
-    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8)
+    public static function getColorsFromIndex($index)
     {
-        $mask = (1 << $sigBits) - 1;
-        $red = (($index >> (2 * $sigBits)) & $mask) >> $rightShift;
-        $green = (($index >> $sigBits) & $mask) >> $rightShift;
-        $blue = ($index & $mask) >> $rightShift;
-
-        return [$red, $green, $blue];
+        return [
+            ($index >> 16) & 255,
+            ($index >> 8) & 255,
+            $index & 255
+        ];
     }
 
     /**
@@ -210,6 +209,7 @@ class ColorThief
             $color = $image->getPixelColor($x, $y);
 
             if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
+                // Save all bits of the colors in pixelArray
                 $pixelArray[$size++] = static::getColorIndex($color->red, $color->green, $color->blue, 8);
                 // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
             }
@@ -263,7 +263,7 @@ class ColorThief
 
         // find min/max
         foreach ($histo as $index => $count) {
-            $rgb = static::getColorsFromIndex($index, 0, self::SIGBITS);
+            $rgb = static::getColorsFromIndex($index);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
