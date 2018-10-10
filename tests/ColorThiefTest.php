@@ -349,26 +349,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetHisto()
-    {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'getHisto');
-        $method->setAccessible(true);
-
-        // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
-        // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
-        $pixels = [15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920];
-
-        $expectedHisto = [
-            29510 => 2,
-            16496 => 3,
-            28589 => 1,
-            27811 => 1,
-            30234 => 1,
-        ];
-
-        $this->assertSame($expectedHisto, $method->invoke(null, $pixels));
-    }
-
     public function testVboxFromPixels()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');

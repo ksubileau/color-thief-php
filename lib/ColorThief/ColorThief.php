@@ -30,7 +30,6 @@
 
 namespace ColorThief;
 
-use SplFixedArray;
 use ColorThief\Image\ImageLoader;
 
 class ColorThief
@@ -139,47 +138,29 @@ class ColorThief
             throw new \InvalidArgumentException('The quality argument must be an integer greater than one.');
         }
 
-        $pixelArray = static::loadImage($sourceImage, $quality, $area);
-        if (!count($pixelArray)) {
+        $histo = [];
+        $numPixelsAnalyzed = static::loadImage($sourceImage, $quality, $area, $histo);
+        if ($numPixelsAnalyzed === 0) {
             throw new \RuntimeException('Unable to compute the color palette of a blank or transparent image.', 1);
         }
 
         // Send array to quantize function which clusters values
         // using median cut algorithm
-        $cmap = static::quantize($pixelArray, $colorCount);
+        $cmap = static::quantize($numPixelsAnalyzed, $colorCount, $histo);
         $palette = $cmap->palette();
 
         return $palette;
     }
 
     /**
-     * Histo: 1-d array, giving the number of pixels in each quantized region of color space.
-     *
-     * @param array $pixels
-     *
-     * @return array
-     */
-    private static function getHisto($pixels)
-    {
-        $histo = [];
-
-        foreach ($pixels as $rgb) {
-            list($red, $green, $blue) = static::getColorsFromIndex($rgb, 0, 8);
-            $bucketInt = static::getColorIndex($red, $green, $blue, self::SIGBITS);
-            $histo[$bucketInt] = (isset($histo[$bucketInt]) ? $histo[$bucketInt] : 0) + 1;
-        }
-
-        return $histo;
-    }
-
-    /**
      * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $quality
+     * @param int        $quality Analyze every $quality pixels
      * @param array|null $area
+     * @param array      $histo Histogram
      *
      * @return SplFixedArray
      */
-    private static function loadImage($sourceImage, $quality, array $area = null)
+    private static function loadImage($sourceImage, $quality, array $area = null, &$histo)
     {
         $loader = new ImageLoader();
         $image = $loader->load($sourceImage);
@@ -201,23 +182,28 @@ class ColorThief
 
         $pixelCount = $width * $height;
 
-        // Store the RGB values in an array format suitable for quantize function
-        // SplFixedArray is faster and more memory-efficient than normal PHP array.
-        $pixelArray = new SplFixedArray(ceil($pixelCount / $quality));
-
-        $size = 0;
+        $numPixelsAnalyzed = 0;
+        $histo = [];
         for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
             $x = $startX + ($i % $width);
             $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
-            if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
-                $pixelArray[$size++] = static::getColorIndex($color->red, $color->green, $color->blue, 8);
-                // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
+            // Pixel is clearly visible as its alpha is smaller (more opaque) than THRESHOLD_ALPHA.
+            // PHP's transparency range (0-127 opaque-transparent) is reverse that of Javascript (0-255 tranparent-opaque).
+            $isClearlyVisible = ($color->alpha <= self::THRESHOLD_ALPHA);
+
+            // Pixel is considered non-white if its RGB values all exceed THRESHOLD_WHITE
+            $isNonWhite = !($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE);
+
+            if ($isClearlyVisible && $isNonWhite) {
+                $numPixelsAnalyzed++;
+
+                // Compute the pixel color histogram.
+                $bucketInt = static::getColorIndex($color->red, $color->green, $color->blue, 5);
+                $histo[$bucketInt] = (isset($histo[$bucketInt]) ? $histo[$bucketInt] : 0) + 1;
             }
         }
-
-        $pixelArray->setSize($size);
 
         // Don't destroy a resource passed by the user !
         // TODO Add a method in ImageLoader to know if the image should be destroy
@@ -226,31 +212,7 @@ class ColorThief
             $image->destroy();
         }
 
-        return $pixelArray;
-    }
-
-    /**
-     * @param object $color
-     *
-     * @return bool
-     */
-    protected static function isClearlyVisible($color)
-    {
-        return $color->alpha <= self::THRESHOLD_ALPHA;
-    }
-
-    /**
-     * @param object $color
-     *
-     * @return bool
-     */
-    protected static function isNonWhite($color)
-    {
-        return !(
-            $color->red > self::THRESHOLD_WHITE &&
-            $color->green > self::THRESHOLD_WHITE &&
-            $color->blue > self::THRESHOLD_WHITE
-        );
+        return $numPixelsAnalyzed;
     }
 
     /**
@@ -493,18 +455,17 @@ class ColorThief
     /**
      * @param SplFixedArray|array $pixels
      * @param $maxColors
+     * @param array $histo Histogram
      *
      * @return bool|CMap
      */
-    private static function quantize($pixels, $maxColors)
+    private static function quantize($numPixels, $maxColors, array &$histo)
     {
         // short-circuit
-        if (!count($pixels) || $maxColors < 2 || $maxColors > 256) {
+        if ($numPixels === 0 || $maxColors < 2 || $maxColors > 256) {
             // echo 'wrong number of maxcolors'."\n";
             return false;
         }
-
-        $histo = static::getHisto($pixels);
 
         // check that we aren't below maxcolors already
         //if (count($histo) <= $maxcolors) {
