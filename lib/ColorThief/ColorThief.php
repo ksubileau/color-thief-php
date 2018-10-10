@@ -43,7 +43,7 @@ class ColorThief
     const THRESHOLD_WHITE = 250;
 
     /**
-     * Get reduced-space color index for a pixel.
+     * Get combined color index (3 colors as one integer) from RGB values (0-255) or RGB Histogram Buckets (0-31).
      *
      * @param int $red
      * @param int $green
@@ -54,25 +54,28 @@ class ColorThief
      */
     public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        $mask = 255 ^ ((1 << (8-$sigBits)) - 1);
-
-        return (($red & $mask) << 16) + (($green & $mask) << 8) + ($blue & $mask);
+        return (($red >> (8 - $sigBits)) << (2 * $sigBits)) + (($green >> (8 - $sigBits)) << $sigBits) + ($blue >> (8 - $sigBits));
     }
 
     /**
-     * Get red, green and blue components from reduced-space color index for a pixel.
+     * Get RGB values (0-255) or RGB Histogram Buckets from a combined color index (3 colors as one integer).
      *
      * @param int $index
+     * @param int $rightShift
+     * @param int $sigBits
+     * @param int $leftShift
      *
      * @return array
      */
-    public static function getColorsFromIndex($index)
+    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8, $leftShift = 0)
     {
-        return [
-            ($index >> 16) & 255,
-            ($index >> 8) & 255,
-            $index & 255
-        ];
+        $mask = (1 << $sigBits) - 1;
+
+        $red = ((($index >> (2 * $sigBits)) & $mask) >> $rightShift) << $leftShift;
+        $green = ((($index >> $sigBits) & $mask) >> $rightShift) << $leftShift;
+        $blue = (($index & $mask) >> $rightShift) << $leftShift;
+
+        return [$red, $green, $blue];
     }
 
     /**
@@ -161,9 +164,9 @@ class ColorThief
         $histo = [];
 
         foreach ($pixels as $rgb) {
-            list($red, $green, $blue) = static::getColorsFromIndex($rgb);
-            $index = static::getColorIndex($red, $green, $blue);
-            $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
+            list($red, $green, $blue) = static::getColorsFromIndex($rgb, 0, 8);
+            $bucketInt = static::getColorIndex($red, $green, $blue, self::SIGBITS);
+            $histo[$bucketInt] = (isset($histo[$bucketInt]) ? $histo[$bucketInt] : 0) + 1;
         }
 
         return $histo;
@@ -209,7 +212,6 @@ class ColorThief
             $color = $image->getPixelColor($x, $y);
 
             if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
-                // Save all bits of the colors in pixelArray
                 $pixelArray[$size++] = static::getColorIndex($color->red, $color->green, $color->blue, 8);
                 // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
             }
@@ -263,7 +265,7 @@ class ColorThief
 
         // find min/max
         foreach ($histo as $index => $count) {
-            $rgb = static::getColorsFromIndex($index);
+            $rgb = static::getColorsFromIndex($index, 0, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
@@ -376,17 +378,18 @@ class ColorThief
             $sum = 0;
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
-                    list($red, $green, $blue) = static::rearrangeColors(
+                    list($redBucket, $greenBucket, $blueBucket) = static::rearrangeColors(
                         $colorIterateOrder,
                         $firstColor,
                         $secondColor,
                         $thirdColor
                     );
 
-                    $index = static::getColorIndex($red, $green, $blue);
+                    // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
+                    $bucketInt = static::getColorIndex($redBucket << self::RSHIFT, $greenBucket << self::RSHIFT, $blueBucket << self::RSHIFT, self::SIGBITS);
 
-                    if (isset($histo[$index])) {
-                        $sum += $histo[$index];
+                    if (isset($histo[$bucketInt])) {
+                        $sum += $histo[$bucketInt];
                     }
                 }
             }

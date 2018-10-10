@@ -71,15 +71,15 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [
                 '/images/covers_cmyk_PR37.jpg',
                 [
-                    [224, 71, 106],
+                    [223, 71, 106],
                     [21, 50, 129],
                     [143, 232, 249],
-                    [238, 178, 162],
+                    [238, 178, 163],
                     [163, 173, 59],
                     [94, 158, 245],
-                    [99, 173, 248],
-                    [120, 181, 170],
-                    [68, 168, 168],
+                    [99, 174, 248],
+                    [120, 181, 169],
+                    [68, 164, 168],
                 ],
             ],
         ];
@@ -97,9 +97,17 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function provide5bitsColorIndex()
     {
         return [
-            [0, 0, 0, 0],
-            [120, 120, 120, 126840],
-            [255, 255, 255, 269535],
+            [  0,   0,   0,      0, 0b000000000000000],
+            [120, 120, 120,  15855, 0b011110111101111],
+            [255, 255, 255,  32767, 0b111111111111111],
+        ];
+    }
+
+    public function provide5bitsColorIndex_Bug()
+    {
+        return [
+            [120, 120, 120, 126840, 0b011110111101111000],
+            [255, 255, 255, 269535, 0b01000001110011011111],
         ];
     }
 
@@ -228,12 +236,85 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      * @param int $g
      * @param int $b
      * @param int $index
+     * @param int $indexBinary
      */
-    public function testGetColorIndex5bits($r, $g, $b, $index)
+    public function testGetColorIndex5bits($r, $g, $b, $index, $indexBinary)
     {
         $this->assertSame(
             $index,
+            $indexBinary
+        );
+        $this->assertSame(
+            $index,
             ColorThief::getColorIndex($r, $g, $b)
+        );
+    }
+
+    /**
+     * @dataProvider provide5bitsColorIndex_Bug
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     */
+    public function testGetColorIndex5bits_Bug($r, $g, $b, $index, $indexBinary)
+    {
+        $this->assertSame(
+            $index,
+            $indexBinary
+        );
+        $this->assertNotEquals(
+            $index,
+            ColorThief::getColorIndex($r, $g, $b)
+        );
+    }
+
+    /**
+     * Tests RGB values are the same after converting them to a combined bucketInt and then back to RGB bucket values.
+     *
+     * @dataProvider provide5bitsColorIndex
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     *
+     */
+    public function testRgbValuesToBucketIntAndBackToBuckets($r, $g, $b, $index, $indexBinary)
+    {
+        $rgbBuckets = [$r >> ColorThief::RSHIFT, $g >> ColorThief::RSHIFT, $b >> ColorThief::RSHIFT];
+        $this->assertSame(
+            [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS, 0)
+        );
+
+        // Test using getColorsFromIndex's default leftShift parameter
+        $this->assertSame(
+            [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS)
+        );
+    }
+
+    /**
+     * Tests RGB values' significant bits are the same after converting them to a combined bucketInt and then back to RGB values.
+     *
+     * @dataProvider provide5bitsColorIndex
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     *
+     */
+    public function testRgbValuesToBucketIntAndBackToRgb($r, $g, $b, $index, $indexBinary)
+    {
+        $this->assertSame(
+            [$r & 0b11111000, $g & 0b11111000, $b & 0b11111000],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS, ColorThief::RSHIFT)
         );
     }
 

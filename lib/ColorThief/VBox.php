@@ -46,20 +46,21 @@ class VBox
             // the number of pixels contained in this vbox.
             if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
-                foreach ($this->histo as $rgb => $count) {
-                    $rgb_array = ColorThief::getColorsFromIndex($rgb);
-                    if ($this->contains($rgb_array, 0)) {
+                foreach ($this->histo as $bucketInt => $count) {
+                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketInt, 0, ColorThief::SIGBITS);
+                    if ($this->contains($rgbBuckets, 0)) {
                         $npix += $count;
                     }
                 }
             } else {
                 // Or iterate over points of the vbox if the size of the histogram is greater than the vbox volume
-                for ($i = $this->r1; $i <= $this->r2; $i++) {
-                    for ($j = $this->g1; $j <= $this->g2; $j++) {
-                        for ($k = $this->b1; $k <= $this->b2; $k++) {
-                            $index = ColorThief::getColorIndex($i, $j, $k);
-                            if (isset($this->histo[$index])) {
-                                $npix += $this->histo[$index];
+                for ($redBucket = $this->r1; $redBucket <= $this->r2; $redBucket++) {
+                    for ($greenBucket = $this->g1; $greenBucket <= $this->g2; $greenBucket++) {
+                        for ($blueBucket = $this->b1; $blueBucket <= $this->b2; $blueBucket++) {
+                            // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
+                            $bucketInt = ColorThief::getColorIndex($redBucket << ColorThief::RSHIFT, $greenBucket << ColorThief::RSHIFT, $blueBucket << ColorThief::RSHIFT, ColorThief::SIGBITS);
+                            if (isset($this->histo[$bucketInt])) {
+                                $npix += $this->histo[$bucketInt];
                             }
                         }
                     }
@@ -77,23 +78,32 @@ class VBox
         return new self($this->r1, $this->r2, $this->g1, $this->g2, $this->b1, $this->b2, $this->histo);
     }
 
+    /**
+     * Calculates the average color represented by this VBox.
+     *
+     * @param bool $force
+     * @return array|bool
+     */
     public function avg($force = false)
     {
         if (!$this->avg || $force) {
             $ntot = 0;
+            $mult = 1 << ColorThief::RSHIFT;
             $rsum = 0;
             $gsum = 0;
             $bsum = 0;
 
-            for ($i = $this->r1; $i <= $this->r2; $i++) {
-                for ($j = $this->g1; $j <= $this->g2; $j++) {
-                    for ($k = $this->b1; $k <= $this->b2; $k++) {
-                        $histoindex = ColorThief::getColorIndex($i, $j, $k);
-                        $hval = isset($this->histo[$histoindex]) ? $this->histo[$histoindex] : 0;
+            for ($redBucket = $this->r1; $redBucket <= $this->r2; $redBucket++) {
+                for ($greenBucket = $this->g1; $greenBucket <= $this->g2; $greenBucket++) {
+                    for ($blueBucket = $this->b1; $blueBucket <= $this->b2; $blueBucket++) {
+                        // getColorIndex takes RGB values instead of buckets, so left shift so we get a bucketInt
+                        $bucketInt = ColorThief::getColorIndex($redBucket<<3, $greenBucket<<3, $blueBucket<<3, ColorThief::SIGBITS);
+
+                        $hval = isset($this->histo[$bucketInt]) ? $this->histo[$bucketInt] : 0;
                         $ntot += $hval;
-                        $rsum += ($hval * ($i + 0.5));
-                        $gsum += ($hval * ($j + 0.5));
-                        $bsum += ($hval * ($k + 0.5));
+                        $rsum += ($hval * ($redBucket + 0.5) * $mult);
+                        $gsum += ($hval * ($greenBucket + 0.5) * $mult);
+                        $bsum += ($hval * ($blueBucket + 0.5) * $mult);
                     }
                 }
             }
@@ -107,9 +117,9 @@ class VBox
             } else {
                 // echo 'empty box'."\n";
                 $this->avg = [
-                    (int) (($this->r1 + $this->r2 + 1) / 2),
-                    (int) (($this->g1 + $this->g2 + 1) / 2),
-                    (int) (($this->b1 + $this->b2 + 1) / 2),
+                    (int) ($mult * ($this->r1 + $this->r2 + 1) / 2),
+                    (int) ($mult * ($this->g1 + $this->g2 + 1) / 2),
+                    (int) ($mult * ($this->b1 + $this->b2 + 1) / 2),
                 ];
 
                 // Ensure all channel values are leather or equal 255 (Issue #24)
