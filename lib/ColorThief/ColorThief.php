@@ -371,15 +371,20 @@ class ColorThief
             $sum = 0;
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
-                    list($redBucket, $greenBucket, $blueBucket) = static::rearrangeColors(
-                        $colorIterateOrder,
-                        $firstColor,
-                        $secondColor,
-                        $thirdColor
-                    );
+                    // Rearrange color components
+                    $bucket = [
+                        $colorIterateOrder[0] => $firstColor,
+                        $colorIterateOrder[1] => $secondColor,
+                        $colorIterateOrder[2] => $thirdColor,
+                    ];
 
                     // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
-                    $bucketIndex = static::getColorIndex($redBucket << self::RSHIFT, $greenBucket << self::RSHIFT, $blueBucket << self::RSHIFT, self::SIGBITS);
+                    $bucketIndex = static::getColorIndex(
+                        $bucket['r'] << self::RSHIFT,
+                        $bucket['g'] << self::RSHIFT,
+                        $bucket['b'] << self::RSHIFT,
+                        self::SIGBITS
+                    );
 
                     if (isset($histo[$bucketIndex])) {
                         $sum += $histo[$bucketIndex];
@@ -391,29 +396,6 @@ class ColorThief
         }
 
         return [$total, $partialSum];
-    }
-
-    /**
-     * @param array $order
-     * @param int   $color1
-     * @param int   $color2
-     * @param int   $color3
-     *
-     * @return array
-     */
-    private static function rearrangeColors(array $order, $color1, $color2, $color3)
-    {
-        $data = [
-            $order[0] => $color1,
-            $order[1] => $color2,
-            $order[2] => $color3,
-        ];
-
-        return [
-            $data['r'],
-            $data['g'],
-            $data['b'],
-        ];
     }
 
     /**
