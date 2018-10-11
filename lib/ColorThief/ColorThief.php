@@ -43,7 +43,7 @@ class ColorThief
     const THRESHOLD_WHITE = 250;
 
     /**
-     * Get reduced-space color index for a pixel.
+     * Get combined color index (3 colors as one integer) from RGB values (0-255) or RGB Histogram Buckets (0-31).
      *
      * @param int $red
      * @param int $green
@@ -54,24 +54,26 @@ class ColorThief
      */
     public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        return ($red << (2 * $sigBits)) + ($green << $sigBits) + $blue;
+        return (($red >> (8 - $sigBits)) << (2 * $sigBits)) + (($green >> (8 - $sigBits)) << $sigBits) + ($blue >> (8 - $sigBits));
     }
 
     /**
-     * Get red, green and blue components from reduced-space color index for a pixel.
+     * Get RGB values (0-255) or RGB Histogram Buckets from a combined color index (3 colors as one integer).
      *
      * @param int $index
      * @param int $rightShift
      * @param int $sigBits
+     * @param int $leftShift
      *
      * @return array
      */
-    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8)
+    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8, $leftShift = 0)
     {
         $mask = (1 << $sigBits) - 1;
-        $red = (($index >> (2 * $sigBits)) & $mask) >> $rightShift;
-        $green = (($index >> $sigBits) & $mask) >> $rightShift;
-        $blue = ($index & $mask) >> $rightShift;
+
+        $red = ((($index >> (2 * $sigBits)) & $mask) >> $rightShift) << $leftShift;
+        $green = ((($index >> $sigBits) & $mask) >> $rightShift) << $leftShift;
+        $blue = (($index & $mask) >> $rightShift) << $leftShift;
 
         return [$red, $green, $blue];
     }
@@ -137,85 +139,88 @@ class ColorThief
             throw new \InvalidArgumentException('The quality argument must be an integer greater than one.');
         }
 
-        $pixelArray = static::loadImage($sourceImage, $quality, $area);
-        if (!count($pixelArray)) {
+        $histo = [];
+        $numPixelsAnalyzed = static::loadImage($sourceImage, $quality, $area, $histo);
+        if ($numPixelsAnalyzed === 0) {
             throw new \RuntimeException('Unable to compute the color palette of a blank or transparent image.', 1);
         }
 
-        // Send array to quantize function which clusters values
-        // using median cut algorithm
-        $cmap = static::quantize($pixelArray, $colorCount);
-        $palette = $cmap->palette();
+        // Send histogram to quantize function which clusters values using median cut algorithm
+        $palette = static::quantize($numPixelsAnalyzed, $colorCount, $histo)->palette();
 
         return $palette;
     }
 
     /**
-     * Histo: 1-d array, giving the number of pixels in each quantized region of color space.
+     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $quality Analyze every $quality pixels
+     * @param array|null $area
+     * @param array      $histo Histogram
      *
-     * @param array $pixels
-     *
-     * @return array
+     * @return int
      */
-    private static function getHisto($pixels)
+    private static function loadImage($sourceImage, $quality, $area, array &$histo)
     {
-        $histo = [];
-
-        foreach ($pixels as $rgb) {
-            list($red, $green, $blue) = static::getColorsFromIndex($rgb);
-            $index = static::getColorIndex($red, $green, $blue);
-            $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
+        // If GD will be used anyway, bypass the ImageLoader and use the optimized loadImage_GD function instead.
+        if ((is_resource($sourceImage) && get_resource_type($sourceImage) == 'gd')
+            || (is_string($sourceImage) && !extension_loaded('imagick') && !extension_loaded('imagick')))
+        {
+            return self::loadImage_GD($sourceImage, $quality, $area, $histo);
         }
 
-        return $histo;
-    }
-
-    /**
-     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $quality
-     * @param array|null $area
-     *
-     * @return SplFixedArray
-     */
-    private static function loadImage($sourceImage, $quality, array $area = null)
-    {
         $loader = new ImageLoader();
         $image = $loader->load($sourceImage);
-        $startX = 0;
-        $startY = 0;
-        $width = $image->getWidth();
-        $height = $image->getHeight();
 
-        if ($area) {
-            $startX = isset($area['x']) ? $area['x'] : 0;
-            $startY = isset($area['y']) ? $area['y'] : 0;
-            $width = isset($area['w']) ? $area['w'] : ($width - $startX);
-            $height = isset($area['h']) ? $area['h'] : ($height - $startY);
+        $imageWidth = $image->getWidth();
+        $imageHeight = $image->getHeight();
 
-            if ((($startX + $width) > $image->getWidth()) || (($startY + $height) > $image->getHeight())) {
-                throw new \InvalidArgumentException('Area is out of image bounds.');
-            }
+        $startX = isset($area['x']) ? $area['x'] : 0;
+        $startY = isset($area['y']) ? $area['y'] : 0;
+        $width = isset($area['w']) ? $area['w'] : ($imageWidth - $startX);
+        $height = isset($area['h']) ? $area['h'] : ($imageHeight - $startY);
+
+        if ((($startX + $width) > $imageWidth) || (($startY + $height) > $imageHeight)) {
+            throw new \InvalidArgumentException('Area is out of image bounds.');
         }
 
+        // Fill a SplArray with 32768 zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
+        // There are 32768 5-bit buckets because 5 bits hold 32 values and there are 3 colors (32*32*32).
+        $histoSpl = new SplFixedArray(32768);
+        for ($i = 0; $i < 32768; $i++) {
+            $histoSpl[$i] = 0;
+        }
+
+        $numUsefulPixels = 0;
         $pixelCount = $width * $height;
-
-        // Store the RGB values in an array format suitable for quantize function
-        // SplFixedArray is faster and more memory-efficient than normal PHP array.
-        $pixelArray = new SplFixedArray(ceil($pixelCount / $quality));
-
-        $size = 0;
-        for ($i = 0; $i < $pixelCount; $i = $i + $quality) {
+        for ($i = 0; $i < $pixelCount; $i += $quality) {
             $x = $startX + ($i % $width);
             $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
-            if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
-                $pixelArray[$size++] = static::getColorIndex($color->red, $color->green, $color->blue, 8);
-                // TODO : Compute directly the histogram here ? (save one iteration over all pixels)
+            // Pixel is too transparent. Its alpha value is larger (more transparent) than THRESHOLD_ALPHA.
+            // PHP's transparency range (0-127 opaque-transparent) is reverse that of Javascript (0-255 tranparent-opaque).
+            if ($color->alpha > self::THRESHOLD_ALPHA) {
+                continue;
             }
+
+            // Pixel is too white to be useful. Its RGB values all exceed THRESHOLD_WHITE
+            if ($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE) {
+                continue;
+            }
+
+            // Count this pixel in its histogram bucket.
+            $numUsefulPixels++;
+            $bucketInt = (($color->red & 0b11111000) << 7) | (($color->green & 0b11111000) << 2) | ($color->blue >> 3);
+            $histoSpl[$bucketInt] = $histoSpl[$bucketInt] + 1;
         }
 
-        $pixelArray->setSize($size);
+        // Copy the histogram buckets that had pixels back to a normal array.
+        $histo = [];
+        foreach ($histoSpl as $bucketInt => $numPixels) {
+            if ($numPixels > 0) {
+                $histo[$bucketInt] = $numPixels;
+            }
+        }
 
         // Don't destroy a resource passed by the user !
         // TODO Add a method in ImageLoader to know if the image should be destroy
@@ -224,31 +229,144 @@ class ColorThief
             $image->destroy();
         }
 
-        return $pixelArray;
+        return $numUsefulPixels;
     }
 
     /**
-     * @param object $color
+     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $quality Analyze every $quality pixels
+     * @param array|null $area
+     * @param array      $histo Histogram
      *
-     * @return bool
+     * @return int
      */
-    protected static function isClearlyVisible($color)
+    private static function loadImage_GD($sourceImage, $quality, $area, array &$histo)
     {
-        return $color->alpha <= self::THRESHOLD_ALPHA;
-    }
+        if ((is_resource($sourceImage) && get_resource_type($sourceImage) == 'gd')) {
+            $image = $sourceImage;
+        } else {
+            // Tries to detect if the source string is a binary string or a path to an existing file
+            // This test is based on the way that PHP detects an invalid path and throws a warning
+            // saying "xxx expects to be a valid path, string given" (see zend_parse_arg_path_str).
+            if (strpos($sourceImage, "\0") !== false) {
+                // Binary string
+                $image = @imagecreatefromstring($sourceImage);
+                if ($image === false) {
+                    throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image');
+                }
+            } else {
+                // Path or URL
+                $is_remote = filter_var($sourceImage, FILTER_VALIDATE_URL);
+                if (!$is_remote && (!file_exists($sourceImage) || !is_readable($sourceImage))) {
+                    throw new \RuntimeException("Image '" . $sourceImage . "' is not readable or does not exists.");
+                }
 
-    /**
-     * @param object $color
-     *
-     * @return bool
-     */
-    protected static function isNonWhite($color)
-    {
-        return !(
-            $color->red > self::THRESHOLD_WHITE &&
-            $color->green > self::THRESHOLD_WHITE &&
-            $color->blue > self::THRESHOLD_WHITE
-        );
+                list(, , $type) = getimagesize($sourceImage);
+                switch ($type) {
+                    case IMAGETYPE_GIF:
+                        $image = @imagecreatefromgif($sourceImage);
+                        break;
+
+                    case IMAGETYPE_JPEG:
+                        $image = @imagecreatefromjpeg($sourceImage);
+                        break;
+
+                    case IMAGETYPE_PNG:
+                        $image = @imagecreatefrompng($sourceImage);
+                        break;
+
+                    case IMAGETYPE_WEBP:
+                        $image = @imagecreatefromwebp($sourceImage);
+                        break;
+
+                    default:
+                        throw new \RuntimeException("Image '{$sourceImage}' is not readable or does not exists.");
+                        break;
+                }
+            }
+        }
+        if ($image === false) {
+            throw new \RuntimeException("Image '{$sourceImage}' is not readable or does not exists.");
+        }
+
+        $imageWidth = imagesx($image);
+        $imageHeight = imagesy($image);
+        // This seemed useful, but it returns false for all the test images.
+        //$imageTrueColor = imageistruecolor($image);
+
+        $startX = isset($area['x']) ? $area['x'] : 0;
+        $startY = isset($area['y']) ? $area['y'] : 0;
+        $width = isset($area['w']) ? $area['w'] : ($imageWidth - $startX);
+        $height = isset($area['h']) ? $area['h'] : ($imageHeight - $startY);
+
+        if ((($startX + $width) > $imageWidth) || (($startY + $height) > $imageHeight)) {
+            throw new \InvalidArgumentException('Area is out of image bounds.');
+        }
+
+        // Fill a SplArray with 32768 zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
+        // There are 32768 5-bit buckets because 5 bits hold 32 values and there are 3 colors (32*32*32).
+        $histoSpl = new SplFixedArray(32768);
+        for ($i = 0; $i < 32768; $i++) {
+            $histoSpl[$i] = 0;
+        }
+
+        $colorsTotal = imagecolorstotal($image);
+        $colorsInImage = [];
+        $numUsefulPixels = 0;
+        $pixelCount = $width * $height;
+        for ($i = 0; $i < $pixelCount; $i += $quality) {
+            $x = $startX + ($i % $width);
+            $y = (int) ($startY + $i / $width);
+
+            $color = imagecolorat($image, $x, $y);
+            if ($color < $colorsTotal) {
+                // Color may be a palette color if it is less than the number of palette colors in this image... or it may just be the color black.
+                // Cache the color information for these colors to bypass the imagecolorsforindex function (which seems to kill performance).
+                if (!isset($colorsInImage[$color])) {
+                    $colorsInImage[$color] = imagecolorsforindex($image, $color);
+                }
+                $color = $colorsInImage[$color];
+            } else {
+                $color = [
+                    'red' => ($color >> 16) & 0xff,
+                    'green' => ($color >> 8) & 0xff,
+                    'blue' => $color & 0xff,
+                    'alpha' => ($color >> 24) & 0x7f,
+                ];
+            }
+
+            // Pixel is too transparent.  Its alpha value is larger (more transparent) than THRESHOLD_ALPHA.
+            // PHP's transparency range (0-127 opaque-transparent) is reverse that of Javascript (0-255 tranparent-opaque).
+            if ($color['alpha'] > self::THRESHOLD_ALPHA) {
+                continue;
+            }
+
+            // Pixel is too white to be useful.  Its RGB values all exceed THRESHOLD_WHITE
+            if ($color['red'] > self::THRESHOLD_WHITE && $color['green'] > self::THRESHOLD_WHITE && $color['blue'] > self::THRESHOLD_WHITE) {
+                continue;
+            }
+
+            // Count this pixel in its histogram bucket.
+            $numUsefulPixels++;
+            $bucketInt = (($color['red'] & 0b11111000) << 7) | (($color['green'] & 0b11111000) << 2) | ($color['blue'] >> 3);
+            $histoSpl[$bucketInt] = $histoSpl[$bucketInt] + 1;
+        }
+
+        $histo = [];
+        foreach ($histoSpl as $bucketInt => $numPixels) {
+            if ($numPixels > 0) {
+                $histo[$bucketInt] = $numPixels;
+            }
+        }
+
+        // Don't destroy a resource passed by the user !
+        // TODO Add a method in ImageLoader to know if the image should be destroy
+        // (or to know the detected image source type)
+        if (is_string($sourceImage)) {
+            imagedestroy($image);
+        }
+
+        return $numUsefulPixels;
     }
 
     /**
@@ -259,17 +377,18 @@ class ColorThief
     private static function vboxFromHistogram(array $histo)
     {
         $rgbMin = [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MAX];
-        $rgbMax = [0, 0, 0];
+        $rgbMax = [-PHP_INT_MAX, -PHP_INT_MAX, -PHP_INT_MAX];
 
         // find min/max
-        foreach ($histo as $index => $count) {
-            $rgb = static::getColorsFromIndex($index, 0, self::SIGBITS);
+        foreach ($histo as $bucketInt => $count) {
+            $rgb = static::getColorsFromIndex($bucketInt, 0, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
                 if ($rgb[$i] < $rgbMin[$i]) {
                     $rgbMin[$i] = $rgb[$i];
-                } elseif ($rgb[$i] > $rgbMax[$i]) {
+                }
+                if ($rgb[$i] > $rgbMax[$i]) {
                     $rgbMax[$i] = $rgb[$i];
                 }
             }
@@ -284,7 +403,7 @@ class ColorThief
      * @param array  $partialSum
      * @param int    $total
      *
-     * @return array
+     * @return array|void
      */
     private static function doCut($color, $vBox, $partialSum, $total)
     {
@@ -321,6 +440,8 @@ class ColorThief
                 return [$vBox1, $vBox2];
             }
         }
+
+        return;
     }
 
     /**
@@ -360,85 +481,50 @@ class ColorThief
      *
      * @return array [$total, $partialSum]
      */
-    private static function sumColors($axis, $histo, $vBox)
+    private static function sumColors($axis, array $histo, $vBox)
     {
+        // The selected axis should be the first range
+        $colorIterateOrders = [
+            'r' => ['r', 'g', 'b'],
+            'g' => ['g', 'r', 'b'],
+            'b' => ['b', 'r', 'g'],
+        ];
+        $firstRange  = range($vBox->{$colorIterateOrders[$axis][0].'1'}, $vBox->{$colorIterateOrders[$axis][0].'2'});
+        $secondRange = range($vBox->{$colorIterateOrders[$axis][1].'1'}, $vBox->{$colorIterateOrders[$axis][1].'2'});
+        $thirdRange  = range($vBox->{$colorIterateOrders[$axis][2].'1'}, $vBox->{$colorIterateOrders[$axis][2].'2'});
+
+        // Maps iteration variable names to RGB bucket parameters using variable variables in the innermost loop.
+        // For axis values:
+        //   r: RGB bucket values are [R=$firstColor,  G=$secondColor, B=$thirdColor]
+        //   g: RGB bucket values are [R=$secondColor, G=$firstColor,  B=$thirdColor]
+        //   b: RGB bucket values are [R=$secondColor, G=$thirdColor,  B=$firstColor]
+        $colorRangeOrders = [
+            'r' => ['firstColor', 'secondColor', 'thirdColor'],
+            'g' => ['secondColor', 'firstColor', 'thirdColor'],
+            'b' => ['secondColor', 'thirdColor', 'firstColor']
+        ];
+
         $total = 0;
         $partialSum = [];
-
-        // The selected axis should be the first range
-        $colorIterateOrder = array_diff(['r', 'g', 'b'], [$axis]);
-        array_unshift($colorIterateOrder, $axis);
-
-        // Retrieves iteration ranges
-        list($firstRange, $secondRange, $thirdRange) = static::getVBoxColorRanges($vBox, $colorIterateOrder);
-
         foreach ($firstRange as $firstColor) {
-            $sum = 0;
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
-                    list($red, $green, $blue) = static::rearrangeColors(
-                        $colorIterateOrder,
-                        $firstColor,
-                        $secondColor,
-                        $thirdColor
+                    // These are 5-bit histogram buckets.  Left shift so another 3 bits are not shifted away in getColorIndex.
+                    $bucketInt = static::getColorIndex(
+                        ${$colorRangeOrders[$axis][0]} << self::RSHIFT,
+                        ${$colorRangeOrders[$axis][1]} << self::RSHIFT,
+                        ${$colorRangeOrders[$axis][2]} << self::RSHIFT,
+                        self::SIGBITS
                     );
-
-                    $index = static::getColorIndex($red, $green, $blue);
-
-                    if (isset($histo[$index])) {
-                        $sum += $histo[$index];
+                    if (isset($histo[$bucketInt])) {
+                        $total += $histo[$bucketInt];
                     }
                 }
             }
-            $total += $sum;
             $partialSum[$firstColor] = $total;
         }
 
         return [$total, $partialSum];
-    }
-
-    /**
-     * @param array $order
-     * @param int   $color1
-     * @param int   $color2
-     * @param int   $color3
-     *
-     * @return array
-     */
-    private static function rearrangeColors(array $order, $color1, $color2, $color3)
-    {
-        $data = [
-            $order[0] => $color1,
-            $order[1] => $color2,
-            $order[2] => $color3,
-        ];
-
-        return [
-            $data['r'],
-            $data['g'],
-            $data['b'],
-        ];
-    }
-
-    /**
-     * @param VBox  $vBox
-     * @param array $order
-     *
-     * @return array
-     */
-    private static function getVBoxColorRanges(VBox $vBox, array $order)
-    {
-        $ranges = [
-            'r' => range($vBox->r1, $vBox->r2),
-            'g' => range($vBox->g1, $vBox->g2),
-            'b' => range($vBox->b1, $vBox->b2),
-        ];
-
-        return [
-            $ranges[$order[0]],
-            $ranges[$order[1]],
-            $ranges[$order[2]],
-        ];
     }
 
     /**
@@ -488,20 +574,24 @@ class ColorThief
     }
 
     /**
-     * @param SplFixedArray|array $pixels
+     * @param $numPixels   Number of image pixels analyzed
      * @param $maxColors
+     * @param array $histo Histogram
      *
      * @return bool|CMap
      */
-    private static function quantize($pixels, $maxColors)
+    private static function quantize($numPixels, $maxColors, array &$histo)
     {
-        // short-circuit
-        if (!count($pixels) || $maxColors < 2 || $maxColors > 256) {
-            // echo 'wrong number of maxcolors'."\n";
-            return false;
+        // Short-Circuits
+        if ($numPixels === 0) {
+            throw new \InvalidArgumentException('Zero useable pixels found in image.');
         }
-
-        $histo = static::getHisto($pixels);
+        if ($maxColors < 2 || $maxColors > 256) {
+            throw new \InvalidArgumentException('The maxColors parameter must be between 2 and 256 inclusive.');
+        }
+        if (count($histo) === 0) {
+            throw new \InvalidArgumentException('Image produced an empty histogram.');
+        }
 
         // check that we aren't below maxcolors already
         //if (count($histo) <= $maxcolors) {
@@ -528,7 +618,6 @@ class ColorThief
 
         // calculate the actual colors
         $cmap = new CMap();
-
         for ($i = $priorityQueue->size(); $i > 0; $i--) {
             $cmap->push($priorityQueue->pop());
         }

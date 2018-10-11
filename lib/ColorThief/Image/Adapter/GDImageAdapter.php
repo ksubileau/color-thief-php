@@ -5,6 +5,29 @@ namespace ColorThief\Image\Adapter;
 class GDImageAdapter extends ImageAdapter
 {
     /**
+     * The image is a true color image.
+     */
+    protected $trueColor;
+
+    /**
+     * The image is a true color image.
+     */
+    protected $colorsTotal;
+
+    /**
+     * The image is a true color image.
+     */
+    protected $colorsInImage;
+
+
+    protected function setImageInfo()
+    {
+        $this->colorsInImage = [];
+        $this->isTrueColor = @imageistruecolor($this->resource);
+        $this->colorsTotal = @imagecolorstotal($this->resource);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function load($resource)
@@ -14,6 +37,7 @@ class GDImageAdapter extends ImageAdapter
         }
 
         parent::load($resource);
+        $this->setImageInfo();
     }
 
     /**
@@ -25,6 +49,7 @@ class GDImageAdapter extends ImageAdapter
         if ($this->resource === false) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image');
         }
+        $this->setImageInfo();
     }
 
     /**
@@ -47,6 +72,10 @@ class GDImageAdapter extends ImageAdapter
                 $resource = @imagecreatefrompng($file);
                 break;
 
+            case IMAGETYPE_WEBP:
+                $resource = @imagecreatefromwebp($file);
+                break;
+
             default:
                 throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
                 break;
@@ -57,6 +86,7 @@ class GDImageAdapter extends ImageAdapter
         }
 
         $this->resource = $resource;
+        $this->setImageInfo();
     }
 
     /**
@@ -92,7 +122,21 @@ class GDImageAdapter extends ImageAdapter
     public function getPixelColor($x, $y)
     {
         $rgba = imagecolorat($this->resource, $x, $y);
-        $color = imagecolorsforindex($this->resource, $rgba);
+        if ($rgba < $this->colorsTotal) {
+            // RGBA may be a palette color if it is less than the number of palette colors in this image... or it may just be the color black.
+            // Cache the color information for these colors to bypass the imagecolorsforindex function (which seems to kill performance).
+            if (!isset($this->colorsInImage[$rgba])) {
+                $this->colorsInImage[$rgba] = imagecolorsforindex($this->resource, $rgba);
+            }
+            $color = $this->colorsInImage[$rgba];
+        } else {
+            $color = [
+                'red' => ($rgba >> 16) & 0xff,
+                'green' => ($rgba >> 8) & 0xff,
+                'blue' => $rgba & 0xff,
+                'alpha' => ($rgba >> 24) & 0x7f,
+            ];
+        }
 
         return (object) $color;
     }

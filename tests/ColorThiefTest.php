@@ -71,15 +71,15 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [
                 '/images/covers_cmyk_PR37.jpg',
                 [
-                    [224, 71, 106],
+                    [223, 71, 106],
                     [21, 50, 129],
                     [143, 232, 249],
-                    [238, 178, 162],
+                    [238, 178, 163],
                     [163, 173, 59],
                     [94, 158, 245],
-                    [99, 173, 248],
-                    [120, 181, 170],
-                    [68, 168, 168],
+                    [99, 174, 248],
+                    [120, 181, 169],
+                    [68, 164, 168],
                 ],
             ],
         ];
@@ -97,9 +97,16 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function provide5bitsColorIndex()
     {
         return [
-            [0, 0, 0, 0],
-            [120, 120, 120, 126840],
-            [255, 255, 255, 269535],
+            [  0,   0,   0,      0, 0b000000000000000],
+            [120, 120, 120,  15855, 0b011110111101111],
+            [255, 255, 255,  32767, 0b111111111111111],
+        ];
+    }
+
+    public function provide5bitsColorIndex_Bug() {
+        return [
+            [120, 120, 120, 126840, 0b011110111101111000],
+            [255, 255, 255, 269535, 0b01000001110011011111],
         ];
     }
 
@@ -229,11 +236,83 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      * @param int $b
      * @param int $index
      */
-    public function testGetColorIndex5bits($r, $g, $b, $index)
+    public function testGetColorIndex5bits($r, $g, $b, $index, $indexBinary)
     {
+        // Check that index integer and index binary value are the same
+        $this->assertSame(
+            $index,
+            $indexBinary
+        );
         $this->assertSame(
             $index,
             ColorThief::getColorIndex($r, $g, $b)
+        );
+    }
+
+    /**
+     * @dataProvider provide5bitsColorIndex_Bug
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     */
+    public function testGetColorIndex5bits_Bug($r, $g, $b, $index, $indexBinary)
+    {
+        $this->assertSame(
+            $index,
+            $indexBinary
+        );
+        $this->assertNotEquals(
+            $index,
+            ColorThief::getColorIndex($r, $g, $b)
+        );
+    }
+
+    /**
+     * Tests for correct RGB buckets after converting RGB values to a combined bucketInt and then back to RGB buckets.
+     *
+     * @dataProvider provide5bitsColorIndex
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     *
+     */
+    public function testRgbValuesToBucketIntAndBackToBuckets($r, $g, $b, $index, $indexBinary)
+    {
+        $rgbBuckets = [$r >> ColorThief::RSHIFT, $g >> ColorThief::RSHIFT, $b >> ColorThief::RSHIFT];
+        $this->assertSame(
+            [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS, 0)
+        );
+        // Test again using the default value for leftShift parameter in getColorsFromIndex
+        $this->assertSame(
+            [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS)
+        );
+    }
+
+    /**
+     * Tests RGB values' significant bits are the same after converting them to a combined bucketInt and then back to RGB values.
+     *
+     * @dataProvider provide5bitsColorIndex
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     * @param int $indexBinary
+     *
+     */
+    public function testRgbValuesToBucketIntAndBackToRgb($r, $g, $b, $index, $indexBinary)
+    {
+        $this->assertSame(
+            [$r & 0b11111000, $g & 0b11111000, $b & 0b11111000],
+            ColorThief::getColorsFromIndex(ColorThief::getColorIndex($r, $g, $b, ColorThief::SIGBITS), 0, ColorThief::SIGBITS, ColorThief::RSHIFT)
         );
     }
 
@@ -268,26 +347,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetHisto()
-    {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'getHisto');
-        $method->setAccessible(true);
-
-        // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
-        // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
-        $pixels = [15061555, 8722567, 14216044, 8657286, 14626333, 8854660, 15304149, 14799920];
-
-        $expectedHisto = [
-            29510 => 2,
-            16496 => 3,
-            28589 => 1,
-            27811 => 1,
-            30234 => 1,
-        ];
-
-        $this->assertSame($expectedHisto, $method->invoke(null, $pixels));
-    }
-
     public function testVboxFromPixels()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');
@@ -315,6 +374,26 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(29, $result->g2);
         $this->assertSame(3, $result->b1);
         $this->assertSame(26, $result->b2);
+    }
+
+    /**
+     * Tests min and max RGB values are equal if there is only one color in the histogram.
+     * This is from an image filled with the color #D62322.
+     */
+    public function testVboxFromSingleColorHistogram()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');
+        $method->setAccessible(true);
+        $histo = [
+            26756 => 120000,
+        ];
+        $result = $method->invoke(null, $histo);
+        $this->assertInstanceOf('\ColorThief\VBox', $result);
+        $this->assertSame($histo, $result->histo);
+        $this->assertSame($result->r1, $result->r2);
+        $this->assertSame($result->g1, $result->g2);
+        $this->assertSame($result->b1, $result->b2);
+        $this->assertSame(1, $result->volume());
     }
 
     public function testDoCutLeftLetherThanRight()
