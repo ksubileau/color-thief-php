@@ -195,12 +195,21 @@ class ColorThief
             $y = (int) ($startY + $i / $width);
             $color = $image->getPixelColor($x, $y);
 
-            if (static::isClearlyVisible($color) && static::isNonWhite($color)) {
-	            // Count this pixel in its histogram bucket.
-	            $numUsefulPixels++;
-	            $bucketIndex = static::getColorIndex($color->red, $color->green, $color->blue);
-	            $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
+            // Pixel is too transparent. Its alpha value is larger (more transparent) than THRESHOLD_ALPHA.
+            // PHP's transparency range (0-127 opaque-transparent) is reverse that of Javascript (0-255 tranparent-opaque).
+            if ($color->alpha > self::THRESHOLD_ALPHA) {
+                continue;
             }
+
+            // Pixel is too white to be useful. Its RGB values all exceed THRESHOLD_WHITE
+            if ($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE) {
+                continue;
+            }
+
+            // Count this pixel in its histogram bucket.
+            $numUsefulPixels++;
+            $bucketIndex = static::getColorIndex($color->red, $color->green, $color->blue);
+            $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
         }
 
         // Copy the histogram buckets that had pixels back to a normal array.
@@ -219,30 +228,6 @@ class ColorThief
         }
 
         return $numUsefulPixels;
-    }
-
-    /**
-     * @param object $color
-     *
-     * @return bool
-     */
-    protected static function isClearlyVisible($color)
-    {
-        return $color->alpha <= self::THRESHOLD_ALPHA;
-    }
-
-    /**
-     * @param object $color
-     *
-     * @return bool
-     */
-    protected static function isNonWhite($color)
-    {
-        return !(
-            $color->red > self::THRESHOLD_WHITE &&
-            $color->green > self::THRESHOLD_WHITE &&
-            $color->blue > self::THRESHOLD_WHITE
-        );
     }
 
     /**
