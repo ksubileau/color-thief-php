@@ -54,7 +54,7 @@ class ColorThief
      */
     public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        return (($red >> (8 - $sigBits)) << (2 * $sigBits)) + (($green >> (8 - $sigBits)) << $sigBits) + ($blue >> (8 - $sigBits));
+        return (($red >> (8 - $sigBits)) << (2 * $sigBits)) | (($green >> (8 - $sigBits)) << $sigBits) | ($blue >> (8 - $sigBits));
     }
 
     /**
