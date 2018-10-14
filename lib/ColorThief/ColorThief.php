@@ -176,10 +176,11 @@ class ColorThief
             throw new \InvalidArgumentException('Area is out of image bounds.');
         }
 
-        // Fill a SplArray with 32768 zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
-        // There are 32768 5-bit buckets because 5 bits hold 32 values and there are 3 colors (32*32*32).
-        $histoSpl = new SplFixedArray(32768);
-        for ($i = 0; $i < 32768; $i++) {
+        // Fill a SplArray with zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
+        // There are 32768 buckets because each color is 5 bits (15 bits total for RGB values).
+        $totalBuckets = (1 << (3 * self::SIGBITS));
+        $histoSpl = new SplFixedArray($totalBuckets);
+        for ($i = 0; $i < $totalBuckets; $i++) {
             $histoSpl[$i] = 0;
         }
 
