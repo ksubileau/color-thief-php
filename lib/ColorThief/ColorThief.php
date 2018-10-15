@@ -233,20 +233,22 @@ class ColorThief
      */
     private static function vboxFromHistogram(array $histo)
     {
-        $rgbMin = [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MAX];
-        $rgbMax = [-PHP_INT_MAX, -PHP_INT_MAX, -PHP_INT_MAX];
+        // The valid range for RGB buckets is 0 - (255 >> (8 - self::SIGBITS)).
+        $maxBucket = (255 >> (8 - self::SIGBITS));
+        $rgbMin = [$maxBucket, $maxBucket, $maxBucket];
+        $rgbMax = [0, 0, 0];
 
-        // find min/max
+        // Find min/max histogram buckets
         foreach ($histo as $bucketInt => $count) {
-            $rgb = static::getColorsFromIndex($bucketInt, 0, self::SIGBITS);
+            $rgbBuckets = static::getColorsFromIndex($bucketInt, 0, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
-                if ($rgb[$i] < $rgbMin[$i]) {
-                    $rgbMin[$i] = $rgb[$i];
+                if ($rgbBuckets[$i] < $rgbMin[$i]) {
+                    $rgbMin[$i] = $rgbBuckets[$i];
                 }
-                if ($rgb[$i] > $rgbMax[$i]) {
-                    $rgbMax[$i] = $rgb[$i];
+                if ($rgbBuckets[$i] > $rgbMax[$i]) {
+                    $rgbMax[$i] = $rgbBuckets[$i];
                 }
             }
         }
