@@ -24,6 +24,11 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 null,
                 [135, 220, 248],
             ],
+            [
+                '/images/single_color_PR41.png',
+                null,
+                [180, 228, 28],
+            ],
             [  // Area targeting
                 '/images/vegetables_1500x995.png',
                 ['x' => 670, 'y' => 215, 'w' => 230, 'h' => 120],
@@ -80,6 +85,20 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                     [99, 173, 248],
                     [120, 181, 170],
                     [68, 168, 168],
+                ],
+            ],
+            [
+                '/images/single_color_PR41.png',
+                [
+                    [180, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
+                    [184, 228, 28],
                 ],
             ],
         ];
@@ -318,7 +337,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Tests min and max RGB values are equal if there is only one color in the histogram.
+     * Tests min and max RGB values are equal if there is only one color in the histogram (PR #41).
      */
     public function testVboxFromSingleColorHistogram()
     {
