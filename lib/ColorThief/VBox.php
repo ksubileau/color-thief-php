@@ -110,6 +110,8 @@ class VBox
                             ColorThief::SIGBITS
                         );
 
+                        // The bucket values need to be multiplied by $mult to get the RGB values.
+                        // Can't use a left shift here, as we're working with a floating point number to put the value at the bucket's midpoint.
                         $hval = isset($this->histo[$bucketIndex]) ? $this->histo[$bucketIndex] : 0;
                         $ntot += $hval;
                         $rsum += ($hval * ($redBucket + 0.5) * $mult);
@@ -143,19 +145,20 @@ class VBox
         return $this->avg;
     }
 
-    public function contains(array $pixel, $rshift = ColorThief::RSHIFT)
+    public function contains(array $rgbValue, $rshift = ColorThief::RSHIFT)
     {
-        $rval = $pixel[0] >> $rshift;
-        $gval = $pixel[1] >> $rshift;
-        $bval = $pixel[2] >> $rshift;
+        // Get the buckets from the RGB values.
+        $redBucket = $rgbValue[0] >> $rshift;
+        $greenBucket = $rgbValue[1] >> $rshift;
+        $blueBucket = $rgbValue[2] >> $rshift;
 
         return
-            $rval >= $this->r1 &&
-            $rval <= $this->r2 &&
-            $gval >= $this->g1 &&
-            $gval <= $this->g2 &&
-            $bval >= $this->b1 &&
-            $bval <= $this->b2;
+            $redBucket >= $this->r1 &&
+            $redBucket <= $this->r2 &&
+            $greenBucket >= $this->g1 &&
+            $greenBucket <= $this->g2 &&
+            $blueBucket >= $this->b1 &&
+            $blueBucket <= $this->b2;
     }
 
     /**

@@ -262,8 +262,8 @@ class ColorThief
         $rgbMax = [-PHP_INT_MAX, -PHP_INT_MAX, -PHP_INT_MAX];
 
         // find min/max
-        foreach ($histo as $index => $count) {
-            $rgb = static::getColorsFromIndex($index, self::SIGBITS);
+        foreach ($histo as $bucketIndex => $count) {
+            $rgb = static::getColorsFromIndex($bucketIndex, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
@@ -285,7 +285,7 @@ class ColorThief
      * @param array  $partialSum
      * @param int    $total
      *
-     * @return array
+     * @return array|void
      */
     private static function doCut($color, $vBox, $partialSum, $total)
     {
