@@ -257,7 +257,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Tests RGB values are the same after converting them back from combined bucketInt to RGB bucket values.
+     * Tests RGB values are the same after converting them back from combined bucket index to RGB bucket values.
      *
      * @dataProvider provide5bitsColorIndex
      *

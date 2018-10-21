@@ -46,8 +46,8 @@ class VBox
             // the number of pixels contained in this vbox.
             if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
-                foreach ($this->histo as $bucketInt => $count) {
-                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketInt, ColorThief::SIGBITS);
+                foreach ($this->histo as $bucketIndex => $count) {
+                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketIndex, ColorThief::SIGBITS);
                     if ($this->contains($rgbBuckets, 0)) {
                         $npix += $count;
                     }
@@ -58,14 +58,14 @@ class VBox
                     for ($greenBucket = $this->g1; $greenBucket <= $this->g2; $greenBucket++) {
                         for ($blueBucket = $this->b1; $blueBucket <= $this->b2; $blueBucket++) {
                             // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
-                            $bucketInt = ColorThief::getColorIndex(
+                            $bucketIndex = ColorThief::getColorIndex(
                                 $redBucket << ColorThief::RSHIFT,
                                 $greenBucket << ColorThief::RSHIFT,
                                 $blueBucket << ColorThief::RSHIFT,
                                 ColorThief::SIGBITS
                             );
-                            if (isset($this->histo[$bucketInt])) {
-                                $npix += $this->histo[$bucketInt];
+                            if (isset($this->histo[$bucketIndex])) {
+                                $npix += $this->histo[$bucketIndex];
                             }
                         }
                     }
@@ -103,14 +103,14 @@ class VBox
                 for ($greenBucket = $this->g1; $greenBucket <= $this->g2; $greenBucket++) {
                     for ($blueBucket = $this->b1; $blueBucket <= $this->b2; $blueBucket++) {
                         // getColorIndex takes RGB values instead of buckets, so left shift so we get a bucketIndex
-                        $bucketInt = ColorThief::getColorIndex(
+                        $bucketIndex = ColorThief::getColorIndex(
                             $redBucket << ColorThief::RSHIFT,
                             $greenBucket << ColorThief::RSHIFT,
                             $blueBucket << ColorThief::RSHIFT,
                             ColorThief::SIGBITS
                         );
 
-                        $hval = isset($this->histo[$bucketInt]) ? $this->histo[$bucketInt] : 0;
+                        $hval = isset($this->histo[$bucketIndex]) ? $this->histo[$bucketIndex] : 0;
                         $ntot += $hval;
                         $rsum += ($hval * ($redBucket + 0.5) * $mult);
                         $gsum += ($hval * ($greenBucket + 0.5) * $mult);

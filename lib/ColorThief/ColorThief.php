@@ -163,8 +163,8 @@ class ColorThief
 
         foreach ($pixels as $rgb) {
             list($red, $green, $blue) = static::getColorsFromIndex($rgb);
-            $bucketInt = static::getColorIndex($red, $green, $blue);
-            $histo[$bucketInt] = (isset($histo[$bucketInt]) ? $histo[$bucketInt] : 0) + 1;
+            $bucketIndex = static::getColorIndex($red, $green, $blue);
+            $histo[$bucketIndex] = (isset($histo[$bucketIndex]) ? $histo[$bucketIndex] : 0) + 1;
         }
 
         return $histo;
@@ -385,10 +385,10 @@ class ColorThief
                     );
 
                     // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
-                    $bucketInt = static::getColorIndex($redBucket << self::RSHIFT, $greenBucket << self::RSHIFT, $blueBucket << self::RSHIFT, self::SIGBITS);
+                    $bucketIndex = static::getColorIndex($redBucket << self::RSHIFT, $greenBucket << self::RSHIFT, $blueBucket << self::RSHIFT, self::SIGBITS);
 
-                    if (isset($histo[$bucketInt])) {
-                        $sum += $histo[$bucketInt];
+                    if (isset($histo[$bucketIndex])) {
+                        $sum += $histo[$bucketIndex];
                     }
                 }
             }
