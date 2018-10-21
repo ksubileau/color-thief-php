@@ -63,17 +63,16 @@ class ColorThief
      * @param int $index
      * @param int $rightShift
      * @param int $sigBits
-     * @param int $leftShift
      *
      * @return array
      */
-    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8, $leftShift = 0)
+    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8)
     {
         $mask = (1 << $sigBits) - 1;
 
-        $red = ((($index >> (2 * $sigBits)) & $mask) >> $rightShift) << $leftShift;
-        $green = ((($index >> $sigBits) & $mask) >> $rightShift) << $leftShift;
-        $blue = (($index & $mask) >> $rightShift) << $leftShift;
+        $red = (($index >> (2 * $sigBits)) & $mask) >> $rightShift;
+        $green = (($index >> $sigBits) & $mask) >> $rightShift;
+        $blue = ($index & $mask) >> $rightShift;
 
         return [$red, $green, $blue];
     }
