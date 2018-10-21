@@ -47,7 +47,7 @@ class VBox
             if ($this->volume() > count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
                 foreach ($this->histo as $bucketInt => $count) {
-                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketInt, 0, ColorThief::SIGBITS);
+                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketInt, ColorThief::SIGBITS);
                     if ($this->contains($rgbBuckets, 0)) {
                         $npix += $count;
                     }
