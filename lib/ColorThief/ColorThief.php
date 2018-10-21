@@ -43,7 +43,7 @@ class ColorThief
     const THRESHOLD_WHITE = 250;
 
     /**
-     * Get reduced-space color index for a pixel.
+     * Get combined color index (3 colors as one integer) from RGB values (0-255) or RGB Histogram Buckets (0-31).
      *
      * @param int $red
      * @param int $green
@@ -54,24 +54,24 @@ class ColorThief
      */
     public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
     {
-        return ($red << (2 * $sigBits)) + ($green << $sigBits) + $blue;
+        return (($red >> (8 - $sigBits)) << (2 * $sigBits)) | (($green >> (8 - $sigBits)) << $sigBits) | ($blue >> (8 - $sigBits));
     }
 
     /**
-     * Get red, green and blue components from reduced-space color index for a pixel.
+     * Get RGB values (0-255) or RGB Histogram Buckets from a combined color index (3 colors as one integer).
      *
      * @param int $index
-     * @param int $rightShift
      * @param int $sigBits
      *
      * @return array
      */
-    public static function getColorsFromIndex($index, $rightShift = self::RSHIFT, $sigBits = 8)
+    public static function getColorsFromIndex($index, $sigBits = 8)
     {
         $mask = (1 << $sigBits) - 1;
-        $red = (($index >> (2 * $sigBits)) & $mask) >> $rightShift;
-        $green = (($index >> $sigBits) & $mask) >> $rightShift;
-        $blue = ($index & $mask) >> $rightShift;
+
+        $red = ($index >> (2 * $sigBits)) & $mask;
+        $green = ($index >> $sigBits) & $mask;
+        $blue = $index & $mask;
 
         return [$red, $green, $blue];
     }
@@ -163,8 +163,8 @@ class ColorThief
 
         foreach ($pixels as $rgb) {
             list($red, $green, $blue) = static::getColorsFromIndex($rgb);
-            $index = static::getColorIndex($red, $green, $blue);
-            $histo[$index] = (isset($histo[$index]) ? $histo[$index] : 0) + 1;
+            $bucketIndex = static::getColorIndex($red, $green, $blue);
+            $histo[$bucketIndex] = (isset($histo[$bucketIndex]) ? $histo[$bucketIndex] : 0) + 1;
         }
 
         return $histo;
@@ -263,7 +263,7 @@ class ColorThief
 
         // find min/max
         foreach ($histo as $index => $count) {
-            $rgb = static::getColorsFromIndex($index, 0, self::SIGBITS);
+            $rgb = static::getColorsFromIndex($index, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; $i++) {
@@ -377,17 +377,18 @@ class ColorThief
             $sum = 0;
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
-                    list($red, $green, $blue) = static::rearrangeColors(
+                    list($redBucket, $greenBucket, $blueBucket) = static::rearrangeColors(
                         $colorIterateOrder,
                         $firstColor,
                         $secondColor,
                         $thirdColor
                     );
 
-                    $index = static::getColorIndex($red, $green, $blue);
+                    // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
+                    $bucketIndex = static::getColorIndex($redBucket << self::RSHIFT, $greenBucket << self::RSHIFT, $blueBucket << self::RSHIFT, self::SIGBITS);
 
-                    if (isset($histo[$index])) {
-                        $sum += $histo[$index];
+                    if (isset($histo[$bucketIndex])) {
+                        $sum += $histo[$bucketIndex];
                     }
                 }
             }

@@ -116,9 +116,9 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function provide5bitsColorIndex()
     {
         return [
-            [0, 0, 0, 0],
-            [120, 120, 120, 126840],
-            [255, 255, 255, 269535],
+            [0,     0,   0,  0b000000000000000],
+            [120, 120, 120,  0b011110111101111],
+            [255, 255, 255,  0b111111111111111],
         ];
     }
 
@@ -257,6 +257,25 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Tests RGB values are the same after converting them back from combined bucket index to RGB bucket values.
+     *
+     * @dataProvider provide5bitsColorIndex
+     *
+     * @param int $r
+     * @param int $g
+     * @param int $b
+     * @param int $index
+     */
+    public function testGetColorsFromIndex5bits($r, $g, $b, $index)
+    {
+        $rgbBuckets = [$r >> ColorThief::RSHIFT, $g >> ColorThief::RSHIFT, $b >> ColorThief::RSHIFT];
+        $this->assertSame(
+            [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
+            ColorThief::getColorsFromIndex($index, ColorThief::SIGBITS)
+        );
+    }
+
+    /**
      * @dataProvider provide8bitsColorIndex
      *
      * @param int $r
@@ -268,7 +287,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertSame(
             [$r, $g, $b],
-            ColorThief::getColorsFromIndex($index, 0)
+            ColorThief::getColorsFromIndex($index)
         );
     }
 
