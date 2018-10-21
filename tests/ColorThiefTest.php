@@ -317,6 +317,28 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(26, $result->b2);
     }
 
+    /**
+     * Tests min and max RGB values are equal if there is only one color in the histogram.
+     */
+    public function testVboxFromSingleColorHistogram()
+    {
+        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');
+        $method->setAccessible(true);
+
+        $histo = [
+            26756 => 120000,
+        ];
+
+        $result = $method->invoke(null, $histo);
+
+        $this->assertInstanceOf('\ColorThief\VBox', $result);
+        $this->assertSame($histo, $result->histo);
+        $this->assertSame($result->r1, $result->r2);
+        $this->assertSame($result->g1, $result->g2);
+        $this->assertSame($result->b1, $result->b2);
+        $this->assertSame(1, $result->volume());
+    }
+
     public function testDoCutLeftLetherThanRight()
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
