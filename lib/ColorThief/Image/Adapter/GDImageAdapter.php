@@ -20,7 +20,8 @@ class GDImageAdapter extends ImageAdapter
 {
     public function load($resource): void
     {
-        if (!\is_resource($resource) || 'gd' != get_resource_type($resource)) {
+        if ((!\is_resource($resource) || 'gd' != get_resource_type($resource)) 
+            && get_class($resource) != "GdImage") {
             throw new \InvalidArgumentException('Passed variable is not a valid GD resource');
         }
 
