@@ -1,0 +1,57 @@
+name: Tests
+
+on:
+  pull_request:
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - '.github/workflows/tests.yml'
+  push:
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - '.github/workflows/tests.yml'
+  schedule:
+    - cron: '00 19 12 */2 *'
+
+jobs:
+  unit-tests:
+    name: PHP ${{ matrix.php-version }} - ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest]
+        php-version:
+          - 5.6
+          - 7.0
+          - 7.1
+          - 7.2
+          #- 7.3
+          #- 7.4
+          #- 8.0
+        php-extensions:
+          - gd, imagick
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install PHP with extensions
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: ${{ matrix.php-extensions }}
+
+    - name: Report PHP version
+      run: php -v
+
+    - name: Add PHPUnit matcher
+      run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPUnit
+      run: vendor/bin/phpunit -c tests --coverage-text --verbose

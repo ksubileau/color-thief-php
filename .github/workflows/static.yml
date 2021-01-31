@@ -1,0 +1,43 @@
+name: Static analysis
+
+on:
+  pull_request:
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - '.github/workflows/static.yml'
+  push:
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - '.github/workflows/static.yml'
+
+jobs:
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          coverage: none
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+      - name: Check coding standards
+        run: ./vendor/bin/php-cs-fixer --diff --dry-run --verbose --using-cache=no fix
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          coverage: none
+          tools: phpstan
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+      - name: Run PHPStan
+        run: phpstan analyse --no-progress lib tests
