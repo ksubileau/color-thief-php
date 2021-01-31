@@ -2,7 +2,7 @@ Color Thief PHP
 ==============
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![Build Status](https://img.shields.io/travis/ksubileau/color-thief-php.svg?style=flat-square)](https://travis-ci.org/ksubileau/color-thief-php)
+[![Build Status](https://img.shields.io/github/workflow/status/ksubileau/color-thief-php/Tests.svg?style=flat-square)](https://github.com/ksubileau/color-thief-php/actions?query=workflow%3ATests)
 [![GitHub issues](https://img.shields.io/github/issues/ksubileau/color-thief-php.svg?style=flat-square)](https://github.com/ksubileau/color-thief-php/issues)
 [![HHVM](https://img.shields.io/hhvm/ksubileau/color-thief-php.svg?style=flat-square)](https://travis-ci.org/ksubileau/color-thief-php)
 [![Packagist](https://img.shields.io/packagist/dm/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
