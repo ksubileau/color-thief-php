@@ -23,13 +23,14 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     {
         // Checks object state
         $image = $adapter->getResource();
-        $this->assertInternalType('resource', $image);
+        $this->assertIsResource($image);
         $this->assertSame('gd', get_resource_type($image));
     }
 
     public function testLoadInvalidArgument()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'Passed variable is not a valid GD resource');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Passed variable is not a valid GD resource');
 
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
@@ -40,7 +41,8 @@ class GDImageAdapterTest extends BaseImageAdapterTest
      */
     public function testLoadFileJpgCorrupted()
     {
-        $this->setExpectedException('\RuntimeException', 'is not readable or does not exists');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('is not readable or does not exists');
 
         return $this->baseTestLoadFile(__DIR__ . '/../../images/corrupted_PR30.jpg');
     }

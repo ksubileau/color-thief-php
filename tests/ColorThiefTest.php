@@ -195,21 +195,24 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
     public function testGetPaletteWithTooFewColors()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'The number of palette colors');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The number of palette colors');
 
         ColorThief::getPalette('foo.jpg', 1);
     }
 
     public function testGetPaletteWithTooManyColors()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'The number of palette colors');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The number of palette colors');
 
         ColorThief::getPalette('foo.jpg', 120000);
     }
 
     public function testGetPaletteWithInvalidQuality()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'quality argument');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('quality argument');
 
         ColorThief::getPalette('foo.jpg', 5, 0);
     }
@@ -219,7 +222,9 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetPaletteWithBlankImage()
     {
-        $this->setExpectedException('\RuntimeException', 'blank or transparent image', 1);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('blank or transparent image');
+        $this->expectExceptionCode(1);
 
         ColorThief::getPalette(__DIR__ . '/images/blank.png');
     }

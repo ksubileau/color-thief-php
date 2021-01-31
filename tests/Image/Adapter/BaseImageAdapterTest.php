@@ -76,7 +76,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
      */
     public function testLoad404Url()
     {
-        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('not readable or does not exists');
 
         $adapter = $this->getAdapterInstance();
         $adapter->loadFile('http://example.com/pixels.png');
@@ -84,7 +85,8 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadFileMissing()
     {
-        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('not readable or does not exists');
 
         $adapter = $this->getAdapterInstance();
         $adapter->loadFile('Not a file');
@@ -92,7 +94,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadInvalidArgument()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
 
         $adapter = $this->getAdapterInstance();
         /* @noinspection PhpParamsInspection */
@@ -118,7 +120,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadBinaryStringInvalidArgument()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
 
         $adapter = $this->getAdapterInstance();
         $adapter->loadBinaryString('test');

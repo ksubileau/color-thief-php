@@ -96,7 +96,8 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadInvalidResource()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'Passed variable is not a valid image source');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Passed variable is not a valid image source');
 
         $this->loader->load(42);
     }
@@ -147,7 +148,8 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadFileMissing()
     {
-        $this->setExpectedException('\RuntimeException', 'not readable or does not exists');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('not readable or does not exists');
 
         $this->loader->load('Not a file');
     }

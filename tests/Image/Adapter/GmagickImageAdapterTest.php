@@ -30,7 +30,8 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
 
     public function testLoadInvalidArgument()
     {
-        $this->setExpectedException('\InvalidArgumentException', 'Passed variable is not an instance of Gmagick');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Passed variable is not an instance of Gmagick');
 
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
