@@ -77,7 +77,7 @@ The `$colorCount` argument determines the size of the palette; the number of col
 
 The `$quality` and `$area` arguments work as in the previous function.
 
-## Credits and license
+## Credits
 
 ### Author
 by Kevin Subileau
@@ -90,9 +90,3 @@ Based on the fabulous work done by Lokesh Dhakar
 ### Thanks
 * Lokesh Dhakar - For creating the [original project](http://github.com/lokesh/color-thief).
 * Nick Rabinowitz - For creating quantize.js.
-
-### License
-Licensed under the [Creative Commons Attribution 2.5 License](http://creativecommons.org/licenses/by/2.5/)
-
-* Free for use in both personal and commercial projects.
-* Attribution requires leaving author name, author homepage link, and the license info intact.

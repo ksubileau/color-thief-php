@@ -4,7 +4,7 @@
     "homepage" : "http://www.kevinsubileau.fr/projets/color-thief-php",
     "description": "Grabs the dominant color or a representative color palette from an image.",
     "keywords": ["color", "thief", "php", "dominant", "palette"],
-    "license": "CC-BY-2.5",
+    "license": "MIT",
 
     "authors": [
         {

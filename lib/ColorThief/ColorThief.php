@@ -16,11 +16,6 @@
  * Based on the work done by Lokesh Dhakar - http://www.lokeshdhakar.com
  * and Nick Rabinowitz
  *
- * License
- * -------
- * Creative Commons Attribution 2.5 License:
- * http://creativecommons.org/licenses/by/2.5/
- *
  * Thanks
  * ------
  * Lokesh Dhakar - For creating the original project.
