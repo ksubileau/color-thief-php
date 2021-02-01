@@ -36,8 +36,7 @@ jobs:
         with:
           php-version: 7.2
           coverage: none
-          tools: phpstan
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
       - name: Run PHPStan
-        run: phpstan analyse --no-progress lib tests
+        run: ./vendor/bin/phpstan analyse --no-progress

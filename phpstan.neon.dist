@@ -1,0 +1,10 @@
+includes:
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+
+parameters:
+  level: max
+  paths:
+    - lib
+  typeAliases:
+    ColorRGB: 'array{int, int, int}'
+    RectangularArea: 'array{int, int, int, int}'
