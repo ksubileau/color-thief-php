@@ -40,22 +40,22 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadFilePng(): IImageAdapter
     {
-        return $this->baseTestLoadFile(__DIR__ . '/../../images/pixels.png');
+        return $this->baseTestLoadFile(__DIR__.'/../../images/pixels.png');
     }
 
     public function testLoadFileJpg(): IImageAdapter
     {
-        return $this->baseTestLoadFile(__DIR__ . '/../../images/field_1024x683.jpg');
+        return $this->baseTestLoadFile(__DIR__.'/../../images/field_1024x683.jpg');
     }
 
     public function testLoadFileCmykJpg(): IImageAdapter
     {
-        return $this->baseTestLoadFile(__DIR__ . '/../../images/pixels_cmyk_PR37.jpg');
+        return $this->baseTestLoadFile(__DIR__.'/../../images/pixels_cmyk_PR37.jpg');
     }
 
     public function testLoadFileGif(): IImageAdapter
     {
-        return $this->baseTestLoadFile(__DIR__ . '/../../images/rails_600x406.gif');
+        return $this->baseTestLoadFile(__DIR__.'/../../images/rails_600x406.gif');
     }
 
     /**
@@ -104,9 +104,9 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
     public function testLoadBinaryString(): IImageAdapter
     {
         $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
-            . 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
-            . 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
-            . '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+            .'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
+            .'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
+            .'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
         $data = base64_decode($data);
 
         $adapter = $this->getAdapterInstance();

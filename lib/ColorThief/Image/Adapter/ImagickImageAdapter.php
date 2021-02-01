@@ -15,7 +15,7 @@ class ImagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException('Passed variable is not an instance of Imagick');
         }
 
-        if ($resource->getImageColorspace() == Imagick::COLORSPACE_CMYK) {
+        if (Imagick::COLORSPACE_CMYK == $resource->getImageColorspace()) {
             // Leave original object unmodified
             $resource = clone $resource;
 
@@ -52,7 +52,7 @@ class ImagickImageAdapter extends ImageAdapter
         try {
             $resource = new Imagick($file);
         } catch (\ImagickException $e) {
-            throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
+            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
         }
         $this->load($resource);
     }

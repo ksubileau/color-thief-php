@@ -45,6 +45,6 @@ class GDImageAdapterTest extends BaseImageAdapterTest
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('is not readable or does not exists');
 
-        return $this->baseTestLoadFile(__DIR__ . '/../../images/corrupted_PR30.jpg');
+        return $this->baseTestLoadFile(__DIR__.'/../../images/corrupted_PR30.jpg');
     }
 }

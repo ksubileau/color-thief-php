@@ -9,7 +9,7 @@ class GDImageAdapter extends ImageAdapter
 {
     public function load($resource): void
     {
-        if (!is_resource($resource) || get_resource_type($resource) != 'gd') {
+        if (!\is_resource($resource) || 'gd' != get_resource_type($resource)) {
             throw new \InvalidArgumentException('Passed variable is not a valid GD resource');
         }
 
@@ -19,7 +19,7 @@ class GDImageAdapter extends ImageAdapter
     public function loadBinaryString(string $data): void
     {
         $resource = @imagecreatefromstring($data);
-        if ($resource === false) {
+        if (false === $resource) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image');
         }
         $this->resource = $resource;
@@ -27,18 +27,18 @@ class GDImageAdapter extends ImageAdapter
 
     public function loadFile(string $file): void
     {
-        list(, , $type) = @getimagesize($file);
+        [, , $type] = @getimagesize($file);
 
         switch ($type) {
-            case IMAGETYPE_GIF:
+            case \IMAGETYPE_GIF:
                 $resource = @imagecreatefromgif($file);
                 break;
 
-            case IMAGETYPE_JPEG:
+            case \IMAGETYPE_JPEG:
                 $resource = @imagecreatefromjpeg($file);
                 break;
 
-            case IMAGETYPE_PNG:
+            case \IMAGETYPE_PNG:
                 $resource = @imagecreatefrompng($file);
                 break;
 
@@ -46,7 +46,7 @@ class GDImageAdapter extends ImageAdapter
                 throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
         }
 
-        if ($resource === false) {
+        if (false === $resource) {
             throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
         }
 

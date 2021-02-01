@@ -110,8 +110,8 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     protected function baseTestLoadFile(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $path = null): void
     {
-        if ($path === null) {
-            $path = __DIR__ . '/../images/pixels.png';
+        if (null === $path) {
+            $path = __DIR__.'/../images/pixels.png';
         }
 
         $adapter = $this->getAdapterMock($adapterName, 'loadFile', $path);
@@ -201,11 +201,11 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     protected function baseTestLoadBinaryString(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $data = null): void
     {
-        if ($data === null) {
+        if (null === $data) {
             $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
-                . 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
-                . 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
-                . '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+                .'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
+                .'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
+                .'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
             $data = base64_decode($data);
         }
 

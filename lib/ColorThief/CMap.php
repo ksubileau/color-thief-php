@@ -53,7 +53,7 @@ class CMap
     public function map(array $color): ?array
     {
         $vboxes_size = $this->vboxes->size();
-        for ($i = 0; $i < $vboxes_size; $i++) {
+        for ($i = 0; $i < $vboxes_size; ++$i) {
             $vbox = $this->vboxes->peek($i);
             if ($vbox['vbox']->contains($color)) {
                 return $vbox['color'];
@@ -71,7 +71,7 @@ class CMap
     {
         $pColor = null;
         $vboxes_size = $this->vboxes->size();
-        for ($i = 0; $i < $vboxes_size; $i++) {
+        for ($i = 0; $i < $vboxes_size; ++$i) {
             $vbox = $this->vboxes->peek($i);
             $d2 = sqrt(
                 ($color[0] - $vbox['color'][0]) ** 2 +

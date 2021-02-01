@@ -55,7 +55,7 @@ class PQueue
             $this->sort();
         }
 
-        if ($index === null) {
+        if (null === $index) {
             $index = $this->size() - 1;
         }
 
@@ -77,7 +77,7 @@ class PQueue
 
     public function size(): int
     {
-        return count($this->contents);
+        return \count($this->contents);
     }
 
     /**

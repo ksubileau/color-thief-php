@@ -15,7 +15,7 @@ class GmagickImageAdapter extends ImageAdapter
             throw new \InvalidArgumentException('Passed variable is not an instance of Gmagick');
         }
 
-        if ($resource->getImageColorSpace() == Gmagick::COLORSPACE_CMYK) {
+        if (Gmagick::COLORSPACE_CMYK == $resource->getImageColorSpace()) {
             // Leave original object unmodified
             $resource = clone $resource;
             $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
@@ -39,10 +39,10 @@ class GmagickImageAdapter extends ImageAdapter
     {
         // GMagick doesn't support HTTPS URL directly, so we download the image with file_get_contents first
         // and then we passed the binary string to GmagickImageAdapter::loadBinaryString().
-        if (filter_var($file, FILTER_VALIDATE_URL)) {
+        if (filter_var($file, \FILTER_VALIDATE_URL)) {
             $image = @file_get_contents($file);
-            if ($image === false) {
-                throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0);
+            if (false === $image) {
+                throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0);
             }
 
             $this->loadBinaryString($image);
@@ -54,7 +54,7 @@ class GmagickImageAdapter extends ImageAdapter
         try {
             $resource = new Gmagick($file);
         } catch (\GmagickException $e) {
-            throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0, $e);
+            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
         }
         $this->load($resource);
     }

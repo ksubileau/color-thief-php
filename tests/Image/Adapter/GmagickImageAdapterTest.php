@@ -14,7 +14,7 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
     protected function getTestResourceInstance()
     {
         // The loader requires a non-empty GMagick object for the color space check
-        return new GMagick(__DIR__ . '/../../images/blank.png');
+        return new GMagick(__DIR__.'/../../images/blank.png');
     }
 
     protected function getAdapterInstance(): IImageAdapter

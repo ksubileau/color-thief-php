@@ -13,7 +13,7 @@ class ImageLoader
     {
         $image = null;
 
-        if (is_string($source)) {
+        if (\is_string($source)) {
             if ($this->isImagickLoaded()) {
                 $image = $this->getAdapter('Imagick');
             } elseif ($this->isGmagickLoaded()) {
@@ -25,19 +25,19 @@ class ImageLoader
             // Tries to detect if the source string is a binary string or a path to an existing file
             // This test is based on the way that PHP detects an invalid path and throws a warning
             // saying "xxx expects to be a valid path, string given" (see zend_parse_arg_path_str).
-            if (strpos($source, "\0") !== false) {
+            if (false !== strpos($source, "\0")) {
                 // Binary string
                 $image->loadBinaryString($source);
             } else {
                 // Path or URL
-                $is_remote = filter_var($source, FILTER_VALIDATE_URL);
+                $is_remote = filter_var($source, \FILTER_VALIDATE_URL);
                 if (!$is_remote && (!file_exists($source) || !is_readable($source))) {
-                    throw new \RuntimeException("Image '" . $source . "' is not readable or does not exists.");
+                    throw new \RuntimeException("Image '".$source."' is not readable or does not exists.");
                 }
                 $image->loadFile($source);
             }
         } else {
-            if ((is_resource($source) && get_resource_type($source) == 'gd')) {
+            if ((\is_resource($source) && 'gd' == get_resource_type($source))) {
                 $image = $this->getAdapter('GD');
             } elseif (is_a($source, 'Imagick')) {
                 $image = $this->getAdapter('Imagick');
@@ -57,7 +57,7 @@ class ImageLoader
      */
     public function isImagickLoaded(): bool
     {
-        return extension_loaded('imagick');
+        return \extension_loaded('imagick');
     }
 
     /**
@@ -65,7 +65,7 @@ class ImageLoader
      */
     public function isGmagickLoaded(): bool
     {
-        return extension_loaded('gmagick');
+        return \extension_loaded('gmagick');
     }
 
     /**
@@ -73,7 +73,7 @@ class ImageLoader
      */
     public function getAdapter($adapterType): ImageAdapter
     {
-        $classname = '\\ColorThief\\Image\\Adapter\\' . $adapterType . 'ImageAdapter';
+        $classname = '\\ColorThief\\Image\\Adapter\\'.$adapterType.'ImageAdapter';
 
         return new $classname();
     }

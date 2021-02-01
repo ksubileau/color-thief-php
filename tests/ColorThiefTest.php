@@ -122,21 +122,12 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function provideNaturalOrderComparison()
-    {
-        return [
-            [0, 5, -1],
-            [10, -3, 1],
-            [3, 3, 0],
-        ];
-    }
-
     /**
      * @dataProvider provideImageDominantColor
      */
     public function testDominantColor(string $image, ?array $area, array $expectedColor): void
     {
-        $dominantColor = ColorThief::getColor(__DIR__ . $image, 10, $area);
+        $dominantColor = ColorThief::getColor(__DIR__.$image, 10, $area);
 
         $this->assertSame($expectedColor, $dominantColor);
     }
@@ -159,7 +150,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
-        $palette = ColorThief::getPalette(__DIR__ . $image, $numColors, $quality, $area);
+        $palette = ColorThief::getPalette(__DIR__.$image, $numColors, $quality, $area);
 
         //$this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
@@ -172,7 +163,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         //$numColors = count($expectedPalette);
         $numColors = 10;
-        $image = file_get_contents(__DIR__ . $image);
+        $image = file_get_contents(__DIR__.$image);
         $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
         //$this->assertCount($numColors, $palette);
@@ -212,7 +203,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('blank or transparent image');
         $this->expectExceptionCode(1);
 
-        ColorThief::getPalette(__DIR__ . '/images/blank.png');
+        ColorThief::getPalette(__DIR__.'/images/blank.png');
     }
 
     /**
@@ -259,17 +250,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(
             [$r, $g, $b],
             ColorThief::getColorsFromIndex($index)
-        );
-    }
-
-    /**
-     * @dataProvider provideNaturalOrderComparison
-     */
-    public function testNaturalOrder(int $left, int $right, int $expected): void
-    {
-        $this->assertSame(
-            $expected,
-            ColorThief::naturalOrder($left, $right)
         );
     }
 
