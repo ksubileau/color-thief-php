@@ -3,6 +3,7 @@
 namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\GmagickImageAdapter;
+use ColorThief\Image\Adapter\IImageAdapter;
 use Gmagick;
 
 /**
@@ -16,19 +17,19 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
         return new GMagick(__DIR__ . '/../../images/blank.png');
     }
 
-    protected function getAdapterInstance()
+    protected function getAdapterInstance(): IImageAdapter
     {
         return new GmagickImageAdapter();
     }
 
-    protected function checkIsLoaded($adapter)
+    protected function checkIsLoaded(IImageAdapter $adapter): void
     {
         // Checks object state
         $image = $adapter->getResource();
         $this->assertInstanceOf('\Gmagick', $image);
     }
 
-    public function testLoadInvalidArgument()
+    public function testLoadInvalidArgument(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Passed variable is not an instance of Gmagick');

@@ -4,12 +4,12 @@ namespace ColorThief\Image\Adapter;
 
 use Imagick;
 
+/**
+ * @property ?Imagick $resource
+ */
 class ImagickImageAdapter extends ImageAdapter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load($resource)
+    public function load($resource): void
     {
         if (!($resource instanceof Imagick)) {
             throw new \InvalidArgumentException('Passed variable is not an instance of Imagick');
@@ -36,10 +36,7 @@ class ImagickImageAdapter extends ImageAdapter
         parent::load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadBinaryString($data)
+    public function loadBinaryString(string $data): void
     {
         $resource = new Imagick();
         try {
@@ -50,10 +47,7 @@ class ImagickImageAdapter extends ImageAdapter
         $this->load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadFile($file)
+    public function loadFile(string $file): void
     {
         try {
             $resource = new Imagick($file);
@@ -63,10 +57,7 @@ class ImagickImageAdapter extends ImageAdapter
         $this->load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function destroy()
+    public function destroy(): void
     {
         if ($this->resource) {
             $this->resource->clear();
@@ -74,27 +65,19 @@ class ImagickImageAdapter extends ImageAdapter
         parent::destroy();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeight()
+    public function getHeight(): int
     {
         return $this->resource->getImageHeight();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getWidth()
+    public function getWidth(): int
     {
         return $this->resource->getImageWidth();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPixelColor($x, $y)
+    public function getPixelColor(int $x, int $y): \stdClass
     {
+        /** @var \ImagickPixel $pixel */
         $pixel = $this->resource->getImagePixelColor($x, $y);
 
         // Un-normalized values don't give a full range 0-1 alpha channel

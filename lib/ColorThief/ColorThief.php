@@ -25,8 +25,8 @@
 
 namespace ColorThief;
 
-use SplFixedArray;
 use ColorThief\Image\ImageLoader;
+use SplFixedArray;
 
 class ColorThief
 {
@@ -39,15 +39,8 @@ class ColorThief
 
     /**
      * Get combined color index (3 colors as one integer) from RGB values (0-255) or RGB Histogram Buckets (0-31).
-     *
-     * @param int $red
-     * @param int $green
-     * @param int $blue
-     * @param int $sigBits
-     *
-     * @return int
      */
-    public static function getColorIndex($red, $green, $blue, $sigBits = self::SIGBITS)
+    public static function getColorIndex(int $red, int $green, int $blue, int $sigBits = self::SIGBITS): int
     {
         return (($red >> (8 - $sigBits)) << (2 * $sigBits)) | (($green >> (8 - $sigBits)) << $sigBits) | ($blue >> (8 - $sigBits));
     }
@@ -55,12 +48,9 @@ class ColorThief
     /**
      * Get RGB values (0-255) or RGB Histogram Buckets from a combined color index (3 colors as one integer).
      *
-     * @param int $index
-     * @param int $sigBits
-     *
-     * @return array
+     * @phpstan-return ColorRGB
      */
-    public static function getColorsFromIndex($index, $sigBits = 8)
+    public static function getColorsFromIndex(int $index, int $sigBits = 8): array
     {
         $mask = (1 << $sigBits) - 1;
 
@@ -73,13 +63,8 @@ class ColorThief
 
     /**
      * Natural sorting.
-     *
-     * @param int $a
-     * @param int $b
-     *
-     * @return int
      */
-    public static function naturalOrder($a, $b)
+    public static function naturalOrder(int $a, int $b): int
     {
         return ($a < $b) ? -1 : (($a > $b) ? 1 : 0);
     }
@@ -89,25 +74,26 @@ class ColorThief
      *
      * @bug Function does not always return the requested amount of colors. It can be +/- 2.
      *
-     * @param mixed      $sourceImage   Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $quality       1 is the highest quality. There is a trade-off between quality and speed.
-     *                                  The bigger the number, the faster the palette generation but the greater the
-     *                                  likelihood that colors will be missed.
-     * @param array|null $area[x,y,w,h] It allows you to specify a rectangular area in the image in order to get
-     *                                  colors only for this area. It needs to be an associative array with the
-     *                                  following keys:
-     *                                  $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                  $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                  $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                  $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $quality     1 is the highest quality. There is a trade-off between quality and speed.
+     *                                The bigger the number, the faster the palette generation but the greater the
+     *                                likelihood that colors will be missed.
+     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
+     *                                colors only for this area. It needs to be an associative array with the
+     *                                following keys:
+     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @phpstan-param ?RectangularArea $area
      *
-     * @return array|bool
+     * @phpstan-return ColorRGB|null
      */
-    public static function getColor($sourceImage, $quality = 10, array $area = null)
+    public static function getColor($sourceImage, int $quality = 10, ?array $area = null): ?array
     {
         $palette = static::getPalette($sourceImage, 5, $quality, $area);
 
-        return $palette ? $palette[0] : false;
+        return $palette ? $palette[0] : null;
     }
 
     /**
@@ -115,15 +101,21 @@ class ColorThief
      *
      * @bug Function does not always return the requested amount of colors. It can be +/- 2.
      *
-     * @param mixed      $sourceImage   Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $colorCount    it determines the size of the palette; the number of colors returned
-     * @param int        $quality       1 is the highest quality
-     * @param array|null $area[x,y,w,h]
+     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $colorCount  it determines the size of the palette; the number of colors returned
+     * @param int        $quality     1 is the highest quality
+     * @param array|null $area        [x,y,w,h]
+     * @phpstan-param ?RectangularArea $area
      *
      * @return array
+     * @phpstan-return ColorRGB[]
      */
-    public static function getPalette($sourceImage, $colorCount = 10, $quality = 10, array $area = null)
-    {
+    public static function getPalette(
+        $sourceImage,
+        int $colorCount = 10,
+        int $quality = 10,
+        ?array $area = null
+    ): ?array {
         if ($colorCount < 2 || $colorCount > 256) {
             throw new \InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
         }
@@ -147,14 +139,12 @@ class ColorThief
     }
 
     /**
-     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $quality     Analyze every $quality pixels
-     * @param array      $histo       Histogram
-     * @param array|null $area
-     *
-     * @return int
+     * @param mixed           $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int             $quality     Analyze every $quality pixels
+     * @param array<int, int> $histo       Histogram
+     * @phpstan-param ?RectangularArea $area
      */
-    private static function loadImage($sourceImage, $quality, array &$histo, array $area = null)
+    private static function loadImage($sourceImage, int $quality, array &$histo, array $area = null): int
     {
         $loader = new ImageLoader();
         $image = $loader->load($sourceImage);
@@ -226,11 +216,9 @@ class ColorThief
     }
 
     /**
-     * @param array $histo
-     *
-     * @return VBox
+     * @param array<int, int> $histo
      */
-    private static function vboxFromHistogram(array $histo)
+    private static function vboxFromHistogram(array $histo): VBox
     {
         $rgbMin = [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MAX];
         $rgbMax = [-PHP_INT_MAX, -PHP_INT_MAX, -PHP_INT_MAX];
@@ -254,14 +242,11 @@ class ColorThief
     }
 
     /**
-     * @param string $color
-     * @param VBox   $vBox
-     * @param array  $partialSum
-     * @param int    $total
+     * @param int[] $partialSum
      *
-     * @return array|void
+     * @return array{VBox, VBox}|null
      */
-    private static function doCut($color, $vBox, $partialSum, $total)
+    private static function doCut(string $color, VBox $vBox, array $partialSum, int $total): ?array
     {
         $dim1 = $color . '1';
         $dim2 = $color . '2';
@@ -296,18 +281,19 @@ class ColorThief
                 return [$vBox1, $vBox2];
             }
         }
+
+        return null;
     }
 
     /**
-     * @param array $histo
-     * @param VBox  $vBox
+     * @param array<int, int> $histo
      *
-     * @return array|void
+     * @return VBox[]|null
      */
-    private static function medianCutApply($histo, $vBox)
+    private static function medianCutApply(array $histo, VBox $vBox): ?array
     {
         if (!$vBox->count()) {
-            return;
+            return null;
         }
 
         // If the vbox occupies just one element in color space, it can't be split
@@ -329,13 +315,14 @@ class ColorThief
     /**
      * Find the partial sum arrays along the selected axis.
      *
-     * @param string $axis  r|g|b
-     * @param array  $histo
-     * @param VBox   $vBox
+     * @param string $axis r|g|b
+     * @phpstan-param 'r'|'g'|'b' $axis
      *
-     * @return array [$total, $partialSum]
+     * @param array<int, int> $histo
+     *
+     * @return array{int, array<int, int>} [$total, $partialSum]
      */
-    private static function sumColors($axis, $histo, $vBox)
+    private static function sumColors(string $axis, array $histo, VBox $vBox): array
     {
         $total = 0;
         $partialSum = [];
@@ -379,12 +366,12 @@ class ColorThief
     }
 
     /**
-     * @param VBox  $vBox
-     * @param array $order
+     * @phpstan-param array<'r'|'g'|'b'> $order
      *
-     * @return array
+     * @return int[][]
+     * @phpstan-return array{int[], int[], int[]}
      */
-    private static function getVBoxColorRanges(VBox $vBox, array $order)
+    private static function getVBoxColorRanges(VBox $vBox, array $order): array
     {
         $ranges = [
             'r' => range($vBox->r1, $vBox->r2),
@@ -402,11 +389,10 @@ class ColorThief
     /**
      * Inner function to do the iteration.
      *
-     * @param PQueue $priorityQueue
-     * @param float  $target
-     * @param array  $histo
+     * @param PQueue<VBox>    $priorityQueue
+     * @param array<int, int> $histo
      */
-    private static function quantizeIter(&$priorityQueue, $target, $histo)
+    private static function quantizeIter(PQueue &$priorityQueue, float $target, array $histo): void
     {
         $nColors = 1;
         $nIterations = 0;
@@ -446,13 +432,10 @@ class ColorThief
     }
 
     /**
-     * @param $numPixels   Number of image pixels analyzed
-     * @param $maxColors
-     * @param array $histo Histogram
-     *
-     * @return bool|CMap
+     * @param int             $numPixels Number of image pixels analyzed
+     * @param array<int, int> $histo     Histogram
      */
-    private static function quantize($numPixels, $maxColors, array &$histo)
+    private static function quantize(int $numPixels, int $maxColors, array &$histo): CMap
     {
         // Short-Circuits
         if ($numPixels === 0) {
@@ -472,7 +455,8 @@ class ColorThief
 
         $vBox = static::vboxFromHistogram($histo);
 
-        $priorityQueue = new PQueue(function ($a, $b) {
+        /** @var PQueue<VBox> $priorityQueue */
+        $priorityQueue = new PQueue(function (VBox $a, VBox $b) {
             return self::naturalOrder($a->count(), $b->count());
         });
         $priorityQueue->push($vBox);
@@ -481,7 +465,7 @@ class ColorThief
         static::quantizeIter($priorityQueue, static::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
-        $priorityQueue->setComparator(function ($a, $b) {
+        $priorityQueue->setComparator(function (VBox $a, VBox $b) {
             return self::naturalOrder($a->count() * $a->volume(), $b->count() * $b->volume());
         });
 

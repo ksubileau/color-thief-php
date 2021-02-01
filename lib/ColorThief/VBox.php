@@ -4,20 +4,46 @@ namespace ColorThief;
 
 class VBox
 {
+    /** @var int */
     public $r1;
+    /** @var int */
     public $r2;
+    /** @var int */
     public $g1;
+    /** @var int */
     public $g2;
+    /** @var int */
     public $b1;
+    /** @var int */
     public $b2;
+
+    /** @var array<int, int> */
     public $histo;
 
-    private $volume = false;
-    private $count;
-    private $count_set = false;
-    private $avg = false;
+    /** @var int */
+    private $volume;
+    /** @var bool */
+    private $volume_set = false;
 
-    public function __construct($r1, $r2, $g1, $g2, $b1, $b2, $histo)
+    /** @var int */
+    private $count;
+    /** @var bool */
+    private $count_set = false;
+
+    /**
+     * @var array
+     * @phpstan-var ColorRGB
+     */
+    private $avg;
+    /** @var bool */
+    private $avg_set = false;
+
+    /**
+     * VBox constructor.
+     *
+     * @param array<int, int> $histo
+     */
+    public function __construct(int $r1, int $r2, int $g1, int $g2, int $b1, int $b2, array $histo)
     {
         $this->r1 = $r1;
         $this->r2 = $r2;
@@ -28,18 +54,19 @@ class VBox
         $this->histo = $histo;
     }
 
-    public function volume($force = false)
+    public function volume(bool $force = false): int
     {
-        if (!$this->volume || $force) {
+        if ($this->volume_set !== true || $force) {
             $this->volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
+            $this->volume_set = true;
         }
 
         return $this->volume;
     }
 
-    public function count($force = false)
+    public function count(bool $force = false): int
     {
-        if (!$this->count_set || $force) {
+        if ($this->count_set !== true || $force) {
             $npix = 0;
 
             // Select the fastest way (i.e. with the fewest iterations) to count
@@ -78,7 +105,7 @@ class VBox
         return $this->count;
     }
 
-    public function copy()
+    public function copy(): self
     {
         return new self($this->r1, $this->r2, $this->g1, $this->g2, $this->b1, $this->b2, $this->histo);
     }
@@ -86,13 +113,11 @@ class VBox
     /**
      * Calculates the average color represented by this VBox.
      *
-     * @param bool $force
-     *
-     * @return array|bool
+     * @phpstan-return ColorRGB
      */
-    public function avg($force = false)
+    public function avg(bool $force = false): array
     {
-        if (!$this->avg || $force) {
+        if ($this->avg_set !== true || $force) {
             $ntot = 0;
             $mult = 1 << ColorThief::RSHIFT;
             $rsum = 0;
@@ -140,12 +165,17 @@ class VBox
                     return min($val, 255);
                 }, $this->avg);
             }
+
+            $this->avg_set = true;
         }
 
         return $this->avg;
     }
 
-    public function contains(array $rgbValue, $rshift = ColorThief::RSHIFT)
+    /**
+     * @phpstan-param ColorRGB $rgbValue
+     */
+    public function contains(array $rgbValue, int $rshift = ColorThief::RSHIFT): bool
     {
         // Get the buckets from the RGB values.
         $redBucket = $rgbValue[0] >> $rshift;
@@ -164,9 +194,9 @@ class VBox
     /**
      * Determines the longest axis.
      *
-     * @return string
+     * @phpstan-return 'r'|'g'|'b'
      */
-    public function longestAxis()
+    public function longestAxis(): string
     {
         // Color-Width for RGB
         $red = $this->r2 - $this->r1;

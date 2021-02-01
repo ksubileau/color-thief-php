@@ -3,6 +3,7 @@
 namespace ColorThief\Image\Adapter\Test;
 
 use ColorThief\Image\Adapter\GDImageAdapter;
+use ColorThief\Image\Adapter\IImageAdapter;
 
 /**
  * @requires extension gd
@@ -14,12 +15,12 @@ class GDImageAdapterTest extends BaseImageAdapterTest
         return imagecreate(80, 20);
     }
 
-    protected function getAdapterInstance()
+    protected function getAdapterInstance(): IImageAdapter
     {
         return new GDImageAdapter();
     }
 
-    protected function checkIsLoaded($adapter)
+    protected function checkIsLoaded(IImageAdapter $adapter): void
     {
         // Checks object state
         $image = $adapter->getResource();
@@ -27,7 +28,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
         $this->assertSame('gd', get_resource_type($image));
     }
 
-    public function testLoadInvalidArgument()
+    public function testLoadInvalidArgument(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Passed variable is not a valid GD resource');
@@ -39,7 +40,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     /**
      * @see Issue #30
      */
-    public function testLoadFileJpgCorrupted()
+    public function testLoadFileJpgCorrupted(): IImageAdapter
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('is not readable or does not exists');

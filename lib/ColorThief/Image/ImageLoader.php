@@ -2,14 +2,14 @@
 
 namespace ColorThief\Image;
 
+use ColorThief\Image\Adapter\ImageAdapter;
+
 class ImageLoader
 {
     /**
      * @param mixed $source Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     *
-     * @return Adapter\ImageAdapter
      */
-    public function load($source)
+    public function load($source): ImageAdapter
     {
         $image = null;
 
@@ -54,30 +54,24 @@ class ImageLoader
 
     /**
      * Checks if Imagick extension is loaded.
-     *
-     * @return bool
      */
-    public function isImagickLoaded()
+    public function isImagickLoaded(): bool
     {
         return extension_loaded('imagick');
     }
 
     /**
      * Checks if Gmagick extension is loaded.
-     *
-     * @return bool
      */
-    public function isGmagickLoaded()
+    public function isGmagickLoaded(): bool
     {
         return extension_loaded('gmagick');
     }
 
     /**
      * @param string $adapterType
-     *
-     * @return Adapter\ImageAdapter
      */
-    public function getAdapter($adapterType)
+    public function getAdapter($adapterType): ImageAdapter
     {
         $classname = '\\ColorThief\\Image\\Adapter\\' . $adapterType . 'ImageAdapter';
 

@@ -2,9 +2,15 @@
 
 namespace ColorThief;
 
-/* Color map */
+/**
+ * Color map.
+ */
 class CMap
 {
+    /**
+     * @var PQueue
+     * @phpstan-var PQueue<array{vbox: VBox, color: ColorRGB}>
+     */
     private $vboxes;
 
     public function __construct()
@@ -17,7 +23,7 @@ class CMap
         });
     }
 
-    public function push($vbox)
+    public function push(VBox $vbox): void
     {
         $this->vboxes->push([
             'vbox' => $vbox,
@@ -25,19 +31,26 @@ class CMap
         ]);
     }
 
-    public function palette()
+    /**
+     * @phpstan-return ColorRGB[]
+     */
+    public function palette(): array
     {
         return $this->vboxes->map(function ($vb) {
             return $vb['color'];
         });
     }
 
-    public function size()
+    public function size(): int
     {
         return $this->vboxes->size();
     }
 
-    public function map($color)
+    /**
+     * @phpstan-param ColorRGB $color
+     * @phpstan-return ColorRGB|null $color
+     */
+    public function map(array $color): ?array
     {
         $vboxes_size = $this->vboxes->size();
         for ($i = 0; $i < $vboxes_size; $i++) {
@@ -50,16 +63,20 @@ class CMap
         return $this->nearest($color);
     }
 
-    public function nearest($color)
+    /**
+     * @phpstan-param ColorRGB $color
+     * @phpstan-return ColorRGB|null $color
+     */
+    public function nearest(array $color): ?array
     {
         $pColor = null;
         $vboxes_size = $this->vboxes->size();
         for ($i = 0; $i < $vboxes_size; $i++) {
             $vbox = $this->vboxes->peek($i);
             $d2 = sqrt(
-                pow($color[0] - $vbox['color'][0], 2) +
-                pow($color[1] - $vbox['color'][1], 2) +
-                pow($color[2] - $vbox['color'][2], 2)
+                ($color[0] - $vbox['color'][0]) ** 2 +
+                ($color[1] - $vbox['color'][1]) ** 2 +
+                ($color[2] - $vbox['color'][2]) ** 2
             );
 
             if (!isset($d1) || $d2 < $d1) {
@@ -71,7 +88,7 @@ class CMap
         return $pColor;
     }
 
-    public function forcebw()
+    public function forcebw(): void
     {
         // XXX: won't work yet
         /*

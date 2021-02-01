@@ -2,22 +2,20 @@
 
 namespace ColorThief\Test;
 
-use ColorThief\VBox;
 use ColorThief\ColorThief;
+use ColorThief\VBox;
 
 class VBoxTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var VBox
-     */
+    /** @var VBox */
     protected $vbox;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->vbox = new VBox(0, 255, 0, 255, 0, 255, null);
+        $this->vbox = new VBox(0, 255, 0, 255, 0, 255, []);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->vbox = null;
     }
@@ -25,7 +23,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers \ColorThief\VBox::volume
      */
-    public function testVolume()
+    public function testVolume(): void
     {
         $this->vbox->r1 = 0;
         $this->vbox->r2 = 0;
@@ -49,7 +47,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers \ColorThief\VBox::copy
      */
-    public function testCopy()
+    public function testCopy(): void
     {
         $this->vbox->histo = [25 => 8];
         $copy = $this->vbox->copy();
@@ -67,7 +65,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers \ColorThief\VBox::count
      */
-    public function testCount()
+    public function testCount(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
         $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
@@ -101,7 +99,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers \ColorThief\VBox::contains
      */
-    public function testContains()
+    public function testContains(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
         $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
@@ -125,7 +123,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers \ColorThief\VBox::longestAxis
      */
-    public function testLongestAxis()
+    public function testLongestAxis(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
         $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
@@ -148,7 +146,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
      *
      * @see Issue #24
      */
-    public function testAvgLimitAt255()
+    public function testAvgLimitAt255(): void
     {
         $this->vbox->r1 = 30;
         $this->vbox->r2 = 31;

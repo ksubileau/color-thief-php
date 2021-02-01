@@ -4,12 +4,12 @@ namespace ColorThief\Image\Adapter;
 
 use Gmagick;
 
+/**
+ * @property ?Gmagick $resource
+ */
 class GmagickImageAdapter extends ImageAdapter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load($resource)
+    public function load($resource): void
     {
         if (!($resource instanceof Gmagick)) {
             throw new \InvalidArgumentException('Passed variable is not an instance of Gmagick');
@@ -24,10 +24,7 @@ class GmagickImageAdapter extends ImageAdapter
         parent::load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadBinaryString($data)
+    public function loadBinaryString(string $data): void
     {
         $resource = new Gmagick();
         try {
@@ -38,10 +35,7 @@ class GmagickImageAdapter extends ImageAdapter
         $this->load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadFile($file)
+    public function loadFile(string $file): void
     {
         // GMagick doesn't support HTTPS URL directly, so we download the image with file_get_contents first
         // and then we passed the binary string to GmagickImageAdapter::loadBinaryString().
@@ -51,7 +45,9 @@ class GmagickImageAdapter extends ImageAdapter
                 throw new \RuntimeException("Image '" . $file . "' is not readable or does not exists.", 0);
             }
 
-            return $this->loadBinaryString($image);
+            $this->loadBinaryString($image);
+
+            return;
         }
 
         $resource = null;
@@ -63,10 +59,7 @@ class GmagickImageAdapter extends ImageAdapter
         $this->load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function destroy()
+    public function destroy(): void
     {
         if ($this->resource) {
             $this->resource->clear();
@@ -75,26 +68,17 @@ class GmagickImageAdapter extends ImageAdapter
         parent::destroy();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeight()
+    public function getHeight(): int
     {
         return $this->resource->getimageheight();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getWidth()
+    public function getWidth(): int
     {
         return $this->resource->getimagewidth();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPixelColor($x, $y)
+    public function getPixelColor(int $x, int $y): \stdClass
     {
         $cropped = clone $this->resource;    // No need to modify the original object.
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();

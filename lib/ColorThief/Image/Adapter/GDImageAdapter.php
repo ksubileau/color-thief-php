@@ -2,12 +2,12 @@
 
 namespace ColorThief\Image\Adapter;
 
+/**
+ * @property ?resource $resource
+ */
 class GDImageAdapter extends ImageAdapter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load($resource)
+    public function load($resource): void
     {
         if (!is_resource($resource) || get_resource_type($resource) != 'gd') {
             throw new \InvalidArgumentException('Passed variable is not a valid GD resource');
@@ -16,21 +16,16 @@ class GDImageAdapter extends ImageAdapter
         parent::load($resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadBinaryString($data)
+    public function loadBinaryString(string $data): void
     {
-        $this->resource = @imagecreatefromstring($data);
-        if ($this->resource === false) {
+        $resource = @imagecreatefromstring($data);
+        if ($resource === false) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image');
         }
+        $this->resource = $resource;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadFile($file)
+    public function loadFile(string $file): void
     {
         list(, , $type) = @getimagesize($file);
 
@@ -49,7 +44,6 @@ class GDImageAdapter extends ImageAdapter
 
             default:
                 throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
-                break;
         }
 
         if ($resource === false) {
@@ -59,10 +53,7 @@ class GDImageAdapter extends ImageAdapter
         $this->resource = $resource;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function destroy()
+    public function destroy(): void
     {
         if ($this->resource) {
             imagedestroy($this->resource);
@@ -70,26 +61,17 @@ class GDImageAdapter extends ImageAdapter
         parent::destroy();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeight()
+    public function getHeight(): int
     {
         return imagesy($this->resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getWidth()
+    public function getWidth(): int
     {
         return imagesx($this->resource);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPixelColor($x, $y)
+    public function getPixelColor(int $x, int $y): \stdClass
     {
         $rgba = imagecolorat($this->resource, $x, $y);
         $color = imagecolorsforindex($this->resource, $rgba);

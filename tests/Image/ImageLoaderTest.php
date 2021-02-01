@@ -2,20 +2,26 @@
 
 namespace ColorThief\Image\Test;
 
+use ColorThief\Image\Adapter\GDImageAdapter;
+use ColorThief\Image\Adapter\GmagickImageAdapter;
+use ColorThief\Image\Adapter\IImageAdapter;
+use ColorThief\Image\Adapter\ImagickImageAdapter;
 use ColorThief\Image\ImageLoader;
 
 class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var ImageLoader */
     protected $loader;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->loader = new ImageLoader();
     }
 
-    protected function getAdapterMock($adapterName, $method, $image)
+    protected function getAdapterMock(string $adapterName, string $method, $image)
     {
-        $adapter = $this->getMockBuilder("ColorThief\\Image\\Adapter\\{$adapterName}ImageAdapter")
+        /** @phpstan-ignore-next-line */
+        $adapter = $this->getMockBuilder("\\ColorThief\\Image\\Adapter\\{$adapterName}ImageAdapter")
             ->setMethods([$method])
             ->getMock();
 
@@ -27,12 +33,12 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     }
 
     protected function getImageLoaderPartialMock(
-        $adapter,
-        $adapterName,
-        $mockIsImagickLoaded = false,
-        $isImagickLoaded = false,
-        $mockIsGmagickLoaded = false,
-        $isGmagickLoaded = false
+        IImageAdapter $adapter,
+        string $adapterName,
+        bool $mockIsImagickLoaded = false,
+        bool $isImagickLoaded = false,
+        bool $mockIsGmagickLoaded = false,
+        bool $isGmagickLoaded = false
     ) {
         $methods = ['getAdapter'];
         if ($mockIsImagickLoaded) {
@@ -42,25 +48,25 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
             $methods[] = 'isGmagickLoaded';
         }
 
-        $loader = $this->getMockBuilder('ColorThief\\Image\\ImageLoader')
+        $loader = $this->getMockBuilder(ImageLoader::class)
             ->setMethods($methods)
             ->getMock();
 
         $loader->expects($this->once())
             ->method('getAdapter')
             ->with($this->equalTo($adapterName))
-            ->will($this->returnValue($adapter));
+            ->willReturn($adapter);
 
         if ($mockIsImagickLoaded) {
             $loader->expects($this->once())
                 ->method('isImagickLoaded')
-                ->will($this->returnValue($isImagickLoaded));
+                ->willReturn($isImagickLoaded);
         }
 
         if ($mockIsGmagickLoaded) {
             $loader->expects($this->any())
                 ->method('isGmagickLoaded')
-                ->will($this->returnValue($isGmagickLoaded));
+                ->willReturn($isGmagickLoaded);
         }
 
         return $loader;
@@ -69,7 +75,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gd
      */
-    public function testLoadGDResource()
+    public function testLoadGDResource(): void
     {
         $image = imagecreate(18, 18);
 
@@ -83,7 +89,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension imagick
      */
-    public function testLoadImagickResource()
+    public function testLoadImagickResource(): void
     {
         $image = new \Imagick();
 
@@ -94,7 +100,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($adapter, $loader->load($image));
     }
 
-    public function testLoadInvalidResource()
+    public function testLoadInvalidResource(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Passed variable is not a valid image source');
@@ -102,9 +108,9 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->loader->load(42);
     }
 
-    protected function baseTestLoadFile($adapterName, $isImagickLoaded, $isGmagickLoaded, $path = false)
+    protected function baseTestLoadFile(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $path = null): void
     {
-        if ($path === false) {
+        if ($path === null) {
             $path = __DIR__ . '/../images/pixels.png';
         }
 
@@ -125,7 +131,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gd
      */
-    public function testLoadFileWithGD()
+    public function testLoadFileWithGD(): void
     {
         $this->baseTestLoadFile('GD', false, false);
     }
@@ -133,7 +139,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension imagick
      */
-    public function testLoadFileWithImagick()
+    public function testLoadFileWithImagick(): void
     {
         $this->baseTestLoadFile('Imagick', true, false);
     }
@@ -141,12 +147,12 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gmagick
      */
-    public function testLoadFileWithGmagick()
+    public function testLoadFileWithGmagick(): void
     {
         $this->baseTestLoadFile('Gmagick', false, true);
     }
 
-    public function testLoadFileMissing()
+    public function testLoadFileMissing(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('not readable or does not exists');
@@ -157,7 +163,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gd
      */
-    public function testLoadUrlWithGD()
+    public function testLoadUrlWithGD(): void
     {
         $this->baseTestLoadFile(
             'GD',
@@ -170,7 +176,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension imagick
      */
-    public function testLoadUrlWithImagick()
+    public function testLoadUrlWithImagick(): void
     {
         $this->baseTestLoadFile(
             'Imagick',
@@ -183,7 +189,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gmagick
      */
-    public function testLoadUrlWithGmagick()
+    public function testLoadUrlWithGmagick(): void
     {
         $this->baseTestLoadFile(
             'Gmagick',
@@ -193,9 +199,9 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    protected function baseTestLoadBinaryString($adapterName, $isImagickLoaded, $isGmagickLoaded, $data = false)
+    protected function baseTestLoadBinaryString(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $data = null): void
     {
-        if ($data === false) {
+        if ($data === null) {
             $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
                 . 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
                 . 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
@@ -220,7 +226,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gd
      */
-    public function testLoadBinaryStringWithGD()
+    public function testLoadBinaryStringWithGD(): void
     {
         $this->baseTestLoadBinaryString('GD', false, false);
     }
@@ -228,7 +234,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension imagick
      */
-    public function testLoadBinaryStringWithImagick()
+    public function testLoadBinaryStringWithImagick(): void
     {
         $this->baseTestLoadBinaryString('Imagick', true, false);
     }
@@ -236,17 +242,17 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @requires extension gmagick
      */
-    public function testLoadBinaryStringWithGmagick()
+    public function testLoadBinaryStringWithGmagick(): void
     {
         $this->baseTestLoadBinaryString('Gmagick', false, true);
     }
 
-    public function testGetAdapter()
+    public function testGetAdapter(): void
     {
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\ImagickImageAdapter', $this->loader->getAdapter('Imagick'));
+        $this->assertInstanceOf(ImagickImageAdapter::class, $this->loader->getAdapter('Imagick'));
 
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\GDImageAdapter', $this->loader->getAdapter('GD'));
+        $this->assertInstanceOf(GDImageAdapter::class, $this->loader->getAdapter('GD'));
 
-        $this->assertInstanceOf('\ColorThief\Image\Adapter\GmagickImageAdapter', $this->loader->getAdapter('Gmagick'));
+        $this->assertInstanceOf(GmagickImageAdapter::class, $this->loader->getAdapter('Gmagick'));
     }
 }

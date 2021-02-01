@@ -8,29 +8,20 @@ namespace ColorThief\Image\Adapter;
 abstract class ImageAdapter implements IImageAdapter
 {
     /**
-     * The image resource handler.
+     * @var object|resource|null the image resource handler
      */
     protected $resource;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function load($resource)
+    public function load($resource): void
     {
         $this->resource = $resource;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function destroy()
+    public function destroy(): void
     {
         $this->resource = null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getResource()
     {
         return $this->resource;

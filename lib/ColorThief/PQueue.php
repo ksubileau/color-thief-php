@@ -2,31 +2,54 @@
 
 namespace ColorThief;
 
-/* Simple priority queue */
+/**
+ * Simple priority queue.
+ *
+ * @phpstan-template T
+ */
 class PQueue
 {
+    /**
+     * @var array
+     * @phpstan-var array<T>
+     */
     private $contents = [];
+
+    /** @var bool */
     private $sorted = false;
+
+    /**
+     * @var callable
+     * @phpstan-var callable(T, T): int
+     */
     private $comparator = null;
 
-    public function __construct($comparator)
+    public function __construct(callable $comparator)
     {
         $this->setComparator($comparator);
     }
 
-    private function sort()
+    private function sort(): void
     {
         usort($this->contents, $this->comparator);
         $this->sorted = true;
     }
 
-    public function push($object)
+    /**
+     * @param mixed $object
+     * @phpstan-param T $object
+     */
+    public function push($object): void
     {
-        array_push($this->contents, $object);
+        $this->contents[] = $object;
         $this->sorted = false;
     }
 
-    public function peek($index = null)
+    /**
+     * @return mixed
+     * @phpstan-return T
+     */
+    public function peek(?int $index = null)
     {
         if (!$this->sorted) {
             $this->sort();
@@ -39,6 +62,10 @@ class PQueue
         return $this->contents[$index];
     }
 
+    /**
+     * @return mixed|null
+     * @phpstan-return T|null
+     */
     public function pop()
     {
         if (!$this->sorted) {
@@ -48,22 +75,34 @@ class PQueue
         return array_pop($this->contents);
     }
 
-    public function size()
+    public function size(): int
     {
         return count($this->contents);
     }
 
-    public function map($function)
+    /**
+     * @phpstan-template R
+     * @phpstan-param callable(T): R $function
+     * @phpstan-return array<R>
+     */
+    public function map(callable $function): array
     {
         return array_map($function, $this->contents);
     }
 
-    public function setComparator($function)
+    /**
+     * @phpstan-param callable(T, T): int $function
+     */
+    public function setComparator(callable $function): void
     {
         $this->comparator = $function;
         $this->sorted = false;
     }
 
+    /**
+     * @return array<T>
+     * @phpstan-return array<T>
+     */
     public function debug()
     {
         if (!$this->sorted) {
