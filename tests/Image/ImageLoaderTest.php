@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ColorThief\Image\Test;
 
 use ColorThief\Image\Adapter\GDImageAdapter;
