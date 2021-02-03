@@ -1,23 +1,38 @@
 <?php
+
+declare(strict_types=1);
+
+$header = <<<'HEADER'
+This file is part of the Color Thief PHP project.
+
+(c) Kevin Subileau
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+HEADER;
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__ . '/lib')
+    ->in(__DIR__ . '/tests');
+
 return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules([
+        '@PHP71Migration' => true,
+        '@PHP71Migration:risky' => true,
+        '@PHPUnit75Migration:risky' => true,
         '@Symfony' => true,
         '@Symfony:risky' => true,
-        'array_syntax' => ['syntax' => 'short'],
-        'concat_space' => ['spacing' => 'one'],
-        'increment_style' => ['style' => 'post'],
-        'native_constant_invocation' => false,
-        'native_function_invocation' => false,
+        'header_comment' => [
+            'header' => $header,
+            'location' => 'after_open',
+        ],
         'no_useless_else' => true,
         'no_useless_return' => true,
-        'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_order' => true,
         'trailing_comma_in_multiline_array' => true,
-        'yoda_style' => false,
+        'visibility_required' => [
+            'elements' => ['const', 'method', 'property']
+        ]
     ])
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->in(__DIR__ . '/lib')
-            ->in(__DIR__ . '/tests')
-    );
+    ->setFinder($finder);
