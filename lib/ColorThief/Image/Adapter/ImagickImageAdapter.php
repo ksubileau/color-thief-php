@@ -93,7 +93,7 @@ class ImagickImageAdapter extends ImageAdapter
 
         // Un-normalized values don't give a full range 0-1 alpha channel
         // So we ask for normalized values, and then we un-normalize it ourselves.
-        $colorArray = $pixel->getColor(true);
+        $colorArray = $pixel->getColor(1);
         $color = new \stdClass();
         $color->red = (int) round($colorArray['r'] * 255);
         $color->green = (int) round($colorArray['g'] * 255);
