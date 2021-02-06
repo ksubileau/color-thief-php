@@ -73,12 +73,13 @@ class ColorThief
     }
 
     /**
-     * Use the median cut algorithm to cluster similar colors.
-     *
-     * @bug Function does not always return the requested amount of colors. It can be +/- 2.
+     * Gets the dominant color from the image using the median cut algorithm to cluster similar colors.
+     * Color is returned as an array of three integers representing red, green, and blue values.
      *
      * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
      * @param int        $quality     1 is the highest quality. There is a trade-off between quality and speed.
+     *                                It determines how many pixels are skipped before the next one is sampled.
+     *                                We rarely need to sample every single pixel in the image to get good results.
      *                                The bigger the number, the faster the palette generation but the greater the
      *                                likelihood that colors will be missed.
      * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
@@ -100,14 +101,23 @@ class ColorThief
     }
 
     /**
-     * Use the median cut algorithm to cluster similar colors.
-     *
-     * @bug Function does not always return the requested amount of colors. It can be +/- 2.
+     * Gets a palette of dominant colors from the image using the median cut algorithm to cluster similar colors.
+     * Colors are returned as an array of three integers representing red, green, and blue values.
      *
      * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
      * @param int        $colorCount  it determines the size of the palette; the number of colors returned
-     * @param int        $quality     1 is the highest quality
-     * @param array|null $area        [x,y,w,h]
+     * @param int        $quality     1 is the highest quality. There is a trade-off between quality and speed.
+     *                                It determines how many pixels are skipped before the next one is sampled.
+     *                                We rarely need to sample every single pixel in the image to get good results.
+     *                                The bigger the number, the faster the palette generation but the greater the
+     *                                likelihood that colors will be missed.
+     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
+     *                                colors only for this area. It needs to be an associative array with the
+     *                                following keys:
+     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
      * @phpstan-param ?RectangularArea $area
      *
      * @return array
@@ -396,10 +406,19 @@ class ColorThief
      */
     private static function quantizeIter(PQueue &$priorityQueue, float $target, array $histo): void
     {
-        $nColors = 1;
+        $nColors = $priorityQueue->size();
         $nIterations = 0;
 
         while ($nIterations < static::MAX_ITERATIONS) {
+            if ($nColors >= $target) {
+                return;
+            }
+
+            if ($nIterations++ > static::MAX_ITERATIONS) {
+                // echo "infinite loop; perhaps too few pixels!"."\n";
+                return;
+            }
+
             $vBox = $priorityQueue->pop();
 
             if (!$vBox->count()) { /* just put it back */
@@ -420,15 +439,6 @@ class ColorThief
             if (isset($vBoxes[1])) { /* vbox2 can be null */
                 $priorityQueue->push($vBoxes[1]);
                 ++$nColors;
-            }
-
-            if ($nColors >= $target) {
-                return;
-            }
-
-            if ($nIterations++ > static::MAX_ITERATIONS) {
-                // echo "infinite loop; perhaps too few pixels!"."\n";
-                return;
             }
         }
     }
@@ -474,7 +484,7 @@ class ColorThief
         });
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        static::quantizeIter($priorityQueue, $maxColors - $priorityQueue->size(), $histo);
+        static::quantizeIter($priorityQueue, $maxColors, $histo);
 
         // calculate the actual colors
         $colors = $priorityQueue->map(function (VBox $vbox) {
