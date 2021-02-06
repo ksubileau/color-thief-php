@@ -59,11 +59,12 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [
                 '/images/rails_600x406.gif',
                 [
-                    [87, 68, 79],
                     [210, 170, 127],
+                    [88, 69, 81],
                     [158, 113, 84],
                     [157, 190, 175],
                     [107, 119, 129],
+                    [82, 48, 33],
                     [52, 136, 211],
                     [29, 68, 84],
                     [120, 124, 101],
@@ -73,27 +74,28 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [
                 '/images/vegetables_1500x995.png',
                 [
-                    [45, 58, 23],
                     [227, 217, 199],
                     [96, 59, 49],
+                    [45, 58, 23],
                     [117, 122, 46],
                     [107, 129, 102],
                     [176, 153, 102],
                     [191, 180, 144],
                     [159, 132, 146],
                     [60, 148, 44],
+                    [68, 116, 124],
                 ],
             ],
             [
                 '/images/covers_cmyk_PR37.jpg',
                 [
-                    [224, 71, 106],
+                    [141, 229, 249],
                     [21, 50, 129],
-                    [143, 232, 249],
+                    [245, 84, 135],
                     [238, 178, 162],
                     [163, 173, 59],
                     [94, 158, 245],
-                    [99, 173, 248],
+                    [167, 39, 30],
                     [120, 181, 170],
                     [68, 168, 168],
                 ],
@@ -102,10 +104,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 '/images/single_color_PR41.png',
                 [
                     [180, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
                     [184, 228, 28],
                     [184, 228, 28],
                     [184, 228, 28],
@@ -174,7 +172,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testPalette(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
-        //$numColors = 10;
         $palette = ColorThief::getPalette(__DIR__.$image, $numColors, $quality, $area);
 
         $this->assertCount($numColors, $palette);
@@ -187,7 +184,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testPaletteBinaryString(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
-        //$numColors = 10;
         $image = file_get_contents(__DIR__.$image);
         $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
