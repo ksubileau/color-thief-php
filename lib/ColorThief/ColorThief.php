@@ -135,8 +135,7 @@ class ColorThief
 
         // Send histogram to quantize function which clusters values
         // using median cut algorithm
-        $cmap = static::quantize($numPixelsAnalyzed, $colorCount, $histo);
-        $palette = $cmap->palette();
+        $palette = static::quantize($numPixelsAnalyzed, $colorCount, $histo);
 
         return $palette;
     }
@@ -437,8 +436,10 @@ class ColorThief
     /**
      * @param int             $numPixels Number of image pixels analyzed
      * @param array<int, int> $histo     Histogram
+     *
+     * @return ColorRGB[]
      */
-    private static function quantize(int $numPixels, int $maxColors, array &$histo): CMap
+    private static function quantize(int $numPixels, int $maxColors, array &$histo): array
     {
         // Short-Circuits
         if (0 === $numPixels) {
@@ -476,12 +477,11 @@ class ColorThief
         static::quantizeIter($priorityQueue, $maxColors - $priorityQueue->size(), $histo);
 
         // calculate the actual colors
-        $cmap = new CMap();
+        $colors = $priorityQueue->map(function (VBox $vbox) {
+            return $vbox->avg();
+        });
+        $colors = array_reverse($colors);
 
-        for ($i = $priorityQueue->size(); $i > 0; --$i) {
-            $cmap->push($priorityQueue->pop());
-        }
-
-        return $cmap;
+        return $colors;
     }
 }

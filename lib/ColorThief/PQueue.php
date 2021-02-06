@@ -96,8 +96,12 @@ class PQueue
      * @phpstan-param callable(T): R $function
      * @phpstan-return array<R>
      */
-    public function map(callable $function): array
+    public function map(callable $function, bool $sorted = true): array
     {
+        if ($sorted && !$this->sorted) {
+            $this->sort();
+        }
+
         return array_map($function, $this->contents);
     }
 
@@ -114,9 +118,9 @@ class PQueue
      * @return array<T>
      * @phpstan-return array<T>
      */
-    public function debug()
+    public function getContent(bool $sorted = true)
     {
-        if (!$this->sorted) {
+        if ($sorted && !$this->sorted) {
             $this->sort();
         }
 
