@@ -155,15 +155,29 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Asserts that the response palette includes the requested number of colors.
+     */
+    public function testPaletteColorCount(): void
+    {
+        $testWith = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 32, 64, 128, 256];
+        foreach ($testWith as $numColors) {
+            $image = '/images/single_color_PR41.png';
+            $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
+
+            $this->assertCount($numColors, $palette);
+        }
+    }
+
+    /**
      * @dataProvider provideImageColorPalette
      */
     public function testPalette(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
-        //$numColors = count($expectedPalette);
-        $numColors = 10;
+        $numColors = \count($expectedPalette);
+        //$numColors = 10;
         $palette = ColorThief::getPalette(__DIR__.$image, $numColors, $quality, $area);
 
-        //$this->assertCount($numColors, $palette);
+        $this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
     }
 
@@ -172,12 +186,12 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      */
     public function testPaletteBinaryString(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
-        //$numColors = count($expectedPalette);
-        $numColors = 10;
+        $numColors = \count($expectedPalette);
+        //$numColors = 10;
         $image = file_get_contents(__DIR__.$image);
         $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
-        //$this->assertCount($numColors, $palette);
+        $this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
     }
 
@@ -315,7 +329,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(1, $result->volume());
     }
 
-    public function testDoCutLeftLetherThanRight(): void
+    public function testDoCutLeftLeatherThanRight(): void
     {
         $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
         $method->setAccessible(true);
