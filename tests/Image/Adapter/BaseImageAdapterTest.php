@@ -69,6 +69,11 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         return $this->baseTestLoadFile(__DIR__.'/../../images/rails_600x406.gif');
     }
 
+    public function testLoadFileWebp(): IImageAdapter
+    {
+        return $this->baseTestLoadFile(__DIR__.'/../../images/donuts_PR45.webp');
+    }
+
     /**
      * @see Issue #13
      */

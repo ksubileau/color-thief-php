@@ -49,4 +49,13 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
+
+    public function testLoadFileWebp(): IImageAdapter
+    {
+        if (empty(Imagick::queryFormats('WEBP'))) {
+            $this->markTestSkipped('Imagick was not compiled with support for WebP format.');
+        }
+
+        return parent::testLoadFileWebp();
+    }
 }
