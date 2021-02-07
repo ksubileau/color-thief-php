@@ -58,4 +58,12 @@ class GDImageAdapterTest extends BaseImageAdapterTest
 
         return $this->baseTestLoadFile(__DIR__.'/../../images/corrupted_PR30.jpg');
     }
+
+    /**
+     * @requires function imagecreatefromwebp
+     */
+    public function testLoadFileWebp(): IImageAdapter
+    {
+        return parent::testLoadFileWebp();
+    }
 }
