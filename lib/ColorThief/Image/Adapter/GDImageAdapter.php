@@ -53,7 +53,7 @@ class GDImageAdapter extends ImageAdapter
                 $resource = @imagecreatefrompng($file);
                 break;
 
-            case IMAGETYPE_WEBP:
+            case \IMAGETYPE_WEBP:
                 $resource = @imagecreatefromwebp($file);
                 break;
 

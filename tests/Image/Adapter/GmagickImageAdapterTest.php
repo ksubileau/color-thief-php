@@ -48,4 +48,13 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
+
+    public function testLoadFileWebp(): IImageAdapter
+    {
+        if (empty((new Gmagick())->queryFormats('WEBP'))) {
+            $this->markTestSkipped('Gmagick was not compiled with support for WebP format.');
+        }
+
+        return parent::testLoadFileWebp();
+    }
 }
