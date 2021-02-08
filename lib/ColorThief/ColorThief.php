@@ -420,6 +420,10 @@ class ColorThief
             }
 
             $vBox = $priorityQueue->pop();
+            if (null === $vBox) {
+                // Logic error: should not happen!
+                throw new \RuntimeException('Failed to pop VBox from an empty queue.');
+            }
 
             if (!$vBox->count()) { /* just put it back */
                 $priorityQueue->push($vBox);
@@ -430,8 +434,8 @@ class ColorThief
             $vBoxes = static::medianCutApply($histo, $vBox);
 
             if (!(\is_array($vBoxes) && isset($vBoxes[0]))) {
-                // echo "vbox1 not defined; shouldn't happen!"."\n";
-                return;
+                // Expect an array of VBox
+                throw new \RuntimeException('Unexpected result from the medianCutApply function.');
             }
 
             $priorityQueue->push($vBoxes[0]);

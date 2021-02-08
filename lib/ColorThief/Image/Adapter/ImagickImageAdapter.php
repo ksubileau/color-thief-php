@@ -30,7 +30,8 @@ class ImagickImageAdapter extends ImageAdapter
             // Leave original object unmodified
             $resource = clone $resource;
 
-            if (version_compare(phpversion('imagick'), '3.0.0') < 0) {
+            $imagickVersion = phpversion('imagick');
+            if ($imagickVersion && version_compare($imagickVersion, '3.0.0', '<')) {
                 throw new \RuntimeException('Imagick extension version 3.0.0 or later is required for sampling CMYK images');
             }
 
