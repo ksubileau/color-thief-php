@@ -37,7 +37,8 @@ class ImageLoader
                 $image->loadFile($source);
             }
         } else {
-            if ((is_resource($source) && get_resource_type($source) == 'gd')) {
+            if ((is_resource($source) && get_resource_type($source) == 'gd')
+                || get_class($source) == "GdImage") {
                 $image = $this->getAdapter('GD');
             } elseif (is_a($source, 'Imagick')) {
                 $image = $this->getAdapter('Imagick');
