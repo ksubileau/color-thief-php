@@ -5,7 +5,7 @@
 .editorconfig export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
-.php_cs.dist export-ignore
+.php-cs-fixer.dist.php export-ignore
 phpstan.neon.dist export-ignore
 CHANGELOG.md export-ignore
 README.md export-ignore

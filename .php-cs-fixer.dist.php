@@ -15,9 +15,8 @@ $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__ . '/lib')
     ->in(__DIR__ . '/tests');
 
-return PhpCsFixer\Config::create()
-    ->setRiskyAllowed(true)
-    ->setRules([
+$config = new PhpCsFixer\Config();
+return $config->setRules([
         '@PHP71Migration' => true,
         '@PHP71Migration:risky' => true,
         '@PHPUnit75Migration:risky' => true,
@@ -30,9 +29,10 @@ return PhpCsFixer\Config::create()
         'no_useless_else' => true,
         'no_useless_return' => true,
         'phpdoc_order' => true,
-        'trailing_comma_in_multiline_array' => true,
+        'trailing_comma_in_multiline' => true,
         'visibility_required' => [
             'elements' => ['const', 'method', 'property']
         ]
     ])
+    ->setRiskyAllowed(true)
     ->setFinder($finder);
