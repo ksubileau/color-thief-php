@@ -49,7 +49,7 @@ class ImageLoader
             }
         } else {
             if ((\is_resource($source) && 'gd' == get_resource_type($source))
-                || get_class($source) == "GdImage") {
+                || $source instanceof \GdImage) {
                 $image = $this->getAdapter('GD');
             } elseif (is_a($source, 'Imagick')) {
                 $image = $this->getAdapter('Imagick');
