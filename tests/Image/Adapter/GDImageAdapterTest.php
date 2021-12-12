@@ -35,16 +35,24 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     {
         // Checks object state
         $image = $adapter->getResource();
-        $this->assertIsResource($image);
-        $this->assertSame('gd', get_resource_type($image));
+        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
+            $this->assertInstanceOf('\GdImage', $image);
+        } else {
+            $this->assertIsResource($image);
+            $this->assertSame('gd', get_resource_type($image));
+        }
     }
 
     public function testLoadInvalidArgument(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Passed variable is not a valid GD resource');
-
         // We want to check also the specific exception message.
+        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
+            $this->expectExceptionMessage('Passed variable is not an instance of GdImage');
+        } else {
+            $this->expectExceptionMessage('Passed variable is not a valid GD resource');
+        }
+
         parent::testLoadInvalidArgument();
     }
 
