@@ -7,4 +7,4 @@ parameters:
     - lib
   typeAliases:
     ColorRGB: 'array{int, int, int}'
-    RectangularArea: 'array{int, int, int, int}'
+    RectangularArea: 'array{x?:int, y?:int, w?:int, h?:int}'
