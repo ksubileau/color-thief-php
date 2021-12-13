@@ -95,7 +95,7 @@ class ColorThief
      */
     public static function getColor($sourceImage, int $quality = 10, ?array $area = null): ?array
     {
-        $palette = static::getPalette($sourceImage, 5, $quality, $area);
+        $palette = self::getPalette($sourceImage, 5, $quality, $area);
 
         return $palette ? $palette[0] : null;
     }
@@ -138,14 +138,14 @@ class ColorThief
         }
 
         $histo = [];
-        $numPixelsAnalyzed = static::loadImage($sourceImage, $quality, $histo, $area);
+        $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area);
         if (0 === $numPixelsAnalyzed) {
             throw new \RuntimeException('Unable to compute the color palette of a blank or transparent image.', 1);
         }
 
         // Send histogram to quantize function which clusters values
         // using median cut algorithm
-        $palette = static::quantize($numPixelsAnalyzed, $colorCount, $histo);
+        $palette = self::quantize($numPixelsAnalyzed, $colorCount, $histo);
 
         return $palette;
     }
@@ -205,7 +205,7 @@ class ColorThief
 
             // Count this pixel in its histogram bucket.
             ++$numUsefulPixels;
-            $bucketIndex = static::getColorIndex($color->red, $color->green, $color->blue);
+            $bucketIndex = self::getColorIndex($color->red, $color->green, $color->blue);
             $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
         }
 
@@ -237,7 +237,7 @@ class ColorThief
 
         // find min/max
         foreach ($histo as $bucketIndex => $count) {
-            $rgb = static::getColorsFromIndex($bucketIndex, self::SIGBITS);
+            $rgb = self::getColorsFromIndex($bucketIndex, self::SIGBITS);
 
             // For each color components
             for ($i = 0; $i < 3; ++$i) {
@@ -319,9 +319,9 @@ class ColorThief
         $cutColor = $vBox->longestAxis();
 
         // Find the partial sum arrays along the selected axis.
-        [$total, $partialSum] = static::sumColors($cutColor, $histo, $vBox);
+        [$total, $partialSum] = self::sumColors($cutColor, $histo, $vBox);
 
-        return static::doCut($cutColor, $vBox, $partialSum, $total);
+        return self::doCut($cutColor, $vBox, $partialSum, $total);
     }
 
     /**
@@ -344,7 +344,7 @@ class ColorThief
         array_unshift($colorIterateOrder, $axis);
 
         // Retrieves iteration ranges
-        [$firstRange, $secondRange, $thirdRange] = static::getVBoxColorRanges($vBox, $colorIterateOrder);
+        [$firstRange, $secondRange, $thirdRange] = self::getVBoxColorRanges($vBox, $colorIterateOrder);
 
         foreach ($firstRange as $firstColor) {
             $sum = 0;
@@ -358,7 +358,7 @@ class ColorThief
                     ];
 
                     // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
-                    $bucketIndex = static::getColorIndex(
+                    $bucketIndex = self::getColorIndex(
                         $bucket['r'] << self::RSHIFT,
                         $bucket['g'] << self::RSHIFT,
                         $bucket['b'] << self::RSHIFT,
@@ -409,12 +409,12 @@ class ColorThief
         $nColors = $priorityQueue->size();
         $nIterations = 0;
 
-        while ($nIterations < static::MAX_ITERATIONS) {
+        while ($nIterations < self::MAX_ITERATIONS) {
             if ($nColors >= $target) {
                 return;
             }
 
-            if ($nIterations++ > static::MAX_ITERATIONS) {
+            if ($nIterations++ > self::MAX_ITERATIONS) {
                 // echo "infinite loop; perhaps too few pixels!"."\n";
                 return;
             }
@@ -431,7 +431,7 @@ class ColorThief
                 continue;
             }
             // do the cut
-            $vBoxes = static::medianCutApply($histo, $vBox);
+            $vBoxes = self::medianCutApply($histo, $vBox);
 
             if (!(\is_array($vBoxes) && isset($vBoxes[0]))) {
                 // Expect an array of VBox
@@ -471,7 +471,7 @@ class ColorThief
         // XXX: generate the new colors from the histo and return
         //}
 
-        $vBox = static::vboxFromHistogram($histo);
+        $vBox = self::vboxFromHistogram($histo);
 
         /** @var PQueue<VBox> $priorityQueue */
         $priorityQueue = new PQueue(function (VBox $a, VBox $b) {
@@ -480,7 +480,7 @@ class ColorThief
         $priorityQueue->push($vBox);
 
         // first set of colors, sorted by population
-        static::quantizeIter($priorityQueue, static::FRACT_BY_POPULATIONS * $maxColors, $histo);
+        self::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $priorityQueue->setComparator(function (VBox $a, VBox $b) {
@@ -488,7 +488,7 @@ class ColorThief
         });
 
         // next set - generate the median cuts using the (npix * vol) sorting.
-        static::quantizeIter($priorityQueue, $maxColors, $histo);
+        self::quantizeIter($priorityQueue, $maxColors, $histo);
 
         // calculate the actual colors
         $colors = $priorityQueue->map(function (VBox $vbox) {
