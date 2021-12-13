@@ -15,7 +15,7 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 
 ## Requirements
 
-- PHP >= PHP 7.1
+- PHP >= PHP 7.2 or >= PHP 8.0
 - One or more PHP extensions for image processing:
   - GD >= 2.0
   - Imagick >= 2.0 (but >= 3.0 for CMYK images)
