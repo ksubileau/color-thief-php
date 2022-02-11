@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
+use ColorThief\Exception\InvalidArgumentException;
+use ColorThief\Exception\NotReadableException;
 use ColorThief\Image\Adapter\AdapterInterface;
 
 abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
@@ -101,7 +103,7 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
      */
     public function testLoad404Url(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(NotReadableException::class);
         $this->expectExceptionMessage('Unable to load image from url');
 
         $adapter = $this->getAdapterInstance();
@@ -110,8 +112,8 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadFileMissing(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('not readable or does not exists');
+        $this->expectException(NotReadableException::class);
+        $this->expectExceptionMessage('Unable to read image from path');
 
         $adapter = $this->getAdapterInstance();
         $adapter->loadFromPath('Not a file');
@@ -119,7 +121,7 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadInvalidArgument(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $adapter = $this->getAdapterInstance();
         /*
@@ -148,7 +150,8 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadBinaryStringInvalidArgument(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(NotReadableException::class);
+        $this->expectExceptionMessage('Unable to read image from binary data.');
 
         $adapter = $this->getAdapterInstance();
         $adapter->loadFromBinary('test');

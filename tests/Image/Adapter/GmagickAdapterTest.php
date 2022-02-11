@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
+use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\GmagickAdapter;
 use Gmagick;
@@ -42,8 +43,8 @@ class GmagickAdapterTest extends AbstractAdapterTest
 
     public function testLoadInvalidArgument(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Passed variable is not an instance of Gmagick');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Argument is not an instance of Gmagick.');
 
         // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();

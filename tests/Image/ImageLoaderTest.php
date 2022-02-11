@@ -15,6 +15,8 @@ namespace ColorThief\Image\Test;
 
 require_once __DIR__.'/../functions.php';
 
+use ColorThief\Exception\NotReadableException;
+use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\GdAdapter;
 use ColorThief\Image\Adapter\GmagickAdapter;
@@ -155,16 +157,16 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadFileMissing(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Passed variable is not a valid image source');
+        $this->expectException(NotReadableException::class);
+        $this->expectExceptionMessage('Image source does not exists or is not readable.');
 
         $this->loader->load('Not an image');
     }
 
     public function testLoadInvalidSource(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Passed variable is not a valid image source');
+        $this->expectException(NotReadableException::class);
+        $this->expectExceptionMessage('Image source does not exists or is not readable.');
 
         $this->loader->load(42);
     }
@@ -217,7 +219,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         self::$mockImagickAvailability = false;
         self::$mockGmagickAvailability = false;
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('At least one of GD, Imagick or Gmagick extension must be installed.');
 
         $this->loader->createAdapter();
@@ -231,7 +233,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateAdapterInvalidType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('Unknown image adapter type.');
 
         $this->loader->createAdapter(85);
@@ -239,7 +241,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateAdapterInvalidName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('Image adapter (Lorem) could not be instantiated.');
 
         $this->loader->createAdapter('Lorem');

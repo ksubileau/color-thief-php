@@ -36,6 +36,9 @@ declare(strict_types=1);
 
 namespace ColorThief;
 
+use ColorThief\Exception\InvalidArgumentException;
+use ColorThief\Exception\NotSupportedException;
+use ColorThief\Exception\RuntimeException;
 use ColorThief\Image\ImageLoader;
 use SplFixedArray;
 
@@ -130,17 +133,17 @@ class ColorThief
         ?array $area = null
     ): ?array {
         if ($colorCount < 2 || $colorCount > 256) {
-            throw new \InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
+            throw new InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
         }
 
         if ($quality < 1) {
-            throw new \InvalidArgumentException('The quality argument must be an integer greater than one.');
+            throw new InvalidArgumentException('The quality argument must be an integer greater than one.');
         }
 
         $histo = [];
         $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area);
         if (0 === $numPixelsAnalyzed) {
-            throw new \RuntimeException('Unable to compute the color palette of a blank or transparent image.', 1);
+            throw new NotSupportedException('Unable to compute the color palette of a blank or transparent image.');
         }
 
         // Send histogram to quantize function which clusters values
@@ -172,7 +175,7 @@ class ColorThief
             $height = $area['h'] ?? ($height - $startY);
 
             if ((($startX + $width) > $image->getWidth()) || (($startY + $height) > $image->getHeight())) {
-                throw new \InvalidArgumentException('Area is out of image bounds.');
+                throw new InvalidArgumentException('Area is out of image bounds.');
             }
         }
 
@@ -417,7 +420,7 @@ class ColorThief
             $vBox = $priorityQueue->pop();
             if (null === $vBox) {
                 // Logic error: should not happen!
-                throw new \RuntimeException('Failed to pop VBox from an empty queue.');
+                throw new RuntimeException('Failed to pop VBox from an empty queue.');
             }
 
             if (!$vBox->count()) { /* just put it back */
@@ -430,7 +433,7 @@ class ColorThief
 
             if (!(\is_array($vBoxes) && isset($vBoxes[0]))) {
                 // Expect an array of VBox
-                throw new \RuntimeException('Unexpected result from the medianCutApply function.');
+                throw new RuntimeException('Unexpected result from the medianCutApply function.');
             }
 
             $priorityQueue->push($vBoxes[0]);
@@ -452,13 +455,13 @@ class ColorThief
     {
         // Short-Circuits
         if (0 === $numPixels) {
-            throw new \InvalidArgumentException('Zero useable pixels found in image.');
+            throw new InvalidArgumentException('Zero usable pixels found in image.');
         }
         if ($maxColors < 2 || $maxColors > 256) {
-            throw new \InvalidArgumentException('The maxColors parameter must be between 2 and 256 inclusive.');
+            throw new InvalidArgumentException('The maxColors parameter must be between 2 and 256 inclusive.');
         }
         if (0 === \count($histo)) {
-            throw new \InvalidArgumentException('Image produced an empty histogram.');
+            throw new InvalidArgumentException('Image produced an empty histogram.');
         }
 
         // check that we aren't below maxcolors already

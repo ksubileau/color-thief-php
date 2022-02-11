@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
+use ColorThief\Exception\InvalidArgumentException;
+use ColorThief\Exception\NotReadableException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\GdAdapter;
 
@@ -45,12 +47,12 @@ class GdAdapterTest extends AbstractAdapterTest
 
     public function testLoadInvalidArgument(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         // We want to check also the specific exception message.
         if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            $this->expectExceptionMessage('Passed variable is not an instance of GdImage');
+            $this->expectExceptionMessage('Argument is not an instance of GdImage.');
         } else {
-            $this->expectExceptionMessage('Passed variable is not a valid GD resource');
+            $this->expectExceptionMessage('Argument is not a valid GD resource.');
         }
 
         parent::testLoadInvalidArgument();
@@ -61,8 +63,8 @@ class GdAdapterTest extends AbstractAdapterTest
      */
     public function testLoadFileJpgCorrupted(): AdapterInterface
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('is not readable or does not exists');
+        $this->expectException(NotReadableException::class);
+        $this->expectExceptionMessage('Unable to decode image from file');
 
         return $this->baseTestLoadFile(__DIR__.'/../../images/corrupted_PR30.jpg');
     }

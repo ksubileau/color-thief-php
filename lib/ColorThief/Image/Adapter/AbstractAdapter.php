@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter;
 
+use ColorThief\Exception\NotReadableException;
+use ColorThief\Exception\NotSupportedException;
 
 /**
  * Base adapter implementation to handle image manipulation.
@@ -30,7 +32,7 @@ abstract class AbstractAdapter implements AdapterInterface
     public function __construct()
     {
         if (!$this->isAvailable()) {
-            throw new \RuntimeException('Image adapter is not available with this PHP installation. Required extension may be missing.');
+            throw new NotSupportedException('Image adapter is not available with this PHP installation. Required extension may be missing.');
         }
     }
 
@@ -58,7 +60,7 @@ abstract class AbstractAdapter implements AdapterInterface
 
         $data = @file_get_contents($url, false, $context);
         if (false === $data) {
-            throw new \InvalidArgumentException("Unable to load image from url ({$url}).");
+            throw new NotReadableException("Unable to load image from url ({$url}).");
         }
 
         return $this->loadFromBinary($data);

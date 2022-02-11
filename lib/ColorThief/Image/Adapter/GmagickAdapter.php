@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter;
 
+use ColorThief\Exception\InvalidArgumentException;
+use ColorThief\Exception\NotReadableException;
 use Gmagick;
 
 /**
@@ -28,7 +30,7 @@ class GmagickAdapter extends AbstractAdapter
     public function load($resource): AdapterInterface
     {
         if (!($resource instanceof Gmagick)) {
-            throw new \InvalidArgumentException('Passed variable is not an instance of Gmagick');
+            throw new InvalidArgumentException('Argument is not an instance of Gmagick.');
         }
 
         if (Gmagick::COLORSPACE_CMYK == $resource->getImageColorSpace()) {
@@ -46,7 +48,7 @@ class GmagickAdapter extends AbstractAdapter
         try {
             $resource->readImageBlob($data);
         } catch (\GmagickException $e) {
-            throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image', 0, $e);
+            throw new NotReadableException('Unable to read image from binary data.', 0, $e);
         }
 
         return $this->load($resource);
@@ -58,7 +60,7 @@ class GmagickAdapter extends AbstractAdapter
         try {
             $resource = new Gmagick($file);
         } catch (\GmagickException $e) {
-            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
+            throw new NotReadableException("Unable to read image from path ({$file}).", 0, $e);
         }
 
         return $this->load($resource);

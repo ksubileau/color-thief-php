@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter;
 
+use ColorThief\Exception\InvalidArgumentException;
+use ColorThief\Exception\NotReadableException;
+use ColorThief\Exception\NotSupportedException;
 use Imagick;
 
 /**
@@ -28,7 +31,7 @@ class ImagickAdapter extends AbstractAdapter
     public function load($resource): AdapterInterface
     {
         if (!($resource instanceof Imagick)) {
-            throw new \InvalidArgumentException('Passed variable is not an instance of Imagick');
+            throw new InvalidArgumentException('Argument is not an instance of Imagick.');
         }
 
         if (Imagick::COLORSPACE_CMYK == $resource->getImageColorspace()) {
@@ -37,7 +40,7 @@ class ImagickAdapter extends AbstractAdapter
 
             $imagickVersion = phpversion('imagick');
             if ($imagickVersion && version_compare($imagickVersion, '3.0.0', '<')) {
-                throw new \RuntimeException('Imagick extension version 3.0.0 or later is required for sampling CMYK images');
+                throw new NotSupportedException('Imagick extension version 3.0.0 or later is required for sampling CMYK images.');
             }
 
             // With ImageMagick version 6.7.7, CMYK images converted to RGB color space work as expected,
@@ -59,7 +62,7 @@ class ImagickAdapter extends AbstractAdapter
         try {
             $resource->readImageBlob($data);
         } catch (\ImagickException $e) {
-            throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image', 0, $e);
+            throw new NotReadableException('Unable to read image from binary data.', 0, $e);
         }
 
         return $this->load($resource);
@@ -70,7 +73,7 @@ class ImagickAdapter extends AbstractAdapter
         try {
             $resource = new Imagick($file);
         } catch (\ImagickException $e) {
-            throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
+            throw new NotReadableException("Unable to read image from path ({$file}).", 0, $e);
         }
 
         return $this->load($resource);

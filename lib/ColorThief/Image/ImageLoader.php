@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ColorThief\Image;
 
+use ColorThief\Exception\NotReadableException;
+use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
 
 class ImageLoader
@@ -69,7 +71,7 @@ class ImageLoader
             case $this->isFilePath($source):
                 return $image->loadFromPath($source);
             default:
-                throw new \InvalidArgumentException('Passed variable is not a valid image source');
+                throw new NotReadableException('Image source does not exists or is not readable.');
         }
     }
 
@@ -89,7 +91,7 @@ class ImageLoader
             } elseif (\ColorThief\Image\Adapter\GdAdapter::isAvailable()) {
                 $preferredAdapter = 'Gd';
             } else {
-                throw new \RuntimeException('At least one of GD, Imagick or Gmagick extension must be installed. None of them was found.');
+                throw new NotSupportedException('At least one of GD, Imagick or Gmagick extension must be installed. None of them was found.');
             }
         }
 
@@ -98,7 +100,7 @@ class ImageLoader
             $adapterClass = sprintf('\\ColorThief\\Image\\Adapter\\%sAdapter', $adapterName);
 
             if (!class_exists($adapterClass)) {
-                throw new \InvalidArgumentException("Image adapter ({$adapterName}) could not be instantiated.");
+                throw new NotSupportedException("Image adapter ({$adapterName}) could not be instantiated.");
             }
 
             return new $adapterClass();
@@ -108,7 +110,7 @@ class ImageLoader
             return $preferredAdapter;
         }
 
-        throw new \InvalidArgumentException('Unknown image adapter type.');
+        throw new NotSupportedException('Unknown image adapter type.');
     }
 
     /**
