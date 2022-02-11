@@ -14,11 +14,16 @@ declare(strict_types=1);
 namespace ColorThief\Image\Adapter;
 
 /**
- * @property ?resource $resource
+ * @property resource|\GdImage|null $resource
  */
-class GDImageAdapter extends ImageAdapter
+class GdAdapter extends AbstractAdapter
 {
-    public function load($resource): void
+    public static function isAvailable(): bool
+    {
+        return extension_loaded('gd') && function_exists('gd_info');
+    }
+
+    public function load($resource): AdapterInterface
     {
         if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
             if (!($resource instanceof \GdImage)) {
@@ -30,20 +35,25 @@ class GDImageAdapter extends ImageAdapter
             }
         }
 
-        parent::load($resource);
+        return parent::load($resource);
     }
 
-    public function loadBinaryString(string $data): void
+    public function loadFromBinary(string $data): AdapterInterface
     {
         $resource = @imagecreatefromstring($data);
         if (false === $resource) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image');
         }
-        $this->resource = $resource;
+
+        return parent::load($resource);
     }
 
-    public function loadFile(string $file): void
+    public function loadFromPath(string $file): AdapterInterface
     {
+        if (!is_readable($file)) {
+            throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
+        }
+
         [, , $type] = @getimagesize($file);
 
         switch ($type) {
@@ -71,7 +81,7 @@ class GDImageAdapter extends ImageAdapter
             throw new \RuntimeException("Image '{$file}' is not readable or does not exists.");
         }
 
-        $this->resource = $resource;
+        return parent::load($resource);
     }
 
     public function destroy(): void

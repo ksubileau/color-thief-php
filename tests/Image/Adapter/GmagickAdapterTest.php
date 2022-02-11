@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
-use ColorThief\Image\Adapter\GmagickImageAdapter;
-use ColorThief\Image\Adapter\IImageAdapter;
+use ColorThief\Image\Adapter\AdapterInterface;
+use ColorThief\Image\Adapter\GmagickAdapter;
 use Gmagick;
 
 /**
  * @requires extension gmagick
  */
-class GmagickImageAdapterTest extends BaseImageAdapterTest
+class GmagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
     {
@@ -28,12 +28,12 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
         return new GMagick(__DIR__.'/../../images/blank.png');
     }
 
-    protected function getAdapterInstance(): IImageAdapter
+    protected function getAdapterInstance(): AdapterInterface
     {
-        return new GmagickImageAdapter();
+        return new GmagickAdapter();
     }
 
-    protected function checkIsLoaded(IImageAdapter $adapter): void
+    protected function checkIsLoaded(AdapterInterface $adapter): void
     {
         // Checks object state
         $image = $adapter->getResource();
@@ -49,7 +49,7 @@ class GmagickImageAdapterTest extends BaseImageAdapterTest
         parent::testLoadInvalidArgument();
     }
 
-    public function testLoadFileWebp(): IImageAdapter
+    public function testLoadFileWebp(): AdapterInterface
     {
         if (empty((new Gmagick())->queryFormats('WEBP'))) {
             $this->markTestSkipped('Gmagick was not compiled with support for WebP format.');

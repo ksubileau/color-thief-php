@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
-use ColorThief\Image\Adapter\IImageAdapter;
-use ColorThief\Image\Adapter\ImagickImageAdapter;
+use ColorThief\Image\Adapter\AdapterInterface;
+use ColorThief\Image\Adapter\ImagickAdapter;
 use Imagick;
 
 /**
  * @requires extension imagick
  */
-class ImagickImageAdapterTest extends BaseImageAdapterTest
+class ImagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
     {
@@ -28,12 +28,12 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         return new Imagick(__DIR__.'/../../images/blank.png');
     }
 
-    protected function getAdapterInstance(): IImageAdapter
+    protected function getAdapterInstance(): AdapterInterface
     {
-        return new ImagickImageAdapter();
+        return new ImagickAdapter();
     }
 
-    protected function checkIsLoaded(IImageAdapter $adapter): void
+    protected function checkIsLoaded(AdapterInterface $adapter): void
     {
         // Checks object state
         $image = $adapter->getResource();
@@ -50,7 +50,7 @@ class ImagickImageAdapterTest extends BaseImageAdapterTest
         parent::testLoadInvalidArgument();
     }
 
-    public function testLoadFileWebp(): IImageAdapter
+    public function testLoadFileWebp(): AdapterInterface
     {
         if (empty(Imagick::queryFormats('WEBP'))) {
             $this->markTestSkipped('Imagick was not compiled with support for WebP format.');

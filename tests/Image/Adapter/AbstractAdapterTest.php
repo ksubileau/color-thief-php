@@ -13,20 +13,20 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
-use ColorThief\Image\Adapter\IImageAdapter;
+use ColorThief\Image\Adapter\AdapterInterface;
 
-abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
+abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return resource|object
      */
     abstract protected function getTestResourceInstance();
 
-    abstract protected function getAdapterInstance(): IImageAdapter;
+    abstract protected function getAdapterInstance(): AdapterInterface;
 
-    abstract protected function checkIsLoaded(IImageAdapter $adapter): void;
+    abstract protected function checkIsLoaded(AdapterInterface $adapter): void;
 
-    public function testLoad(): IImageAdapter
+    public function testLoad(): AdapterInterface
     {
         $image = $this->getTestResourceInstance();
         $adapter = $this->getAdapterInstance();
@@ -37,11 +37,11 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         return $adapter;
     }
 
-    protected function baseTestLoadFile(string $path): IImageAdapter
+    protected function baseTestLoadFile(string $path): AdapterInterface
     {
         // Loads image file
         $adapter = $this->getAdapterInstance();
-        $adapter->loadFile($path);
+        $adapter->loadFromPath($path);
 
         // Checks object state
         $this->checkIsLoaded($adapter);
@@ -49,37 +49,49 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         return $adapter;
     }
 
-    public function testLoadFilePng(): IImageAdapter
+    public function testLoadFilePng(): AdapterInterface
     {
         return $this->baseTestLoadFile(__DIR__.'/../../images/pixels.png');
     }
 
-    public function testLoadFileJpg(): IImageAdapter
+    public function testLoadFileJpg(): AdapterInterface
     {
         return $this->baseTestLoadFile(__DIR__.'/../../images/field_1024x683.jpg');
     }
 
-    public function testLoadFileCmykJpg(): IImageAdapter
+    public function testLoadFileCmykJpg(): AdapterInterface
     {
         return $this->baseTestLoadFile(__DIR__.'/../../images/pixels_cmyk_PR37.jpg');
     }
 
-    public function testLoadFileGif(): IImageAdapter
+    public function testLoadFileGif(): AdapterInterface
     {
         return $this->baseTestLoadFile(__DIR__.'/../../images/rails_600x406.gif');
     }
 
-    public function testLoadFileWebp(): IImageAdapter
+    public function testLoadFileWebp(): AdapterInterface
     {
         return $this->baseTestLoadFile(__DIR__.'/../../images/donuts_PR45.webp');
+    }
+
+    protected function baseTestLoadUrl(string $path): AdapterInterface
+    {
+        // Loads image file
+        $adapter = $this->getAdapterInstance();
+        $adapter->loadFromUrl($path);
+
+        // Checks object state
+        $this->checkIsLoaded($adapter);
+
+        return $adapter;
     }
 
     /**
      * @see Issue #13
      */
-    public function testLoadUrl(): IImageAdapter
+    public function testLoadUrl(): AdapterInterface
     {
-        return $this->baseTestLoadFile(
+        return $this->baseTestLoadUrl(
             'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
         );
     }
@@ -89,11 +101,11 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
      */
     public function testLoad404Url(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('not readable or does not exists');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unable to load image from url');
 
         $adapter = $this->getAdapterInstance();
-        $adapter->loadFile('http://example.com/pixels.png');
+        $adapter->loadFromUrl('http://example.com/pixels.png');
     }
 
     public function testLoadFileMissing(): void
@@ -102,7 +114,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('not readable or does not exists');
 
         $adapter = $this->getAdapterInstance();
-        $adapter->loadFile('Not a file');
+        $adapter->loadFromPath('Not a file');
     }
 
     public function testLoadInvalidArgument(): void
@@ -117,7 +129,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         $adapter->load('test');
     }
 
-    public function testLoadBinaryString(): IImageAdapter
+    public function testLoadBinaryString(): AdapterInterface
     {
         $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
             .'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
@@ -126,7 +138,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         $data = base64_decode($data);
 
         $adapter = $this->getAdapterInstance();
-        $adapter->loadBinaryString($data);
+        $adapter->loadFromBinary($data);
 
         // Checks object state
         $this->checkIsLoaded($adapter);
@@ -139,13 +151,13 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $adapter = $this->getAdapterInstance();
-        $adapter->loadBinaryString('test');
+        $adapter->loadFromBinary('test');
     }
 
     /**
      * @depends testLoadFilePng
      */
-    public function testGetHeight(IImageAdapter $adapter): void
+    public function testGetHeight(AdapterInterface $adapter): void
     {
         $this->assertSame(5, $adapter->getHeight());
     }
@@ -153,7 +165,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends testLoadFilePng
      */
-    public function testGetWidth(IImageAdapter $adapter): void
+    public function testGetWidth(AdapterInterface $adapter): void
     {
         $this->assertSame(6, $adapter->getWidth());
     }
@@ -161,7 +173,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends testLoadFilePng
      */
-    public function testGetPixelColor(IImageAdapter $adapter): void
+    public function testGetPixelColor(AdapterInterface $adapter): void
     {
         $expected = new \stdClass();
         $expected->red = 100;
@@ -190,7 +202,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends testLoadFileCmykJpg
      */
-    public function testGetPixelColorFromCmykJpg(IImageAdapter $adapter): void
+    public function testGetPixelColorFromCmykJpg(AdapterInterface $adapter): void
     {
         $expected = new \stdClass();
         $expected->red = 192;
@@ -224,7 +236,7 @@ abstract class BaseImageAdapterTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends testLoad
      */
-    public function testDestroy(IImageAdapter $adapter): void
+    public function testDestroy(AdapterInterface $adapter): void
     {
         $adapter->destroy();
         $this->assertNull($adapter->getResource());

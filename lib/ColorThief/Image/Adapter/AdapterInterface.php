@@ -16,24 +16,34 @@ namespace ColorThief\Image\Adapter;
 /**
  * Basic interface for all image adapters.
  */
-interface IImageAdapter
+interface AdapterInterface
 {
     /**
-     * Loads an image from file.
+     * Checks if the image adapter is available.
      */
-    public function loadFile(string $path): void;
+    public static function isAvailable(): bool;
+
+    /**
+     * Loads an image from path in filesystem.
+     */
+    public function loadFromPath(string $file): self;
+
+    /**
+     * Loads an image from given URL.
+     */
+    public function loadFromUrl(string $url): self;
 
     /**
      * Loads an image from a binary string representation.
      */
-    public function loadBinaryString(string $data): void;
+    public function loadFromBinary(string $data): self;
 
     /**
      * Loads an image resource.
      *
      * @param resource|object $resource
      */
-    public function load($resource): void;
+    public function load($resource): self;
 
     /**
      * Destroys the image.

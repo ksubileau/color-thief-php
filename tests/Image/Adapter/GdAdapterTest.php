@@ -13,25 +13,25 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter\Test;
 
-use ColorThief\Image\Adapter\GDImageAdapter;
-use ColorThief\Image\Adapter\IImageAdapter;
+use ColorThief\Image\Adapter\AdapterInterface;
+use ColorThief\Image\Adapter\GdAdapter;
 
 /**
  * @requires extension gd
  */
-class GDImageAdapterTest extends BaseImageAdapterTest
+class GdAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
     {
         return imagecreate(80, 20);
     }
 
-    protected function getAdapterInstance(): IImageAdapter
+    protected function getAdapterInstance(): AdapterInterface
     {
-        return new GDImageAdapter();
+        return new GdAdapter();
     }
 
-    protected function checkIsLoaded(IImageAdapter $adapter): void
+    protected function checkIsLoaded(AdapterInterface $adapter): void
     {
         // Checks object state
         $image = $adapter->getResource();
@@ -59,7 +59,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     /**
      * @see Issue #30
      */
-    public function testLoadFileJpgCorrupted(): IImageAdapter
+    public function testLoadFileJpgCorrupted(): AdapterInterface
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('is not readable or does not exists');
@@ -70,7 +70,7 @@ class GDImageAdapterTest extends BaseImageAdapterTest
     /**
      * @requires function imagecreatefromwebp
      */
-    public function testLoadFileWebp(): IImageAdapter
+    public function testLoadFileWebp(): AdapterInterface
     {
         return parent::testLoadFileWebp();
     }

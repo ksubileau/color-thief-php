@@ -18,9 +18,14 @@ use Gmagick;
 /**
  * @property ?Gmagick $resource
  */
-class GmagickImageAdapter extends ImageAdapter
+class GmagickAdapter extends AbstractAdapter
 {
-    public function load($resource): void
+    public static function isAvailable(): bool
+    {
+        return extension_loaded('gmagick') && class_exists('Gmagick');
+    }
+
+    public function load($resource): AdapterInterface
     {
         if (!($resource instanceof Gmagick)) {
             throw new \InvalidArgumentException('Passed variable is not an instance of Gmagick');
@@ -32,10 +37,10 @@ class GmagickImageAdapter extends ImageAdapter
             $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
         }
 
-        parent::load($resource);
+        return parent::load($resource);
     }
 
-    public function loadBinaryString(string $data): void
+    public function loadFromBinary(string $data): AdapterInterface
     {
         $resource = new Gmagick();
         try {
@@ -43,31 +48,20 @@ class GmagickImageAdapter extends ImageAdapter
         } catch (\GmagickException $e) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image', 0, $e);
         }
-        $this->load($resource);
+
+        return $this->load($resource);
     }
 
-    public function loadFile(string $file): void
+    public function loadFromPath(string $file): AdapterInterface
     {
-        // GMagick doesn't support HTTPS URL directly, so we download the image with file_get_contents first
-        // and then we passed the binary string to GmagickImageAdapter::loadBinaryString().
-        if (filter_var($file, \FILTER_VALIDATE_URL)) {
-            $image = @file_get_contents($file);
-            if (false === $image) {
-                throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0);
-            }
-
-            $this->loadBinaryString($image);
-
-            return;
-        }
-
         $resource = null;
         try {
             $resource = new Gmagick($file);
         } catch (\GmagickException $e) {
             throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
         }
-        $this->load($resource);
+
+        return $this->load($resource);
     }
 
     public function destroy(): void

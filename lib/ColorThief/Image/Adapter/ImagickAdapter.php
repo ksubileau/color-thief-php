@@ -18,9 +18,14 @@ use Imagick;
 /**
  * @property ?Imagick $resource
  */
-class ImagickImageAdapter extends ImageAdapter
+class ImagickAdapter extends AbstractAdapter
 {
-    public function load($resource): void
+    public static function isAvailable(): bool
+    {
+        return extension_loaded('imagick') && class_exists('Imagick');
+    }
+
+    public function load($resource): AdapterInterface
     {
         if (!($resource instanceof Imagick)) {
             throw new \InvalidArgumentException('Passed variable is not an instance of Imagick');
@@ -45,10 +50,10 @@ class ImagickImageAdapter extends ImageAdapter
             }
         }
 
-        parent::load($resource);
+        return parent::load($resource);
     }
 
-    public function loadBinaryString(string $data): void
+    public function loadFromBinary(string $data): AdapterInterface
     {
         $resource = new Imagick();
         try {
@@ -56,17 +61,19 @@ class ImagickImageAdapter extends ImageAdapter
         } catch (\ImagickException $e) {
             throw new \InvalidArgumentException('Passed binary string is empty or is not a valid image', 0, $e);
         }
-        $this->load($resource);
+
+        return $this->load($resource);
     }
 
-    public function loadFile(string $file): void
+    public function loadFromPath(string $file): AdapterInterface
     {
         try {
             $resource = new Imagick($file);
         } catch (\ImagickException $e) {
             throw new \RuntimeException("Image '".$file."' is not readable or does not exists.", 0, $e);
         }
-        $this->load($resource);
+
+        return $this->load($resource);
     }
 
     public function destroy(): void

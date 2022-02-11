@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Test;
 
-use ColorThief\Image\Adapter\GDImageAdapter;
-use ColorThief\Image\Adapter\GmagickImageAdapter;
-use ColorThief\Image\Adapter\IImageAdapter;
-use ColorThief\Image\Adapter\ImagickImageAdapter;
+require_once __DIR__.'/../functions.php';
+
+use ColorThief\Image\Adapter\AdapterInterface;
+use ColorThief\Image\Adapter\GdAdapter;
+use ColorThief\Image\Adapter\GmagickAdapter;
+use ColorThief\Image\Adapter\ImagickAdapter;
 use ColorThief\Image\ImageLoader;
 
 class ImageLoaderTest extends \PHPUnit\Framework\TestCase
@@ -24,61 +26,44 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     /** @var ImageLoader */
     protected $loader;
 
+    /** @var bool|null */
+    public static $mockGdAvailability;
+    /** @var bool|null */
+    public static $mockImagickAvailability;
+    /** @var bool|null */
+    public static $mockGmagickAvailability;
+
     protected function setUp(): void
     {
         $this->loader = new ImageLoader();
+
+        self::$mockGdAvailability = null;
+        self::$mockImagickAvailability = null;
+        self::$mockGmagickAvailability = null;
     }
 
-    protected function getAdapterMock(string $adapterName, string $method, $image)
+    protected function getAdapterMock(string $method, $image)
     {
-        /** @phpstan-ignore-next-line */
-        $adapter = $this->getMockBuilder("\\ColorThief\\Image\\Adapter\\{$adapterName}ImageAdapter")
-            ->setMethods([$method])
-            ->getMock();
+        $adapter = $this->createMock(AdapterInterface::class);
 
         $adapter->expects($this->once())
             ->method($method)
-            ->with($this->equalTo($image));
+            ->with($this->equalTo($image))
+            ->willReturnSelf();
 
         return $adapter;
     }
 
-    protected function getImageLoaderPartialMock(
-        IImageAdapter $adapter,
-        string $adapterName,
-        bool $mockIsImagickLoaded = false,
-        bool $isImagickLoaded = false,
-        bool $mockIsGmagickLoaded = false,
-        bool $isGmagickLoaded = false
-    ) {
-        $methods = ['getAdapter'];
-        if ($mockIsImagickLoaded) {
-            $methods[] = 'isImagickLoaded';
-        }
-        if ($mockIsGmagickLoaded) {
-            $methods[] = 'isGmagickLoaded';
-        }
-
+    protected function getImageLoaderPartialMock(?string $preferredAdapter, AdapterInterface $returnedAdapter)
+    {
         $loader = $this->getMockBuilder(ImageLoader::class)
-            ->setMethods($methods)
+            ->onlyMethods(['createAdapter'])
             ->getMock();
 
         $loader->expects($this->once())
-            ->method('getAdapter')
-            ->with($this->equalTo($adapterName))
-            ->willReturn($adapter);
-
-        if ($mockIsImagickLoaded) {
-            $loader->expects($this->once())
-                ->method('isImagickLoaded')
-                ->willReturn($isImagickLoaded);
-        }
-
-        if ($mockIsGmagickLoaded) {
-            $loader->expects($this->any())
-                ->method('isGmagickLoaded')
-                ->willReturn($isGmagickLoaded);
-        }
+            ->method('createAdapter')
+            ->with($this->equalTo($preferredAdapter))
+            ->willReturn($returnedAdapter);
 
         return $loader;
     }
@@ -90,9 +75,9 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     {
         $image = imagecreate(18, 18);
 
-        $adapter = $this->getAdapterMock('GD', 'load', $image);
+        $adapter = $this->getAdapterMock('load', $image);
 
-        $loader = $this->getImageLoaderPartialMock($adapter, 'GD');
+        $loader = $this->getImageLoaderPartialMock('Gd', $adapter);
 
         $this->assertSame($adapter, $loader->load($image));
     }
@@ -104,14 +89,79 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     {
         $image = new \Imagick();
 
-        $adapter = $this->getAdapterMock('Imagick', 'load', $image);
+        $adapter = $this->getAdapterMock('load', $image);
 
-        $loader = $this->getImageLoaderPartialMock($adapter, 'Imagick');
+        $loader = $this->getImageLoaderPartialMock('Imagick', $adapter);
 
         $this->assertSame($adapter, $loader->load($image));
     }
 
-    public function testLoadInvalidResource(): void
+    /**
+     * @requires extension gmagick
+     */
+    public function testLoadGmagickResource(): void
+    {
+        $image = new \Gmagick();
+
+        $adapter = $this->getAdapterMock('load', $image);
+
+        $loader = $this->getImageLoaderPartialMock('Gmagick', $adapter);
+
+        $this->assertSame($adapter, $loader->load($image));
+    }
+
+    public function testLoadFile(): void
+    {
+        $path = __DIR__.'/../images/pixels.png';
+
+        $adapter = $this->getAdapterMock('loadFromPath', $path);
+
+        $loader = $this->getImageLoaderPartialMock(
+            null,
+            $adapter
+        );
+
+        $this->assertSame($adapter, $loader->load($path));
+    }
+
+    public function testLoadUrl(): void
+    {
+        $url = 'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png';
+
+        $adapter = $this->getAdapterMock('loadFromUrl', $url);
+
+        $loader = $this->getImageLoaderPartialMock(
+            null,
+            $adapter
+        );
+
+        $this->assertSame($adapter, $loader->load($url));
+    }
+
+    public function testLoadBinaryString(): void
+    {
+        $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
+            .'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
+            .'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
+            .'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+        $data = base64_decode($data);
+
+        $adapter = $this->getAdapterMock('loadFromBinary', $data);
+
+        $loader = $this->getImageLoaderPartialMock(null, $adapter);
+
+        $this->assertSame($adapter, $loader->load($data));
+    }
+
+    public function testLoadFileMissing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Passed variable is not a valid image source');
+
+        $this->loader->load('Not an image');
+    }
+
+    public function testLoadInvalidSource(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Passed variable is not a valid image source');
@@ -119,151 +169,135 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->loader->load(42);
     }
 
-    protected function baseTestLoadFile(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $path = null): void
+    public function testCreateAdapterGdPreferred(): void
     {
-        if (null === $path) {
-            $path = __DIR__.'/../images/pixels.png';
-        }
-
-        $adapter = $this->getAdapterMock($adapterName, 'loadFile', $path);
-
-        $loader = $this->getImageLoaderPartialMock(
-            $adapter,
-            $adapterName,
-            true,
-            $isImagickLoaded,
-            true,
-            $isGmagickLoaded
-        );
-
-        $this->assertSame($adapter, $loader->load($path));
+        self::$mockGdAvailability = true;
+        self::$mockImagickAvailability = true;
+        self::$mockGmagickAvailability = true;
+        $this->assertInstanceOf(GdAdapter::class, $this->loader->createAdapter('Gd'));
     }
 
-    /**
-     * @requires extension gd
-     */
-    public function testLoadFileWithGD(): void
+    public function testCreateAdapterImagickPreferred(): void
     {
-        $this->baseTestLoadFile('GD', false, false);
+        self::$mockGdAvailability = true;
+        self::$mockImagickAvailability = true;
+        self::$mockGmagickAvailability = true;
+        $this->assertInstanceOf(ImagickAdapter::class, $this->loader->createAdapter('Imagick'));
     }
 
-    /**
-     * @requires extension imagick
-     */
-    public function testLoadFileWithImagick(): void
+    public function testCreateAdapterGmagickPreferred(): void
     {
-        $this->baseTestLoadFile('Imagick', true, false);
+        self::$mockGdAvailability = true;
+        self::$mockImagickAvailability = true;
+        self::$mockGmagickAvailability = true;
+        $this->assertInstanceOf(GmagickAdapter::class, $this->loader->createAdapter('Gmagick'));
     }
 
-    /**
-     * @requires extension gmagick
-     */
-    public function testLoadFileWithGmagick(): void
+    public function testCreateAdapterAuto(): void
     {
-        $this->baseTestLoadFile('Gmagick', false, true);
+        self::$mockGdAvailability = true;
+        self::$mockImagickAvailability = true;
+        self::$mockGmagickAvailability = true;
+
+        // First choice if all drivers are available is Imagick
+        $this->assertInstanceOf(ImagickAdapter::class, $this->loader->createAdapter());
+
+        // Fallback to Gmagick if Imagick is not present
+        self::$mockImagickAvailability = false;
+        $this->assertInstanceOf(GmagickAdapter::class, $this->loader->createAdapter());
+
+        // Fallback to GD if both Imagick and Gmagick are not present
+        self::$mockGmagickAvailability = false;
+        $this->assertInstanceOf(GdAdapter::class, $this->loader->createAdapter());
     }
 
-    public function testLoadFileMissing(): void
+    public function testCreateAdapterAutoNoneAvailable(): void
     {
+        self::$mockGdAvailability = false;
+        self::$mockImagickAvailability = false;
+        self::$mockGmagickAvailability = false;
+
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('not readable or does not exists');
+        $this->expectExceptionMessage('At least one of GD, Imagick or Gmagick extension must be installed.');
 
-        $this->loader->load('Not a file');
+        $this->loader->createAdapter();
     }
 
-    /**
-     * @requires extension gd
-     */
-    public function testLoadUrlWithGD(): void
+    public function testCreateAdapterFromInstance(): void
     {
-        $this->baseTestLoadFile(
-            'GD',
-            false,
-            false,
-            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
-        );
+        $adapter = $this->getMockBuilder(AdapterInterface::class)->getMock();
+        $this->assertSame($adapter, $this->loader->createAdapter($adapter));
     }
 
-    /**
-     * @requires extension imagick
-     */
-    public function testLoadUrlWithImagick(): void
+    public function testCreateAdapterInvalidType(): void
     {
-        $this->baseTestLoadFile(
-            'Imagick',
-            true,
-            false,
-            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
-        );
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown image adapter type.');
+
+        $this->loader->createAdapter(85);
     }
 
-    /**
-     * @requires extension gmagick
-     */
-    public function testLoadUrlWithGmagick(): void
+    public function testCreateAdapterInvalidName(): void
     {
-        $this->baseTestLoadFile(
-            'Gmagick',
-            false,
-            true,
-            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
-        );
-    }
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Image adapter (Lorem) could not be instantiated.');
 
-    protected function baseTestLoadBinaryString(string $adapterName, bool $isImagickLoaded, bool $isGmagickLoaded, ?string $data = null): void
-    {
-        if (null === $data) {
-            $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
-                .'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'
-                .'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'
-                .'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
-            $data = base64_decode($data);
-        }
-
-        $adapter = $this->getAdapterMock($adapterName, 'loadBinaryString', $data);
-
-        $loader = $this->getImageLoaderPartialMock(
-            $adapter,
-            $adapterName,
-            true,
-            $isImagickLoaded,
-            true,
-            $isGmagickLoaded
-        );
-
-        $this->assertSame($adapter, $loader->load($data));
-    }
-
-    /**
-     * @requires extension gd
-     */
-    public function testLoadBinaryStringWithGD(): void
-    {
-        $this->baseTestLoadBinaryString('GD', false, false);
+        $this->loader->createAdapter('Lorem');
     }
 
     /**
      * @requires extension imagick
      */
-    public function testLoadBinaryStringWithImagick(): void
+    public function testIsImagick(): void
     {
-        $this->baseTestLoadBinaryString('Imagick', true, false);
+        $this->assertTrue($this->loader->isImagick(new \Imagick()));
+        $this->assertFalse($this->loader->isImagick(new \stdClass()));
+        $this->assertFalse($this->loader->isImagick(null));
     }
 
     /**
      * @requires extension gmagick
      */
-    public function testLoadBinaryStringWithGmagick(): void
+    public function testIsGmagick(): void
     {
-        $this->baseTestLoadBinaryString('Gmagick', false, true);
+        $this->assertTrue($this->loader->isGmagick(new \Gmagick()));
+        $this->assertFalse($this->loader->isGmagick(new \stdClass()));
+        $this->assertFalse($this->loader->isGmagick(null));
     }
 
-    public function testGetAdapter(): void
+    /**
+     * @requires extension gd
+     */
+    public function testIsGdImage(): void
     {
-        $this->assertInstanceOf(ImagickImageAdapter::class, $this->loader->getAdapter('Imagick'));
+        $resource = imagecreate(18, 18);
+        $this->assertTrue($this->loader->isGdImage($resource));
+        $this->assertFalse($this->loader->isGdImage(new \stdClass()));
+        $this->assertFalse($this->loader->isGdImage(null));
+    }
 
-        $this->assertInstanceOf(GDImageAdapter::class, $this->loader->getAdapter('GD'));
+    public function testIsFilepath(): void
+    {
+        $this->assertTrue($this->loader->isFilepath(__FILE__));
+        $this->assertFalse($this->loader->isFilepath(new \stdClass()));
+        $this->assertFalse($this->loader->isFilepath([]));
+        $this->assertFalse($this->loader->isFilepath(null));
+    }
 
-        $this->assertInstanceOf(GmagickImageAdapter::class, $this->loader->getAdapter('Gmagick'));
+    public function testIsUrl(): void
+    {
+        $this->assertTrue($this->loader->isUrl('http://foo.bar'));
+        $this->assertFalse($this->loader->isUrl('/is/a/path'));
+        $this->assertFalse($this->loader->isUrl(null));
+    }
+
+    public function testIsBinary(): void
+    {
+        $this->assertTrue($this->loader->isBinary(file_get_contents(__DIR__.'/../images/pixels.png')));
+        $this->assertFalse($this->loader->isBinary(null));
+        $this->assertFalse($this->loader->isBinary(1));
+        $this->assertFalse($this->loader->isBinary(0));
+        $this->assertFalse($this->loader->isBinary([1, 2, 3]));
+        $this->assertFalse($this->loader->isBinary(new \stdClass()));
     }
 }
