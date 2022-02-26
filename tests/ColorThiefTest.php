@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ColorThief\Tests;
 
+use ColorThief\Color;
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
@@ -164,6 +165,27 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expectedColor, $dominantColor);
     }
 
+    public function testDominantColorFormat(): void
+    {
+        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'array');
+        $this->assertSame([88, 70, 80], $dominantColor);
+
+        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'hex');
+        $this->assertSame('#584650', $dominantColor);
+
+        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'int');
+        $this->assertSame(5785168, $dominantColor);
+
+        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'rgb');
+        $this->assertSame('rgb(88, 70, 80)', $dominantColor);
+
+        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'obj');
+        $this->assertInstanceOf(Color::class, $dominantColor);
+        $this->assertEquals(88, $dominantColor->getRed());
+        $this->assertEquals(70, $dominantColor->getGreen());
+        $this->assertEquals(80, $dominantColor->getBlue());
+    }
+
     /**
      * @see Issue #13
      */
@@ -199,6 +221,57 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
+    }
+
+    public function testPaletteFormat(): void
+    {
+        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'array');
+        $this->assertSame([
+            [209, 169, 127],
+            [88, 68, 79],
+            [158, 113, 84],
+            [152, 188, 177],
+            [106, 120, 129],
+            [96, 144, 196],
+            [118, 124, 101],
+            [28, 68, 81],
+        ], $dominantColor);
+
+        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'hex');
+        $this->assertSame([
+            '#d1a97f',
+            '#58444f',
+            '#9e7154',
+            '#98bcb1',
+            '#6a7881',
+            '#6090c4',
+            '#767c65',
+            '#1c4451',
+        ], $dominantColor);
+
+        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'int');
+        $this->assertSame([
+            13740415,
+            5784655,
+            10383700,
+            10009777,
+            6977665,
+            6328516,
+            7765093,
+            1852497,
+        ], $dominantColor);
+
+        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'rgb');
+        $this->assertSame([
+            'rgb(209, 169, 127)',
+            'rgb(88, 68, 79)',
+            'rgb(158, 113, 84)',
+            'rgb(152, 188, 177)',
+            'rgb(106, 120, 129)',
+            'rgb(96, 144, 196)',
+            'rgb(118, 124, 101)',
+            'rgb(28, 68, 81)',
+        ], $dominantColor);
     }
 
     /**

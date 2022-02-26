@@ -77,60 +77,75 @@ class ColorThief
 
     /**
      * Gets the dominant color from the image using the median cut algorithm to cluster similar colors.
-     * Color is returned as an array of three integers representing red, green, and blue values.
      *
-     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $quality     1 is the highest quality. There is a trade-off between quality and speed.
-     *                                It determines how many pixels are skipped before the next one is sampled.
-     *                                We rarely need to sample every single pixel in the image to get good results.
-     *                                The bigger the number, the faster the palette generation but the greater the
-     *                                likelihood that colors will be missed.
-     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
-     *                                colors only for this area. It needs to be an associative array with the
-     *                                following keys:
-     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param mixed      $sourceImage  Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $quality      1 is the highest quality. There is a trade-off between quality and speed.
+     *                                 It determines how many pixels are skipped before the next one is sampled.
+     *                                 We rarely need to sample every single pixel in the image to get good results.
+     *                                 The bigger the number, the faster the palette generation but the greater the
+     *                                 likelihood that colors will be missed.
+     * @param array|null $area         It allows you to specify a rectangular area in the image in order to get
+     *                                 colors only for this area. It needs to be an associative array with the
+     *                                 following keys:
+     *                                 $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                 $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                 $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                 $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param string     $outputFormat By default, color is returned as an array of three integers representing
+     *                                 red, green, and blue values.
+     *                                 You can choose another output format by passing one of the following values:
+     *                                 'rgb'   : RGB string notation (ex: rgb(253, 42, 152)).
+     *                                 'hex'   : String of the hexadecimal representation (ex: #fd2a98).
+     *                                 'int'   : Integer color value (ex: 16591512).
+     *                                 'array' : Default format (ex: [253, 42, 152]).
+     *                                 'obj'   : Instance of ColorThief\Color, for custom processing.
      * @phpstan-param ?RectangularArea $area
      *
-     * @phpstan-return ColorRGB|null
+     * @phpstan-return ColorRGB|Color|int|string|null
      */
-    public static function getColor($sourceImage, int $quality = 10, ?array $area = null): ?array
+    public static function getColor($sourceImage, int $quality = 10, ?array $area = null, string $outputFormat = 'array')
     {
-        $palette = self::getPalette($sourceImage, 5, $quality, $area);
+        $palette = self::getPalette($sourceImage, 5, $quality, $area, $outputFormat);
 
         return $palette ? $palette[0] : null;
     }
 
     /**
      * Gets a palette of dominant colors from the image using the median cut algorithm to cluster similar colors.
-     * Colors are returned as an array of three integers representing red, green, and blue values.
      *
-     * @param mixed      $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int        $colorCount  it determines the size of the palette; the number of colors returned
-     * @param int        $quality     1 is the highest quality. There is a trade-off between quality and speed.
-     *                                It determines how many pixels are skipped before the next one is sampled.
-     *                                We rarely need to sample every single pixel in the image to get good results.
-     *                                The bigger the number, the faster the palette generation but the greater the
-     *                                likelihood that colors will be missed.
-     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
-     *                                colors only for this area. It needs to be an associative array with the
-     *                                following keys:
-     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param mixed      $sourceImage  Path/URL to the image, GD resource, Imagick instance, or image as binary string
+     * @param int        $colorCount   it determines the size of the palette; the number of colors returned
+     * @param int        $quality      1 is the highest quality. There is a trade-off between quality and speed.
+     *                                 It determines how many pixels are skipped before the next one is sampled.
+     *                                 We rarely need to sample every single pixel in the image to get good results.
+     *                                 The bigger the number, the faster the palette generation but the greater the
+     *                                 likelihood that colors will be missed.
+     * @param array|null $area         It allows you to specify a rectangular area in the image in order to get
+     *                                 colors only for this area. It needs to be an associative array with the
+     *                                 following keys:
+     *                                 $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                 $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                 $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                 $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param string     $outputFormat By default, colors are returned as an array of three integers representing
+     *                                 red, green, and blue values.
+     *                                 You can choose another output format by passing one of the following values:
+     *                                 'rgb'   : RGB string notation (ex: rgb(253, 42, 152)).
+     *                                 'hex'   : String of the hexadecimal representation (ex: #fd2a98).
+     *                                 'int'   : Integer color value (ex: 16591512).
+     *                                 'array' : Default format (ex: [253, 42, 152]).
+     *                                 'obj'   : Instance of ColorThief\Color, for custom processing.
      * @phpstan-param ?RectangularArea $area
      *
      * @return array
-     * @phpstan-return ColorRGB[]
+     * @phpstan-return ColorRGB[]|Color[]|int[]|string[]|null
      */
     public static function getPalette(
         $sourceImage,
         int $colorCount = 10,
         int $quality = 10,
-        ?array $area = null
+        ?array $area = null,
+        string $outputFormat = 'array'
     ): ?array {
         if ($colorCount < 2 || $colorCount > 256) {
             throw new InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
@@ -150,7 +165,9 @@ class ColorThief
         // using median cut algorithm
         $palette = self::quantize($numPixelsAnalyzed, $colorCount, $histo);
 
-        return $palette;
+        return array_map(function (Color $color) use ($outputFormat) {
+            return $color->format($outputFormat);
+        }, $palette);
     }
 
     /**
@@ -449,7 +466,7 @@ class ColorThief
      * @param int             $numPixels Number of image pixels analyzed
      * @param array<int, int> $histo     Histogram
      *
-     * @return ColorRGB[]
+     * @return Color[]
      */
     private static function quantize(int $numPixels, int $maxColors, array &$histo): array
     {
@@ -490,7 +507,7 @@ class ColorThief
 
         // calculate the actual colors
         $colors = $priorityQueue->map(function (VBox $vbox) {
-            return $vbox->avg();
+            return new Color(...$vbox->avg());
         });
         $colors = array_reverse($colors);
 

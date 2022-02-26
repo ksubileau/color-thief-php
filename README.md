@@ -40,8 +40,7 @@ $dominantColor = ColorThief::getColor($sourceImage);
 The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
-ColorThief::getColor($sourceImage[, $quality=10, $area=null])
-returns array(r: num, g: num, b: num)
+ColorThief::getColor($sourceImage[, $quality=10, $area=null, $outputFormat='array'])
 ```
 
 This function returns an array of three integer values, corresponding to the RGB values (Red, Green & Blue) of the dominant color.
@@ -55,6 +54,13 @@ You can also pass another additional argument (`$area`) to specify a rectangular
 - `$area['w']` : The width of the area. Default to the width of the image minus x-coordinate.
 - `$area['h']` : The height of the area. Default to the height of the image minus y-coordinate.
 
+By default, color is returned as an array of three integers representing red, green, and blue values.
+You can choose another output format by passing one of the following values to the `$outputFormat` argument :
+- `rgb`   : RGB string notation (ex: `rgb(253, 42, 152)`).
+- `hex`   : String of the hexadecimal representation (ex: `#fd2a98`).
+- `int`   : Integer color value (ex: `16591512`).
+- `array` : Default format (ex: `array[253, 42, 152]`).
+- `obj`   : Instance of `ColorThief\Color`, for custom processing.
 
 ### Build a color palette from an image
 
@@ -69,13 +75,12 @@ $palette = ColorThief::getPalette($sourceImage, 8);
 Again, the `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
-ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null])
-returns array(array(num, num, num), array(num, num, num), ... )
+ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null, $outputFormat='array'])
 ```
 
 The `$colorCount` argument determines the size of the palette; the number of colors returned. If not set, it defaults to 10.
 
-The `$quality` and `$area` arguments work as in the previous function.
+The `$quality`, `$area` and `$outputFormat` arguments work as in the previous function.
 
 ## Credits
 
