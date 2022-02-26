@@ -4,7 +4,7 @@ includes:
 parameters:
   level: max
   paths:
-    - lib
+    - src
   typeAliases:
     ColorRGB: 'array{int, int, int}'
     RectangularArea: 'array{x?:int, y?:int, w?:int, h?:int}'

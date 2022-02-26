@@ -12,7 +12,7 @@ file that was distributed with this source code.
 HEADER;
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__ . '/lib')
+    ->in(__DIR__ . '/src')
     ->in(__DIR__ . '/tests');
 
 $config = new PhpCsFixer\Config();

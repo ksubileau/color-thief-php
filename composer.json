@@ -33,7 +33,7 @@
 
     "autoload": {
         "psr-4": {
-            "ColorThief\\": "lib/ColorThief"
+            "ColorThief\\": "src/ColorThief"
         }
     },
 
