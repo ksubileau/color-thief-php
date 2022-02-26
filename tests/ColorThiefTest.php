@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace ColorThief\Test;
+namespace ColorThief\Tests;
 
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;

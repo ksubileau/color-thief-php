@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter;
 
-use ColorThief\Image\Test\ImageLoaderTest;
+use ColorThief\Tests\Image\ImageLoaderTest;
 
 function function_exists($name)
 {

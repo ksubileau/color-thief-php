@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace ColorThief\Image\Adapter\Test;
+namespace ColorThief\Tests\Image\Adapter;
 
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;

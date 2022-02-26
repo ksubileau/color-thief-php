@@ -35,5 +35,11 @@
         "psr-4": {
             "ColorThief\\": "lib/ColorThief"
         }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "ColorThief\\Tests\\": "tests/"
+        }
     }
 }

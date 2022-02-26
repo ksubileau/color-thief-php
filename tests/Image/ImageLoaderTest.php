@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace ColorThief\Image\Test;
+namespace ColorThief\Tests\Image;
 
 require_once __DIR__.'/../functions.php';
 
