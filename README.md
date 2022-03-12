@@ -15,13 +15,13 @@ It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh
 
 ## Requirements
 
-- PHP >= PHP 7.2 or >= PHP 8.0
+- PHP >= 7.2 or >= PHP 8.0
 - Fileinfo extension
 - One or more PHP extensions for image processing:
   - GD >= 2.0
   - Imagick >= 2.0 (but >= 3.0 for CMYK images)
   - Gmagick >= 1.0
-- Supports JPEG, PNG and GIF images.
+- Supports JPEG, PNG, GIF and WEBP images.
 
 ## How to use
 ### Install via Composer
@@ -42,8 +42,6 @@ The `$sourceImage` variable must contain either the absolute path of the image o
 ```php
 ColorThief::getColor($sourceImage[, $quality=10, $area=null, $outputFormat='array', $adapter = null])
 ```
-
-This function returns an array of three integer values, corresponding to the RGB values (Red, Green & Blue) of the dominant color.
 
 You can pass an additional argument (`$quality`) to adjust the calculation accuracy of the dominant color. 1 is the highest quality settings, 10 is the default. But be aware that there is a trade-off between quality and speed/memory consumption !
 If the quality settings are too high (close to 1) relative to the image size (pixel counts), it may **exceed the memory limit** set in the PHP configuration (and computation will be slow).
