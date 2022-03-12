@@ -11,12 +11,10 @@ on:
       - '**.php'
       - 'composer.json'
       - '.github/workflows/tests.yml'
-  schedule:
-    - cron: '00 19 12 */2 *'
 
 jobs:
   unit-tests:
-    name: PHP ${{ matrix.php-version }} - ${{ matrix.operating-system }}
+    name: PHP ${{ matrix.php-version }} - ${{ matrix.php-extensions }}
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
@@ -29,7 +27,9 @@ jobs:
           - 8.0
           - 8.1
         php-extensions:
-          - gd, imagick
+          - gd
+          - imagick
+          - gmagick
     steps:
     - uses: actions/checkout@v2
 
