@@ -1,5 +1,31 @@
 # Color Thief PHP Changelog
 
+## `2.0.0`
+
+**New features**
+- PHP 8 compatibility (see #48 and #50, thank @Agapanthus).
+- Add support for reading WebP images (see #45, thank @mreiden).
+- Add support for multiple output color formats (RGB, hexadecimal, integer, array or instances of `ColorThief\Color` class).
+- Add support for image adapter selection. You can now choose which image extension to use between GD, Imagick or Gmagick, or provide a custom image adapter.
+
+**Bug fix**
+- Fix bug where `getPalette()` does not always return the requested amount of colors (see #5).
+
+**Breaking changes**
+- Drop support for PHP 5.x, 7.0 and 7.1, now require 7.2+.
+- Reworked exceptions so that all exceptions now inherit from `ColorThief\Exception\Exception`. 
+  Migrating from 1.x may require tweaking exception handling in calling code to avoid unhandled exceptions or preserve error handling logic. See 1bf90f40 for details.
+
+**Noticeable changes**
+- Switch to MIT license.
+- Fileinfo extension is now required.
+- Rework some internal image loading logic.
+
+## `1.4.1`
+
+* Significant performance improvement. Around 30% faster and between 20 to 50% less memory usage (see #44, thank @mreiden).
+* Fix incorrect palette with single color images (see #41, thank @mreiden).
+
 ## `1.4.0`
 
  * Drop support for PHP 5.3, now require 5.4+.
