@@ -7,7 +7,7 @@ Color Thief PHP
 [![Packagist](https://img.shields.io/packagist/dm/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
 [![License](https://img.shields.io/packagist/l/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
 
-A PHP class for **grabbing the color palette** from an image. Uses PHP and GD or Imagick libraries to make it happen.
+A PHP class for **grabbing the color palette** from an image. Uses PHP and GD, Imagick or Gmagick libraries to make it happen.
 
 It's a PHP port of the [Color Thief Javascript library](http://github.com/lokesh/color-thief), using the MMCQ (modified median cut quantization) algorithm from the [Leptonica library](http://www.leptonica.com/).
 
@@ -40,7 +40,7 @@ $dominantColor = ColorThief::getColor($sourceImage);
 The `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
-ColorThief::getColor($sourceImage[, $quality=10, $area=null, $outputFormat='array'])
+ColorThief::getColor($sourceImage[, $quality=10, $area=null, $outputFormat='array', $adapter = null])
 ```
 
 This function returns an array of three integer values, corresponding to the RGB values (Red, Green & Blue) of the dominant color.
@@ -62,6 +62,12 @@ You can choose another output format by passing one of the following values to t
 - `array` : Default format (ex: `array[253, 42, 152]`).
 - `obj`   : Instance of `ColorThief\Color`, for custom processing.
 
+The optional `$adapter` argument lets you choose a preferred image adapter to use to load the image.
+By default, the adapter is automatically chosen based on the available extensions and the type of `$sourceImage` 
+(e.g. Imagick is used if `$sourceImage` is an Imagick instance).
+You can pass one of the `Imagick`, `Gmagick` or `Gd` string to force the use of the corresponding underlying image extension. 
+For advanced usage, you can even pass an instance of any class implementing the `AdapterInterface` interface to use a custom image loader.
+
 ### Build a color palette from an image
 
 In this example, we build an 8 color palette.
@@ -75,12 +81,12 @@ $palette = ColorThief::getPalette($sourceImage, 8);
 Again, the `$sourceImage` variable must contain either the absolute path of the image on the server, a URL to the image, a GD resource containing the image, an [Imagick](http://www.php.net/manual/en/class.imagick.php) image instance, a [Gmagick](http://www.php.net/manual/en/class.gmagick.php) image instance, or an image in binary string format.
 
 ```php
-ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null, $outputFormat='array'])
+ColorThief::getPalette($sourceImage[, $colorCount=10, $quality=10, $area=null, $outputFormat='array', $adapter = null])
 ```
 
 The `$colorCount` argument determines the size of the palette; the number of colors returned. If not set, it defaults to 10.
 
-The `$quality`, `$area` and `$outputFormat` arguments work as in the previous function.
+The `$quality`, `$area`, `$outputFormat` and `$adapter` arguments work as in the previous function.
 
 ## Credits
 

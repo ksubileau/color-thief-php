@@ -17,6 +17,7 @@ use ColorThief\Color;
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
+use ColorThief\Image\Adapter\AdapterInterface;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
@@ -285,6 +286,27 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCount($numColors, $palette);
         $this->assertSame($expectedPalette, $palette);
+    }
+
+    public function testGetPaletteWithCustomAdapter(): void
+    {
+        $adapter = $this->createMock(AdapterInterface::class);
+
+        // Stub adapter that simulates a monochrome image
+        $adapter->method('loadFromPath')->willReturnSelf();
+        $adapter->method('getWidth')->willReturn(500);
+        $adapter->method('getHeight')->willReturn(500);
+        $adapter->method('getPixelColor')->willReturn((object) ['red' => 24, 'green' => 60, 'blue' => 100, 'alpha' => 0]);
+
+        $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 5, 10, null, 'array', $adapter);
+
+        $this->assertSame([
+            [28, 60, 100],
+            [32, 60, 100],
+            [32, 60, 100],
+            [32, 60, 100],
+            [32, 60, 100],
+        ], $palette);
     }
 
     public function testGetPaletteWithTooFewColors(): void
