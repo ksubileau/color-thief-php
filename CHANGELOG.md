@@ -1,5 +1,10 @@
 # Color Thief PHP Changelog
 
+## `2.0.1`
+
+**Bug fix**
+- Fixes a regression in 2.0.0 that could cause an infinite loop under specific circumstances (see #52).
+
 ## `2.0.0`
 
 **New features**
