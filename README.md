@@ -1,11 +1,11 @@
 Color Thief PHP
 ==============
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![Build Status](https://img.shields.io/github/workflow/status/ksubileau/color-thief-php/Tests.svg?style=flat-square)](https://github.com/ksubileau/color-thief-php/actions?query=workflow%3ATests)
-[![GitHub issues](https://img.shields.io/github/issues/ksubileau/color-thief-php.svg?style=flat-square)](https://github.com/ksubileau/color-thief-php/issues)
-[![Packagist](https://img.shields.io/packagist/dm/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
-[![License](https://img.shields.io/packagist/l/ksubileau/color-thief-php.svg?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Latest Stable Version](https://img.shields.io/packagist/v/ksubileau/color-thief-php?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/ksubileau/color-thief-php/tests.yml?style=flat-square)](https://github.com/ksubileau/color-thief-php/actions?query=workflow%3ATests)
+[![GitHub issues](https://img.shields.io/github/issues/ksubileau/color-thief-php?style=flat-square)](https://github.com/ksubileau/color-thief-php/issues)
+[![Packagist](https://img.shields.io/packagist/dm/ksubileau/color-thief-php?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
+[![License](https://img.shields.io/packagist/l/ksubileau/color-thief-php?style=flat-square)](https://packagist.org/packages/ksubileau/color-thief-php)
 
 A PHP class for **grabbing the color palette** from an image. Uses PHP and GD, Imagick or Gmagick libraries to make it happen.
 
