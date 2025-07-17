@@ -63,7 +63,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->vbox->histo = [25 => 8];
         $copy = $this->vbox->copy();
 
-        $this->assertInstanceOf('ColorThief\VBox', $copy);
         $this->assertSame($this->vbox->r1, $copy->r1);
         $this->assertSame($this->vbox->r2, $copy->r2);
         $this->assertSame($this->vbox->g1, $copy->g1);

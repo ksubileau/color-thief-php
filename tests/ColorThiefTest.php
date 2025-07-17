@@ -18,6 +18,7 @@ use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
+use ColorThief\VBox;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
@@ -393,7 +394,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
     public function testVboxFromPixels(): void
     {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');
+        $method = new \ReflectionMethod(ColorThief::class, 'vboxFromHistogram');
         $method->setAccessible(true);
 
         // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
@@ -410,7 +411,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $result = $method->invoke(null, $histo);
 
-        $this->assertInstanceOf('\ColorThief\VBox', $result);
+        $this->assertInstanceOf(VBox::class, $result);
         $this->assertSame($histo, $result->histo);
         $this->assertSame(16, $result->r1);
         $this->assertSame(29, $result->r2);
@@ -425,7 +426,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      */
     public function testVboxFromSingleColorHistogram(): void
     {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'vboxFromHistogram');
+        $method = new \ReflectionMethod(ColorThief::class, 'vboxFromHistogram');
         $method->setAccessible(true);
 
         $histo = [
@@ -434,7 +435,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $result = $method->invoke(null, $histo);
 
-        $this->assertInstanceOf('\ColorThief\VBox', $result);
+        $this->assertInstanceOf(VBox::class, $result);
         $this->assertSame($histo, $result->histo);
         $this->assertSame($result->r1, $result->r2);
         $this->assertSame($result->g1, $result->g2);
@@ -444,7 +445,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
     public function testDoCutLeftLeatherThanRight(): void
     {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
+        $method = new \ReflectionMethod(ColorThief::class, 'doCut');
         $method->setAccessible(true);
 
         // $left <= $right
@@ -465,7 +466,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
     public function testDoCutLeftGreaterThanRight(): void
     {
-        $method = new \ReflectionMethod('\ColorThief\ColorThief', 'doCut');
+        $method = new \ReflectionMethod(ColorThief::class, 'doCut');
         $method->setAccessible(true);
 
         // $left > $right
