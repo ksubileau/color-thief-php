@@ -185,13 +185,13 @@ class ImageLoader
         if (is_string($data)) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
 
-            if ($finfo === false) {
+            if (false === $finfo) {
                 return false;
             }
 
-            $mime = (string)finfo_buffer($finfo, $data);
+            $mime = (string) finfo_buffer($finfo, $data);
 
-            if (version_compare(phpversion(), '8.4', '<') === true) {
+            if (true === version_compare(PHP_VERSION, '8.4', '<')) {
                 finfo_close($finfo);
             }
 

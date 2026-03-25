@@ -92,7 +92,7 @@ class GdAdapter extends AbstractAdapter
 
     public function destroy(): void
     {
-        if ($this->resource && version_compare(phpversion(), '8.0', '<') === true) {
+        if ($this->resource && true === version_compare(PHP_VERSION, '8.0', '<')) {
             imagedestroy($this->resource);
         }
 

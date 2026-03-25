@@ -54,7 +54,7 @@ abstract class AbstractAdapter implements AdapterInterface
                     'Accept-language: en',
                     'User-Agent: ColorThief Library',
                 ],
-            ]
+            ],
         ]);
 
         $data = @file_get_contents($url, false, $context);
