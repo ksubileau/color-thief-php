@@ -17,9 +17,9 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = new PhpCsFixer\Config();
 return $config->setRules([
-        '@PHP71Migration' => true,
-        '@PHP71Migration:risky' => true,
-        '@PHPUnit84Migration:risky' => true,
+        '@PHP82Migration' => true,
+        '@PHP80Migration:risky' => true,
+        '@PHPUnit100Migration:risky' => true,
         '@Symfony' => true,
         '@Symfony:risky' => true,
         'header_comment' => [
@@ -33,8 +33,8 @@ return $config->setRules([
         'native_constant_invocation' => false,
         'native_function_invocation' => false,
         'visibility_required' => [
-            'elements' => ['const', 'method', 'property']
-        ]
+            'elements' => ['const', 'method', 'property'],
+        ],
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);

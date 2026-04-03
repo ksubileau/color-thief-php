@@ -26,7 +26,7 @@ class ImagickAdapterTest extends AbstractAdapterTest
     protected function getTestResourceInstance()
     {
         // The loader requires a non-empty Imagick object for the color space check
-        return new Imagick(__DIR__.'/../../images/blank.png');
+        return new \Imagick(__DIR__.'/../../images/blank.png');
     }
 
     protected function getAdapterInstance(): AdapterInterface
@@ -53,7 +53,7 @@ class ImagickAdapterTest extends AbstractAdapterTest
 
     public function testLoadFileWebp(): AdapterInterface
     {
-        if (empty(Imagick::queryFormats('WEBP'))) {
+        if (empty(\Imagick::queryFormats('WEBP'))) {
             $this->markTestSkipped('Imagick was not compiled with support for WebP format.');
         }
 

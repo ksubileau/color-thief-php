@@ -20,6 +20,7 @@ class GdAdapter extends AbstractAdapter
 {
     /** @var \GdImage|null */
     protected ?object $resource = null;
+
     public static function isAvailable(): bool
     {
         return extension_loaded('gd') && function_exists('gd_info');
@@ -27,7 +28,7 @@ class GdAdapter extends AbstractAdapter
 
     public function load(mixed $resource): AdapterInterface
     {
-        if (!($resource instanceof \GdImage)) {
+        if (!$resource instanceof \GdImage) {
             throw new InvalidArgumentException('Argument is not an instance of GdImage.');
         }
 
@@ -51,7 +52,7 @@ class GdAdapter extends AbstractAdapter
         }
 
         $imageInfo = @getimagesize($file);
-        if ($imageInfo === false) {
+        if (false === $imageInfo) {
             throw new NotReadableException("Unable to read image info from path ({$file}).");
         }
         $type = $imageInfo[2];
@@ -114,7 +115,7 @@ class GdAdapter extends AbstractAdapter
     public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         $rgba = imagecolorat($this->gd(), $x, $y);
-        if ($rgba === false) {
+        if (false === $rgba) {
             throw new \RuntimeException("Failed to get pixel color at ({$x}, {$y})");
         }
         $color = imagecolorsforindex($this->gd(), $rgba);

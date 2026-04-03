@@ -41,7 +41,6 @@ use ColorThief\Exception\NotSupportedException;
 use ColorThief\Exception\RuntimeException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\ImageLoader;
-use SplFixedArray;
 
 class ColorThief
 {
@@ -106,6 +105,7 @@ class ColorThief
      *                                                   You can pass one of the 'Imagick', 'Gmagick' or 'Gd' string to use the corresponding
      *                                                   underlying image extension, or you can pass an instance of any class implementing
      *                                                   the AdapterInterface interface to use a custom image loader.
+     *
      * @phpstan-param ?RectangularArea $area
      *
      * @phpstan-return ColorRGB|Color|int|string|null
@@ -148,9 +148,9 @@ class ColorThief
      *                                                   You can pass one of the 'Imagick', 'Gmagick' or 'Gd' string to use the corresponding
      *                                                   underlying image extension, or you can pass an instance of any class implementing
      *                                                   the AdapterInterface interface to use a custom image loader.
+     *
      * @phpstan-param ?RectangularArea $area
      *
-     * @return array
      * @phpstan-return ColorRGB[]|Color[]|int[]|string[]|null
      */
     public static function getPalette(
@@ -180,14 +180,14 @@ class ColorThief
         // using median cut algorithm
         $palette = self::quantize($numPixelsAnalyzed, $colorCount, $histo);
 
-        return array_map(function (Color $color) use ($outputFormat) {
-            return $color->format($outputFormat);
-        }, $palette);
+        return array_map(static fn (Color $color) => $color->format($outputFormat), $palette);
     }
 
     /**
-     * @param array<int, int>              $histo       Histogram
+     * @param array<int, int> $histo Histogram
+     *
      * @param-out array<int, int>          $histo
+     *
      * @phpstan-param ?RectangularArea $area
      */
     private static function loadImage(mixed $sourceImage, int $quality, array &$histo, ?array $area = null, AdapterInterface|string|null $adapter = null): int
@@ -216,7 +216,7 @@ class ColorThief
         // Fill a SplArray with zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
         // There are 32768 buckets because each color is 5 bits (15 bits total for RGB values).
         $totalBuckets = (1 << (3 * self::SIGBITS));
-        $histoSpl = new SplFixedArray($totalBuckets);
+        $histoSpl = new \SplFixedArray($totalBuckets);
         for ($i = 0; $i < $totalBuckets; ++$i) {
             $histoSpl[$i] = 0;
         }
@@ -243,7 +243,7 @@ class ColorThief
             // Count this pixel in its histogram bucket.
             ++$numUsefulPixels;
             $bucketIndex = self::getColorIndex($color->red, $color->green, $color->blue);
-            $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
+            ++$histoSpl[$bucketIndex];
         }
 
         // Copy the histogram buckets that had pixels back to a normal array.
@@ -364,10 +364,10 @@ class ColorThief
     /**
      * Find the partial sum arrays along the selected axis.
      *
-     * @param string $axis r|g|b
-     * @phpstan-param 'r'|'g'|'b' $axis
-     *
+     * @param string          $axis  r|g|b
      * @param array<int, int> $histo
+     *
+     * @phpstan-param 'r'|'g'|'b' $axis
      *
      * @return array{int, array<int, int>} [$total, $partialSum]
      */
@@ -418,6 +418,7 @@ class ColorThief
      * @phpstan-param array<'r'|'g'|'b'> $order
      *
      * @return int[][]
+     *
      * @phpstan-return array{int[], int[], int[]}
      */
     private static function getVBoxColorRanges(VBox $vBox, array $order): array
@@ -508,26 +509,20 @@ class ColorThief
         $vBox = self::vboxFromHistogram($histo);
 
         /** @var PQueue<VBox> $priorityQueue */
-        $priorityQueue = new PQueue(function (VBox $a, VBox $b) {
-            return $a->count() <=> $b->count();
-        });
+        $priorityQueue = new PQueue(static fn (VBox $a, VBox $b) => $a->count() <=> $b->count());
         $priorityQueue->push($vBox);
 
         // first set of colors, sorted by population
         self::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
-        $priorityQueue->setComparator(function (VBox $a, VBox $b) {
-            return ($a->count() * $a->volume()) <=> ($b->count() * $b->volume());
-        });
+        $priorityQueue->setComparator(static fn (VBox $a, VBox $b) => ($a->count() * $a->volume()) <=> ($b->count() * $b->volume()));
 
         // next set - generate the median cuts using the (npix * vol) sorting.
         self::quantizeIter($priorityQueue, $maxColors, $histo);
 
         // calculate the actual colors
-        $colors = $priorityQueue->map(function (VBox $vbox) {
-            return new Color(...$vbox->avg());
-        });
+        $colors = $priorityQueue->map(static fn (VBox $vbox) => new Color(...$vbox->avg()));
         $colors = array_reverse($colors);
 
         return $colors;
