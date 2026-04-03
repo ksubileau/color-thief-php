@@ -22,7 +22,7 @@ use ColorThief\VBox;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
-    public function provideImageDominantColor()
+    public static function provideImageDominantColor()
     {
         return [
             [
@@ -65,7 +65,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function provideImageColorPalette()
+    public static function provideImageColorPalette()
     {
         return [
             [
@@ -139,7 +139,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function provide8bitsColorIndex()
+    public static function provide8bitsColorIndex()
     {
         return [
             [0, 0, 0, 0],
@@ -148,7 +148,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function provide5bitsColorIndex()
+    public static function provide5bitsColorIndex()
     {
         return [
             [0,     0,   0,  0b000000000000000],
@@ -297,7 +297,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $adapter->method('loadFromPath')->willReturnSelf();
         $adapter->method('getWidth')->willReturn(500);
         $adapter->method('getHeight')->willReturn(500);
-        $adapter->method('getPixelColor')->willReturn((object) ['red' => 24, 'green' => 60, 'blue' => 100, 'alpha' => 0]);
+        $adapter->method('getPixelColor')->willReturn(new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0));
 
         $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 5, 10, null, 'array', $adapter);
 
