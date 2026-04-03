@@ -84,14 +84,11 @@ class ImageLoader
                 throw new NotSupportedException("Image adapter ({$adapterName}) could not be instantiated.");
             }
 
+            /** @var AdapterInterface */
             return new $adapterClass();
         }
 
-        if ($preferredAdapter instanceof AdapterInterface) {
-            return $preferredAdapter;
-        }
-
-        throw new NotSupportedException('Unknown image adapter type.');
+        return $preferredAdapter;
     }
 
     public function isImagick(mixed $data): bool

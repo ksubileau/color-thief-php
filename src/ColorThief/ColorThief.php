@@ -169,6 +169,7 @@ class ColorThief
             throw new InvalidArgumentException('The quality argument must be an integer greater than one.');
         }
 
+        /** @var array<int, int> $histo */
         $histo = [];
         $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area, $adapter);
         if (0 === $numPixelsAnalyzed) {
@@ -185,10 +186,8 @@ class ColorThief
     }
 
     /**
-     * @param mixed                        $sourceImage Path/URL to the image, GD resource, Imagick instance, or image as binary string
-     * @param int                          $quality     Analyze every $quality pixels
      * @param array<int, int>              $histo       Histogram
-     * @param AdapterInterface|string|null $adapter     Image adapter to use for loading the image
+     * @param-out array<int, int>          $histo
      * @phpstan-param ?RectangularArea $area
      */
     private static function loadImage(mixed $sourceImage, int $quality, array &$histo, ?array $area = null, AdapterInterface|string|null $adapter = null): int
@@ -251,7 +250,7 @@ class ColorThief
         $histo = [];
         foreach ($histoSpl as $bucketInt => $numPixels) {
             if ($numPixels > 0) {
-                $histo[$bucketInt] = $numPixels;
+                $histo[(int) $bucketInt] = (int) $numPixels;
             }
         }
 
