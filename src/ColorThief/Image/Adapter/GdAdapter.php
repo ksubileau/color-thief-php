@@ -57,7 +57,11 @@ class GdAdapter extends AbstractAdapter
             throw new NotReadableException("Unable to read image from path ({$file}).");
         }
 
-        [, , $type] = @getimagesize($file);
+        $imageInfo = @getimagesize($file);
+        if ($imageInfo === false) {
+            throw new NotReadableException("Unable to read image info from path ({$file}).");
+        }
+        $type = $imageInfo[2];
 
         switch ($type) {
             case \IMAGETYPE_GIF:
