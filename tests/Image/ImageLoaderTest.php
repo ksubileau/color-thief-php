@@ -233,10 +233,9 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateAdapterInvalidType(): void
     {
-        $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('Unknown image adapter type.');
+        $this->expectException(\TypeError::class);
 
-        $this->loader->createAdapter(85);
+        $this->loader->createAdapter(85); // @phpstan-ignore argument.type
     }
 
     public function testCreateAdapterInvalidName(): void
@@ -265,17 +264,6 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($this->loader->isGmagick(new \Gmagick()));
         $this->assertFalse($this->loader->isGmagick(new \stdClass()));
         $this->assertFalse($this->loader->isGmagick(null));
-    }
-
-    /**
-     * @requires extension gd
-     */
-    public function testIsGdImage(): void
-    {
-        $resource = imagecreate(18, 18);
-        $this->assertTrue($this->loader->isGdImage($resource));
-        $this->assertFalse($this->loader->isGdImage(new \stdClass()));
-        $this->assertFalse($this->loader->isGdImage(null));
     }
 
     public function testIsFilepath(): void

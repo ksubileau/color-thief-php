@@ -178,28 +178,11 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetPixelColor(AdapterInterface $adapter): void
     {
-        $expected = new \stdClass();
-        $expected->red = 100;
-        $expected->green = 50;
-        $expected->blue = 25;
-        $expected->alpha = 0;
-
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 0));
-
-        $expected->alpha = 12;
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 1));
-
-        $expected->alpha = 63;
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 2));
-
-        $expected->alpha = 114;
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 3));
-
-        $expected->red = 255;
-        $expected->green = 255;
-        $expected->blue = 255;
-        $expected->alpha = 127;
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 4));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(100, 50, 25, 0), $adapter->getPixelColor(1, 0));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(100, 50, 25, 12), $adapter->getPixelColor(1, 1));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(100, 50, 25, 63), $adapter->getPixelColor(1, 2));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(100, 50, 25, 114), $adapter->getPixelColor(1, 3));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(255, 255, 255, 127), $adapter->getPixelColor(1, 4));
     }
 
     /**
@@ -207,33 +190,11 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetPixelColorFromCmykJpg(AdapterInterface $adapter): void
     {
-        $expected = new \stdClass();
-        $expected->red = 192;
-        $expected->green = 0;
-        $expected->blue = 0;
-        $expected->alpha = 0;
-
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 0));
-
-        $expected->red = 78;
-        $expected->green = 255;
-        $expected->blue = 1;
-        $this->assertEquals($expected, $adapter->getPixelColor(1, 1));
-
-        $expected->red = 255;
-        $expected->green = 229;
-        $expected->blue = 44;
-        $this->assertEquals($expected, $adapter->getPixelColor(0, 2));
-
-        $expected->red = 204;
-        $expected->green = 203;
-        $expected->blue = 204;
-        $this->assertEquals($expected, $adapter->getPixelColor(2, 2));
-
-        $expected->red = 255;
-        $expected->green = 255;
-        $expected->blue = 255;
-        $this->assertEquals($expected, $adapter->getPixelColor(2, 1));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(192, 0, 0, 0), $adapter->getPixelColor(1, 0));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(78, 255, 1, 0), $adapter->getPixelColor(1, 1));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(255, 229, 44, 0), $adapter->getPixelColor(0, 2));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(204, 203, 204, 0), $adapter->getPixelColor(2, 2));
+        $this->assertEquals(new \ColorThief\Image\PixelColor(255, 255, 255, 0), $adapter->getPixelColor(2, 1));
     }
 
     /**
