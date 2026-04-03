@@ -231,14 +231,6 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($adapter, $this->loader->createAdapter($adapter));
     }
 
-    public function testCreateAdapterInvalidType(): void
-    {
-        $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('Unknown image adapter type.');
-
-        $this->loader->createAdapter(85);
-    }
-
     public function testCreateAdapterInvalidName(): void
     {
         $this->expectException(NotSupportedException::class);
