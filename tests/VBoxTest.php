@@ -84,7 +84,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->vbox->b1 = 130 >> ColorThief::RSHIFT;
         $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
 
-        //$pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
+        // $pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
         $this->vbox->histo = [
             29427 => 1,
             26355 => 1,

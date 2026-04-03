@@ -45,20 +45,20 @@ abstract class AbstractAdapter implements AdapterInterface
 
     public function loadFromUrl(string $url): AdapterInterface
     {
-        $options = [
-            'http' => [
+        $context = stream_context_create([
+                'http' => [
                 'method' => 'GET',
-                'protocol_version' => 1.1, // force use HTTP 1.1 for service mesh environment with envoy
+                // force use HTTP 1.1 for service mesh environment with envoy
+                'protocol_version' => 1.1,
                 'header' => [
                     'Accept-language: en',
-                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0',
+                    'User-Agent: ColorThief Library',
                 ],
             ],
-        ];
-
-        $context = stream_context_create($options);
+        ]);
 
         $data = @file_get_contents($url, false, $context);
+
         if (false === $data) {
             throw new NotReadableException("Unable to load image from url ({$url}).");
         }

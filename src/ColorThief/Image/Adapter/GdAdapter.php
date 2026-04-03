@@ -92,10 +92,10 @@ class GdAdapter extends AbstractAdapter
 
     public function destroy(): void
     {
-        if ($this->resource) {
-            // For PHP 7.x only, noop starting from PHP 8.0
+        if ($this->resource && true === version_compare(PHP_VERSION, '8.0', '<')) {
             imagedestroy($this->resource);
         }
+
         parent::destroy();
     }
 
