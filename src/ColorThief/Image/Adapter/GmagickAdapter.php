@@ -17,9 +17,6 @@ use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use Gmagick;
 
-/**
- * @property ?Gmagick $resource
- */
 class GmagickAdapter extends AbstractAdapter
 {
     public static function isAvailable(): bool
@@ -27,7 +24,7 @@ class GmagickAdapter extends AbstractAdapter
         return extension_loaded('gmagick') && class_exists('Gmagick');
     }
 
-    public function load($resource): AdapterInterface
+    public function load(mixed $resource): AdapterInterface
     {
         if (!($resource instanceof Gmagick)) {
             throw new InvalidArgumentException('Argument is not an instance of Gmagick.');

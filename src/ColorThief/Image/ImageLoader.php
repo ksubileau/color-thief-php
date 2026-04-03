@@ -19,10 +19,7 @@ use ColorThief\Image\Adapter\AdapterInterface;
 
 class ImageLoader
 {
-    /**
-     * @var AdapterInterface|string|null
-     */
-    private $preferredAdapter = null;
+    private AdapterInterface|string|null $preferredAdapter = null;
 
     /**
      * Configure the preferred adapter to use to load images.
@@ -31,7 +28,7 @@ class ImageLoader
      *                                              If null, the adapter is automatically chosen according to the
      *                                              available extensions.
      */
-    public function setPreferredAdapter($adapter): self
+    public function setPreferredAdapter(AdapterInterface|string|null $adapter): self
     {
         $this->preferredAdapter = $adapter;
 
@@ -39,16 +36,14 @@ class ImageLoader
     }
 
     /**
-     * @param mixed $source Path/URL to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * Loads an image from given source.
      */
-    public function load($source): AdapterInterface
+    public function load(mixed $source): AdapterInterface
     {
-        $image = null;
-
         $preferredAdapter = $this->preferredAdapter;
         // Select appropriate adapter depending on source type if no preference given
         if (null === $preferredAdapter) {
-            if ($this->isGdImage($source)) {
+            if ($source instanceof \GdImage) {
                 $preferredAdapter = 'Gd';
             } elseif ($this->isImagick($source)) {
                 $preferredAdapter = 'Imagick';
@@ -59,28 +54,21 @@ class ImageLoader
 
         $image = $this->createAdapter($preferredAdapter);
 
-        switch (true) {
-            case $this->isGdImage($source):
-            case $this->isImagick($source):
-            case $this->isGmagick($source):
-                return $image->load($source);
-            case $this->isBinary($source):
-                return $image->loadFromBinary($source);
-            case $this->isUrl($source):
-                return $image->loadFromUrl($source);
-            case $this->isFilePath($source):
-                return $image->loadFromPath($source);
-            default:
-                throw new NotReadableException('Image source does not exists or is not readable.');
-        }
+        return match (true) {
+            $this->isGdImage($source),
+            $this->isImagick($source),
+            $this->isGmagick($source) => $image->load($source),
+            $this->isBinary($source) => $image->loadFromBinary($source),
+            $this->isUrl($source) => $image->loadFromUrl($source),
+            $this->isFilePath($source) => $image->loadFromPath($source),
+            default => throw new NotReadableException('Image source does not exists or is not readable.'),
+        };
     }
 
     /**
      * Creates an adapter instance according to config settings.
-     *
-     * @param string|AdapterInterface|null $preferredAdapter
      */
-    public function createAdapter($preferredAdapter = null): AdapterInterface
+    public function createAdapter(AdapterInterface|string|null $preferredAdapter = null): AdapterInterface
     {
         if (null === $preferredAdapter) {
             // Select first available adapter
@@ -115,44 +103,32 @@ class ImageLoader
 
     /**
      * Determines if given source data is a GD image.
-     *
-     * @param mixed $data
      */
-    public function isGdImage($data): bool
+    public function isGdImage(mixed $data): bool
     {
-        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            return $data instanceof \GdImage;
-        }
-
-        return \is_resource($data) && 'gd' == get_resource_type($data);
+        return is_a($data, 'GdImage');
     }
 
     /**
      * Determines if given source data is an Imagick object.
-     *
-     * @param mixed $data
      */
-    public function isImagick($data): bool
+    public function isImagick(mixed $data): bool
     {
         return is_a($data, 'Imagick');
     }
 
     /**
      * Determines if given source data is a Gmagick object.
-     *
-     * @param mixed $data
      */
-    public function isGmagick($data): bool
+    public function isGmagick(mixed $data): bool
     {
         return is_a($data, 'Gmagick');
     }
 
     /**
-     * Determines if given source data is file path.
-     *
-     * @param mixed $data
+     * Determines if given source data is a file path.
      */
-    public function isFilePath($data): bool
+    public function isFilePath(mixed $data): bool
     {
         if (is_string($data)) {
             try {
@@ -166,21 +142,17 @@ class ImageLoader
     }
 
     /**
-     * Determines if given source data is url.
-     *
-     * @param mixed $data
+     * Determines if given source data is an url.
      */
-    public function isUrl($data): bool
+    public function isUrl(mixed $data): bool
     {
         return (bool) filter_var($data, FILTER_VALIDATE_URL);
     }
 
     /**
      * Determines if given source data is binary data.
-     *
-     * @param mixed $data
      */
-    public function isBinary($data): bool
+    public function isBinary(mixed $data): bool
     {
         if (is_string($data)) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -191,7 +163,7 @@ class ImageLoader
 
             $mime = (string) finfo_buffer($finfo, $data);
 
-            if (true === version_compare(PHP_VERSION, '8.4', '<')) {
+            if (PHP_VERSION_ID < 80400) {
                 finfo_close($finfo);
             }
 
