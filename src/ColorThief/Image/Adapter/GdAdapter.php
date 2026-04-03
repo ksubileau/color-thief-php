@@ -100,11 +100,16 @@ class GdAdapter extends AbstractAdapter
         return imagesx($this->resource);
     }
 
-    public function getPixelColor(int $x, int $y): \stdClass
+    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         $rgba = imagecolorat($this->resource, $x, $y);
         $color = imagecolorsforindex($this->resource, $rgba);
 
-        return (object) $color;
+        return new \ColorThief\Image\PixelColor(
+            red: $color['red'],
+            green: $color['green'],
+            blue: $color['blue'],
+            alpha: $color['alpha'],
+        );
     }
 }
