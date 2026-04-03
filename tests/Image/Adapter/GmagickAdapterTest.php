@@ -16,16 +16,13 @@ namespace ColorThief\Tests\Image\Adapter;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\GmagickAdapter;
-use Gmagick;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/**
- * @requires extension gmagick
- */
+#[RequiresPhpExtension('gmagick')]
 class GmagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
     {
-        // The loader requires a non-empty GMagick object for the color space check
         return new \Gmagick(__DIR__.'/../../images/blank.png');
     }
 
@@ -36,7 +33,6 @@ class GmagickAdapterTest extends AbstractAdapterTest
 
     protected function checkIsLoaded(AdapterInterface $adapter): void
     {
-        // Checks object state
         $image = $adapter->getResource();
         $this->assertInstanceOf('\Gmagick', $image);
     }
@@ -46,7 +42,6 @@ class GmagickAdapterTest extends AbstractAdapterTest
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument is not an instance of Gmagick.');
 
-        // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
 
