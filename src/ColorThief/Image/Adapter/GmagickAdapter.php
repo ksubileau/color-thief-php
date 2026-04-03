@@ -19,6 +19,8 @@ use Gmagick;
 
 class GmagickAdapter extends AbstractAdapter
 {
+    /** @var Gmagick|null */
+    protected ?object $resource = null;
     public static function isAvailable(): bool
     {
         return extension_loaded('gmagick') && class_exists('Gmagick');
@@ -63,9 +65,18 @@ class GmagickAdapter extends AbstractAdapter
         return $this->load($resource);
     }
 
+    private function gmagick(): Gmagick
+    {
+        if (!$this->resource instanceof Gmagick) {
+            throw new \RuntimeException('No image loaded.');
+        }
+
+        return $this->resource;
+    }
+
     public function destroy(): void
     {
-        if ($this->resource) {
+        if ($this->resource instanceof Gmagick) {
             $this->resource->clear();
             $this->resource->destroy();
         }
@@ -74,17 +85,17 @@ class GmagickAdapter extends AbstractAdapter
 
     public function getHeight(): int
     {
-        return $this->resource->getimageheight();
+        return $this->gmagick()->getimageheight();
     }
 
     public function getWidth(): int
     {
-        return $this->resource->getimagewidth();
+        return $this->gmagick()->getimagewidth();
     }
 
     public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
-        $cropped = clone $this->resource;    // No need to modify the original object.
+        $cropped = clone $this->gmagick();    // No need to modify the original object.
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
         $pixel = array_shift($histogram);
 

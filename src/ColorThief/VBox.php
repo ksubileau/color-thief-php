@@ -34,7 +34,7 @@ class VBox
     /**
      * @phpstan-var ColorRGB
      */
-    private array $avg = [];
+    private array $avg = [0, 0, 0];
     private bool $avg_set = false;
 
     /**
