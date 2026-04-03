@@ -110,7 +110,7 @@ class ColorThief
      *
      * @phpstan-return ColorRGB|Color|int|string|null
      */
-    public static function getColor($sourceImage, int $quality = 10, ?array $area = null, string $outputFormat = 'array', $adapter = null)
+    public static function getColor(mixed $sourceImage, int $quality = 10, ?array $area = null, string $outputFormat = 'array', AdapterInterface|string|null $adapter = null): Color|array|int|string|null
     {
         $palette = self::getPalette($sourceImage, 5, $quality, $area, $outputFormat, $adapter);
 
@@ -154,12 +154,12 @@ class ColorThief
      * @phpstan-return ColorRGB[]|Color[]|int[]|string[]|null
      */
     public static function getPalette(
-        $sourceImage,
+        mixed $sourceImage,
         int $colorCount = 10,
         int $quality = 10,
         ?array $area = null,
         string $outputFormat = 'array',
-        $adapter = null
+        AdapterInterface|string|null $adapter = null,
     ): ?array {
         if ($colorCount < 2 || $colorCount > 256) {
             throw new InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
@@ -191,7 +191,7 @@ class ColorThief
      * @param AdapterInterface|string|null $adapter     Image adapter to use for loading the image
      * @phpstan-param ?RectangularArea $area
      */
-    private static function loadImage($sourceImage, int $quality, array &$histo, ?array $area = null, $adapter = null): int
+    private static function loadImage(mixed $sourceImage, int $quality, array &$histo, ?array $area = null, AdapterInterface|string|null $adapter = null): int
     {
         $loader = new ImageLoader();
         if (null !== $adapter) {

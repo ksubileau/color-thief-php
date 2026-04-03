@@ -40,10 +40,8 @@ interface AdapterInterface
 
     /**
      * Loads an image resource.
-     *
-     * @param resource|object $resource
      */
-    public function load($resource): self;
+    public function load(mixed $resource): self;
 
     /**
      * Destroys the image.
@@ -67,8 +65,6 @@ interface AdapterInterface
 
     /**
      * Get the raw resource.
-     *
-     * @return resource|object|null
      */
-    public function getResource();
+    public function getResource(): object|null;
 }

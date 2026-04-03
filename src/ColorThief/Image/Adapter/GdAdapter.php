@@ -16,9 +16,6 @@ namespace ColorThief\Image\Adapter;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 
-/**
- * @property resource|\GdImage|null $resource
- */
 class GdAdapter extends AbstractAdapter
 {
     public static function isAvailable(): bool
@@ -26,16 +23,10 @@ class GdAdapter extends AbstractAdapter
         return extension_loaded('gd') && function_exists('gd_info');
     }
 
-    public function load($resource): AdapterInterface
+    public function load(mixed $resource): AdapterInterface
     {
-        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            if (!($resource instanceof \GdImage)) {
-                throw new InvalidArgumentException('Argument is not an instance of GdImage.');
-            }
-        } else {
-            if (!\is_resource($resource) || 'gd' != get_resource_type($resource)) {
-                throw new InvalidArgumentException('Argument is not a valid GD resource.');
-            }
+        if (!($resource instanceof \GdImage)) {
+            throw new InvalidArgumentException('Argument is not an instance of GdImage.');
         }
 
         return parent::load($resource);
@@ -96,10 +87,6 @@ class GdAdapter extends AbstractAdapter
 
     public function destroy(): void
     {
-        if ($this->resource && true === version_compare(PHP_VERSION, '8.0', '<')) {
-            imagedestroy($this->resource);
-        }
-
         parent::destroy();
     }
 

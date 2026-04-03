@@ -18,9 +18,6 @@ use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
 use Imagick;
 
-/**
- * @property ?Imagick $resource
- */
 class ImagickAdapter extends AbstractAdapter
 {
     public static function isAvailable(): bool
@@ -28,7 +25,7 @@ class ImagickAdapter extends AbstractAdapter
         return extension_loaded('imagick') && class_exists('Imagick');
     }
 
-    public function load($resource): AdapterInterface
+    public function load(mixed $resource): AdapterInterface
     {
         if (!($resource instanceof Imagick)) {
             throw new InvalidArgumentException('Argument is not an instance of Imagick.');

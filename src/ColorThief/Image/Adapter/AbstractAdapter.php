@@ -21,10 +21,7 @@ use ColorThief\Exception\NotSupportedException;
  */
 abstract class AbstractAdapter implements AdapterInterface
 {
-    /**
-     * @var object|resource|null Image resource/object of current image adapter
-     */
-    protected $resource;
+    protected ?object $resource = null;
 
     /**
      * Creates new instance of the image adapter.
@@ -36,7 +33,7 @@ abstract class AbstractAdapter implements AdapterInterface
         }
     }
 
-    public function load($resource): AdapterInterface
+    public function load(mixed $resource): AdapterInterface
     {
         $this->resource = $resource;
 
@@ -57,7 +54,7 @@ abstract class AbstractAdapter implements AdapterInterface
             ],
         ]);
 
-        $data = @file_get_contents($url, false, $context);
+        $data = file_get_contents($url, false, $context);
 
         if (false === $data) {
             throw new NotReadableException("Unable to load image from url ({$url}).");
@@ -71,7 +68,7 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->resource = null;
     }
 
-    public function getResource()
+    public function getResource(): object|null
     {
         return $this->resource;
     }
