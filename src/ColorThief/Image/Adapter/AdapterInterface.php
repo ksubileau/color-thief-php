@@ -61,7 +61,7 @@ interface AdapterInterface
     /**
      * Returns the color of the specified pixel.
      */
-    public function getPixelColor(int $x, int $y): \stdClass;
+    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor;
 
     /**
      * Get the raw resource.

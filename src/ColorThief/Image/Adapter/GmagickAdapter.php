@@ -82,7 +82,7 @@ class GmagickAdapter extends AbstractAdapter
         return $this->resource->getimagewidth();
     }
 
-    public function getPixelColor(int $x, int $y): \stdClass
+    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         $cropped = clone $this->resource;    // No need to modify the original object.
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
@@ -95,12 +95,12 @@ class GmagickAdapter extends AbstractAdapter
         // Un-normalized values don't give a full range 0-1 alpha channel
         // So we ask for normalized values, and then we un-normalize it ourselves.
         $colorArray = $pixel->getColor(true, true);
-        $color = new \stdClass();
-        $color->red = (int) round($colorArray['r'] * 255);
-        $color->green = (int) round($colorArray['g'] * 255);
-        $color->blue = (int) round($colorArray['b'] * 255);
-        $color->alpha = (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127);
 
-        return $color;
+        return new \ColorThief\Image\PixelColor(
+            red: (int) round($colorArray['r'] * 255),
+            green: (int) round($colorArray['g'] * 255),
+            blue: (int) round($colorArray['b'] * 255),
+            alpha: (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
+        );
     }
 }
