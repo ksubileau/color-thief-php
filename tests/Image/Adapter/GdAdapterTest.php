@@ -17,10 +17,10 @@ use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\GdAdapter;
+use PHPUnit\Framework\Attributes\RequiresFunction;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/**
- * @requires extension gd
- */
+#[RequiresPhpExtension('gd')]
 class GdAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
@@ -35,25 +35,14 @@ class GdAdapterTest extends AbstractAdapterTest
 
     protected function checkIsLoaded(AdapterInterface $adapter): void
     {
-        // Checks object state
         $image = $adapter->getResource();
-        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            $this->assertInstanceOf('\GdImage', $image);
-        } else {
-            $this->assertIsResource($image);
-            $this->assertSame('gd', get_resource_type($image));
-        }
+        $this->assertInstanceOf('\GdImage', $image);
     }
 
     public function testLoadInvalidArgument(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        // We want to check also the specific exception message.
-        if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            $this->expectExceptionMessage('Argument is not an instance of GdImage.');
-        } else {
-            $this->expectExceptionMessage('Argument is not a valid GD resource.');
-        }
+        $this->expectExceptionMessage('Argument is not an instance of GdImage.');
 
         parent::testLoadInvalidArgument();
     }
@@ -69,9 +58,7 @@ class GdAdapterTest extends AbstractAdapterTest
         return $this->baseTestLoadFile(__DIR__.'/../../images/corrupted_PR30.jpg');
     }
 
-    /**
-     * @requires function imagecreatefromwebp
-     */
+    #[RequiresFunction('imagecreatefromwebp')]
     public function testLoadFileWebp(): AdapterInterface
     {
         return parent::testLoadFileWebp();

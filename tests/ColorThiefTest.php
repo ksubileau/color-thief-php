@@ -19,6 +19,7 @@ use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\VBox;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
@@ -157,9 +158,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideImageDominantColor
-     */
+    #[DataProvider('provideImageDominantColor')]
     public function testDominantColor(string $image, ?array $area, array $expectedColor): void
     {
         $dominantColor = ColorThief::getColor(__DIR__.$image, 10, $area);
@@ -213,9 +212,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider provideImageColorPalette
-     */
+    #[DataProvider('provideImageColorPalette')]
     public function testPalette(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
@@ -276,9 +273,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ], $dominantColor);
     }
 
-    /**
-     * @dataProvider provideImageColorPalette
-     */
+    #[DataProvider('provideImageColorPalette')]
     public function testPaletteBinaryString(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
@@ -345,9 +340,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ColorThief::getPalette(__DIR__.'/images/blank.png');
     }
 
-    /**
-     * @dataProvider provide8bitsColorIndex
-     */
+    #[DataProvider('provide8bitsColorIndex')]
     public function testGetColorIndex8bits(int $r, int $g, int $b, int $index): void
     {
         $this->assertSame(
@@ -356,9 +349,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @dataProvider provide5bitsColorIndex
-     */
+    #[DataProvider('provide5bitsColorIndex')]
     public function testGetColorIndex5bits(int $r, int $g, int $b, int $index): void
     {
         $this->assertSame(
@@ -369,9 +360,8 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Tests RGB values are the same after converting them back from combined bucket index to RGB bucket values.
-     *
-     * @dataProvider provide5bitsColorIndex
      */
+    #[DataProvider('provide5bitsColorIndex')]
     public function testGetColorsFromIndex5bits(int $r, int $g, int $b, int $index): void
     {
         $rgbBuckets = [$r >> ColorThief::RSHIFT, $g >> ColorThief::RSHIFT, $b >> ColorThief::RSHIFT];
@@ -381,9 +371,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @dataProvider provide8bitsColorIndex
-     */
+    #[DataProvider('provide8bitsColorIndex')]
     public function testGetColorsFromIndex8bits(int $r, int $g, int $b, int $index): void
     {
         $this->assertSame(
@@ -395,7 +383,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testVboxFromPixels(): void
     {
         $method = new \ReflectionMethod(ColorThief::class, 'vboxFromHistogram');
-        $method->setAccessible(true);
+
 
         // [[229, 210, 51], [133, 24, 135], [216, 235, 108], [132, 25, 134], [223, 46, 29],
         // [135, 28, 132], [233, 133, 213], [225, 212, 48]]
@@ -427,7 +415,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testVboxFromSingleColorHistogram(): void
     {
         $method = new \ReflectionMethod(ColorThief::class, 'vboxFromHistogram');
-        $method->setAccessible(true);
+
 
         $histo = [
             26756 => 120000,
@@ -446,7 +434,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testDoCutLeftLeatherThanRight(): void
     {
         $method = new \ReflectionMethod(ColorThief::class, 'doCut');
-        $method->setAccessible(true);
+
 
         // $left <= $right
         $result = $method->invoke(
@@ -467,7 +455,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testDoCutLeftGreaterThanRight(): void
     {
         $method = new \ReflectionMethod(ColorThief::class, 'doCut');
-        $method->setAccessible(true);
+
 
         // $left > $right
         $result = $method->invoke(

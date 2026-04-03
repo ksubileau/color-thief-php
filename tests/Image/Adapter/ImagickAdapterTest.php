@@ -16,16 +16,13 @@ namespace ColorThief\Tests\Image\Adapter;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\Adapter\ImagickAdapter;
-use Imagick;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/**
- * @requires extension imagick
- */
+#[RequiresPhpExtension('imagick')]
 class ImagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance()
     {
-        // The loader requires a non-empty Imagick object for the color space check
         return new \Imagick(__DIR__.'/../../images/blank.png');
     }
 
@@ -36,7 +33,6 @@ class ImagickAdapterTest extends AbstractAdapterTest
 
     protected function checkIsLoaded(AdapterInterface $adapter): void
     {
-        // Checks object state
         $image = $adapter->getResource();
         $this->assertInstanceOf('\Imagick', $image);
         $this->assertTrue($image->valid());
@@ -47,7 +43,6 @@ class ImagickAdapterTest extends AbstractAdapterTest
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument is not an instance of Imagick.');
 
-        // We want to check also the specific exception message.
         parent::testLoadInvalidArgument();
     }
 

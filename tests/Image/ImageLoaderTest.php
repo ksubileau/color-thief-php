@@ -70,9 +70,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         return $loader;
     }
 
-    /**
-     * @requires extension gd
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('gd')]
     public function testLoadGDResource(): void
     {
         $image = imagecreate(18, 18);
@@ -84,9 +82,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($adapter, $loader->load($image));
     }
 
-    /**
-     * @requires extension imagick
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('imagick')]
     public function testLoadImagickResource(): void
     {
         $image = new \Imagick();
@@ -98,9 +94,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($adapter, $loader->load($image));
     }
 
-    /**
-     * @requires extension gmagick
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('gmagick')]
     public function testLoadGmagickResource(): void
     {
         $image = new \Gmagick();
@@ -239,9 +233,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->loader->createAdapter('Lorem');
     }
 
-    /**
-     * @requires extension imagick
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('imagick')]
     public function testIsImagick(): void
     {
         $this->assertTrue($this->loader->isImagick(new \Imagick()));
@@ -249,9 +241,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->loader->isImagick(null));
     }
 
-    /**
-     * @requires extension gmagick
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('gmagick')]
     public function testIsGmagick(): void
     {
         $this->assertTrue($this->loader->isGmagick(new \Gmagick()));
@@ -259,9 +249,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->loader->isGmagick(null));
     }
 
-    /**
-     * @requires extension gd
-     */
+    #[\PHPUnit\Framework\Attributes\RequiresPhpExtension('gd')]
     public function testIsGdImage(): void
     {
         $resource = imagecreate(18, 18);

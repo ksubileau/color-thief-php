@@ -18,8 +18,7 @@ use ColorThief\VBox;
 
 class VBoxTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var VBox */
-    protected $vbox;
+    protected ?VBox $vbox = null;
 
     protected function setUp(): void
     {
@@ -31,9 +30,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->vbox = null;
     }
 
-    /**
-     * @covers \ColorThief\VBox::volume
-     */
     public function testVolume(): void
     {
         $this->vbox->r1 = 0;
@@ -55,9 +51,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(16777216, $this->vbox->volume(true));
     }
 
-    /**
-     * @covers \ColorThief\VBox::copy
-     */
     public function testCopy(): void
     {
         $this->vbox->histo = [25 => 8];
@@ -72,9 +65,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($this->vbox->histo, $copy->histo);
     }
 
-    /**
-     * @covers \ColorThief\VBox::count
-     */
     public function testCount(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
@@ -84,7 +74,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->vbox->b1 = 130 >> ColorThief::RSHIFT;
         $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
 
-        // $pixels = array(0xE1BE9E, 0xC8BD9E, 0xFFBD9E, 0xE1329E, 0xE1C89E, 0xE1BD64, 0xE1BDC8);
         $this->vbox->histo = [
             29427 => 1,
             26355 => 1,
@@ -106,9 +95,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(3, $this->vbox->count(true));
     }
 
-    /**
-     * @covers \ColorThief\VBox::contains
-     */
     public function testContains(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
@@ -130,9 +116,6 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->vbox->contains([225, 189, 200]));
     }
 
-    /**
-     * @covers \ColorThief\VBox::longestAxis
-     */
     public function testLongestAxis(): void
     {
         $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
@@ -152,7 +135,7 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Test that avg() always returns values leather than 255.
+     * Test that avg() always returns values less than or equal to 255.
      *
      * @see Issue #24
      */
