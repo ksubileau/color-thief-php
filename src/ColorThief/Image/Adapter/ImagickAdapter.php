@@ -16,12 +16,12 @@ namespace ColorThief\Image\Adapter;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
-use Imagick;
 
 class ImagickAdapter extends AbstractAdapter
 {
-    /** @var Imagick|null */
+    /** @var \Imagick|null */
     protected ?object $resource = null;
+
     public static function isAvailable(): bool
     {
         return extension_loaded('imagick') && class_exists('Imagick');
@@ -29,11 +29,11 @@ class ImagickAdapter extends AbstractAdapter
 
     public function load(mixed $resource): AdapterInterface
     {
-        if (!($resource instanceof Imagick)) {
+        if (!$resource instanceof \Imagick) {
             throw new InvalidArgumentException('Argument is not an instance of Imagick.');
         }
 
-        if (Imagick::COLORSPACE_CMYK == $resource->getImageColorspace()) {
+        if (\Imagick::COLORSPACE_CMYK == $resource->getImageColorspace()) {
             // Leave original object unmodified
             $resource = clone $resource;
 
@@ -46,9 +46,9 @@ class ImagickAdapter extends AbstractAdapter
             // but for later versions (6.9.7 and 7.0.8 have been tested), conversion to SRGB seems to be required
             $imageMagickVersion = $resource->getVersion();
             if ($imageMagickVersion['versionNumber'] > 1655) {
-                $resource->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+                $resource->transformImageColorspace(\Imagick::COLORSPACE_SRGB);
             } else {
-                $resource->transformImageColorspace(Imagick::COLORSPACE_RGB);
+                $resource->transformImageColorspace(\Imagick::COLORSPACE_RGB);
             }
         }
 
@@ -57,7 +57,7 @@ class ImagickAdapter extends AbstractAdapter
 
     public function loadFromBinary(string $data): AdapterInterface
     {
-        $resource = new Imagick();
+        $resource = new \Imagick();
         try {
             $resource->readImageBlob($data);
         } catch (\ImagickException $e) {
@@ -70,7 +70,7 @@ class ImagickAdapter extends AbstractAdapter
     public function loadFromPath(string $file): AdapterInterface
     {
         try {
-            $resource = new Imagick($file);
+            $resource = new \Imagick($file);
         } catch (\ImagickException $e) {
             throw new NotReadableException("Unable to read image from path ({$file}).", 0, $e);
         }
@@ -78,9 +78,9 @@ class ImagickAdapter extends AbstractAdapter
         return $this->load($resource);
     }
 
-    private function imagick(): Imagick
+    private function imagick(): \Imagick
     {
-        if (!$this->resource instanceof Imagick) {
+        if (!$this->resource instanceof \Imagick) {
             throw new \RuntimeException('No image loaded.');
         }
 
@@ -89,7 +89,7 @@ class ImagickAdapter extends AbstractAdapter
 
     public function destroy(): void
     {
-        if ($this->resource instanceof Imagick) {
+        if ($this->resource instanceof \Imagick) {
             $this->resource->clear();
         }
         parent::destroy();

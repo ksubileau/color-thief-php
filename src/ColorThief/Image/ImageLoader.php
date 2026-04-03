@@ -72,11 +72,11 @@ class ImageLoader
     {
         if (null === $preferredAdapter) {
             // Select first available adapter
-            if (\ColorThief\Image\Adapter\ImagickAdapter::isAvailable()) {
+            if (Adapter\ImagickAdapter::isAvailable()) {
                 $preferredAdapter = 'Imagick';
-            } elseif (\ColorThief\Image\Adapter\GmagickAdapter::isAvailable()) {
+            } elseif (Adapter\GmagickAdapter::isAvailable()) {
                 $preferredAdapter = 'Gmagick';
-            } elseif (\ColorThief\Image\Adapter\GdAdapter::isAvailable()) {
+            } elseif (Adapter\GdAdapter::isAvailable()) {
                 $preferredAdapter = 'Gd';
             } else {
                 throw new NotSupportedException('At least one of GD, Imagick or Gmagick extension must be installed. None of them was found.');
@@ -91,8 +91,10 @@ class ImageLoader
                 throw new NotSupportedException("Image adapter ({$adapterName}) could not be instantiated.");
             }
 
-            /** @var AdapterInterface */
-            return new $adapterClass();
+            /** @var AdapterInterface $adapter */
+            $adapter = new $adapterClass();
+
+            return $adapter;
         }
 
         return $preferredAdapter;

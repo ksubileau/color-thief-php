@@ -44,7 +44,7 @@ abstract class AbstractAdapter implements AdapterInterface
     public function loadFromUrl(string $url): AdapterInterface
     {
         $context = stream_context_create([
-                'http' => [
+            'http' => [
                 'method' => 'GET',
                 // force use HTTP 1.1 for service mesh environment with envoy
                 'protocol_version' => 1.1,
@@ -69,7 +69,7 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->resource = null;
     }
 
-    public function getResource(): object|null
+    public function getResource(): ?object
     {
         return $this->resource;
     }

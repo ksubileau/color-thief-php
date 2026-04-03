@@ -452,7 +452,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $result = $method->invoke(
             null,
             'g',
-            new \ColorThief\VBox(0, 20, 0, 31, 0, 31, []),
+            new VBox(0, 20, 0, 31, 0, 31, []),
             [38, 149, 556, 1222, 1830, 2656, 3638, 4744, 6039, 7412, 9039, 10686, 12244, 13715, 15091, 16355, 17599, 18768, 19771,
                 20925, 22257, 24094, 25782, 27585, 28796, 29794, 30258, 30290, 30298, 30301, 30301, 30301, ],
             30301,
@@ -460,8 +460,8 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 12702, 11533, 10530, 9376, 8044, 6207, 4519, 2716, 1505, 507, 43, 11, 3, 0, 0, 0, ]
         );
 
-        $this->assertEquals(new \ColorThief\VBox(0, 20, 0, 23, 0, 31, []), $result[0]);
-        $this->assertEquals(new \ColorThief\VBox(0, 20, 24, 31, 0, 31, []), $result[1]);
+        $this->assertEquals(new VBox(0, 20, 0, 23, 0, 31, []), $result[0]);
+        $this->assertEquals(new VBox(0, 20, 24, 31, 0, 31, []), $result[1]);
     }
 
     public function testDoCutLeftGreaterThanRight(): void
@@ -473,13 +473,13 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $result = $method->invoke(
             null,
             'g',
-            new \ColorThief\VBox(0, 13, 0, 17, 0, 10, []),
+            new VBox(0, 13, 0, 17, 0, 10, []),
             [38, 149, 512, 1151, 1741, 2554, 3530, 4624, 5899, 7247, 8788, 10261, 11645, 12906, 13969, 14871, 15654, 16329],
             16329,
             [16291, 16180, 15817, 15178, 14588, 13775, 12799, 11705, 10430, 9082, 7541, 6068, 4684, 3423, 2360, 1458, 675, 0]
         );
 
-        $this->assertEquals(new \ColorThief\VBox(0, 13, 0, 4, 0, 10, []), $result[0]);
-        $this->assertEquals(new \ColorThief\VBox(0, 13, 5, 17, 0, 10, []), $result[1]);
+        $this->assertEquals(new VBox(0, 13, 0, 4, 0, 10, []), $result[0]);
+        $this->assertEquals(new VBox(0, 13, 5, 17, 0, 10, []), $result[1]);
     }
 }

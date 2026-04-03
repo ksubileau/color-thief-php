@@ -15,12 +15,12 @@ namespace ColorThief\Image\Adapter;
 
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
-use Gmagick;
 
 class GmagickAdapter extends AbstractAdapter
 {
-    /** @var Gmagick|null */
+    /** @var \Gmagick|null */
     protected ?object $resource = null;
+
     public static function isAvailable(): bool
     {
         return extension_loaded('gmagick') && class_exists('Gmagick');
@@ -28,14 +28,14 @@ class GmagickAdapter extends AbstractAdapter
 
     public function load(mixed $resource): AdapterInterface
     {
-        if (!($resource instanceof Gmagick)) {
+        if (!$resource instanceof \Gmagick) {
             throw new InvalidArgumentException('Argument is not an instance of Gmagick.');
         }
 
-        if (Gmagick::COLORSPACE_CMYK == $resource->getImageColorSpace()) {
+        if (\Gmagick::COLORSPACE_CMYK == $resource->getImageColorSpace()) {
             // Leave original object unmodified
             $resource = clone $resource;
-            $resource->setImageColorspace(Gmagick::COLORSPACE_RGB);
+            $resource->setImageColorspace(\Gmagick::COLORSPACE_RGB);
         }
 
         return parent::load($resource);
@@ -43,7 +43,7 @@ class GmagickAdapter extends AbstractAdapter
 
     public function loadFromBinary(string $data): AdapterInterface
     {
-        $resource = new Gmagick();
+        $resource = new \Gmagick();
         try {
             $resource->readImageBlob($data);
         } catch (\GmagickException $e) {
@@ -57,7 +57,7 @@ class GmagickAdapter extends AbstractAdapter
     {
         $resource = null;
         try {
-            $resource = new Gmagick($file);
+            $resource = new \Gmagick($file);
         } catch (\GmagickException $e) {
             throw new NotReadableException("Unable to read image from path ({$file}).", 0, $e);
         }
@@ -65,9 +65,9 @@ class GmagickAdapter extends AbstractAdapter
         return $this->load($resource);
     }
 
-    private function gmagick(): Gmagick
+    private function gmagick(): \Gmagick
     {
-        if (!$this->resource instanceof Gmagick) {
+        if (!$this->resource instanceof \Gmagick) {
             throw new \RuntimeException('No image loaded.');
         }
 
@@ -76,7 +76,7 @@ class GmagickAdapter extends AbstractAdapter
 
     public function destroy(): void
     {
-        if ($this->resource instanceof Gmagick) {
+        if ($this->resource instanceof \Gmagick) {
             $this->resource->clear();
             $this->resource->destroy();
         }
@@ -99,7 +99,7 @@ class GmagickAdapter extends AbstractAdapter
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
         $pixel = array_shift($histogram);
 
-        if ($pixel === null) {
+        if (null === $pixel) {
             throw new \RuntimeException("Failed to get pixel color at ({$x}, {$y}): empty histogram");
         }
 
