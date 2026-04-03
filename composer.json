@@ -44,7 +44,7 @@
     },
 
     "scripts": {
-        "test": "phpunit --colors=always tests/",
+        "test": "phpunit",
         "stan": "phpstan analyse src/ --level=8",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix"

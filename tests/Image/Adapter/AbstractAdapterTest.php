@@ -17,6 +17,8 @@ use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use ColorThief\Image\Adapter\AdapterInterface;
 
+use PHPUnit\Framework\Attributes\Depends;
+
 abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
 {
     /**
@@ -157,25 +159,19 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
         $adapter->loadFromBinary('test');
     }
 
-    /**
-     * @depends testLoadFilePng
-     */
+    #[Depends('testLoadFilePng')]
     public function testGetHeight(AdapterInterface $adapter): void
     {
         $this->assertSame(5, $adapter->getHeight());
     }
 
-    /**
-     * @depends testLoadFilePng
-     */
+    #[Depends('testLoadFilePng')]
     public function testGetWidth(AdapterInterface $adapter): void
     {
         $this->assertSame(6, $adapter->getWidth());
     }
 
-    /**
-     * @depends testLoadFilePng
-     */
+    #[Depends('testLoadFilePng')]
     public function testGetPixelColor(AdapterInterface $adapter): void
     {
         $this->assertEquals(new \ColorThief\Image\PixelColor(100, 50, 25, 0), $adapter->getPixelColor(1, 0));
@@ -185,9 +181,7 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(new \ColorThief\Image\PixelColor(255, 255, 255, 127), $adapter->getPixelColor(1, 4));
     }
 
-    /**
-     * @depends testLoadFileCmykJpg
-     */
+    #[Depends('testLoadFileCmykJpg')]
     public function testGetPixelColorFromCmykJpg(AdapterInterface $adapter): void
     {
         $this->assertEquals(new \ColorThief\Image\PixelColor(192, 0, 0, 0), $adapter->getPixelColor(1, 0));
@@ -197,9 +191,7 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(new \ColorThief\Image\PixelColor(255, 255, 255, 0), $adapter->getPixelColor(2, 1));
     }
 
-    /**
-     * @depends testLoad
-     */
+    #[Depends('testLoad')]
     public function testDestroy(AdapterInterface $adapter): void
     {
         $adapter->destroy();

@@ -54,7 +54,7 @@ abstract class AbstractAdapter implements AdapterInterface
             ],
         ]);
 
-        $data = file_get_contents($url, false, $context);
+        $data = @file_get_contents($url, false, $context);
 
         if (false === $data) {
             throw new NotReadableException("Unable to load image from url ({$url}).");
