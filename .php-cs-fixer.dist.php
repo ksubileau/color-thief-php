@@ -12,8 +12,7 @@ file that was distributed with this source code.
 HEADER;
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__ . '/src')
-    ->in(__DIR__ . '/tests');
+    ->in(__DIR__ . '/src');
 
 $config = new PhpCsFixer\Config();
 return $config->setRules([
@@ -30,6 +29,8 @@ return $config->setRules([
         'no_useless_return' => true,
         'phpdoc_order' => true,
         'trailing_comma_in_multiline' => true,
+        'increment_style' => false,
+        'long_to_shorthand_operator' => false,
         'native_constant_invocation' => false,
         'native_function_invocation' => false,
         'visibility_required' => [
