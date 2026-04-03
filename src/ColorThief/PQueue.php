@@ -20,20 +20,13 @@ namespace ColorThief;
  */
 class PQueue
 {
-    /**
-     * @var array
-     * @phpstan-var array<T>
-     */
-    private $contents = [];
+    /** @phpstan-var array<T> */
+    private array $contents = [];
 
-    /** @var bool */
-    private $sorted = false;
+    private bool $sorted = false;
 
-    /**
-     * @var callable
-     * @phpstan-var callable(T, T): int
-     */
-    private $comparator = null;
+    /** @phpstan-var callable(T, T): int */
+    private mixed $comparator;
 
     public function __construct(callable $comparator)
     {
@@ -47,20 +40,18 @@ class PQueue
     }
 
     /**
-     * @param mixed $object
      * @phpstan-param T $object
      */
-    public function push($object): void
+    public function push(mixed $object): void
     {
         $this->contents[] = $object;
         $this->sorted = false;
     }
 
     /**
-     * @return mixed
      * @phpstan-return T
      */
-    public function peek(?int $index = null)
+    public function peek(?int $index = null): mixed
     {
         if (!$this->sorted) {
             $this->sort();
@@ -74,10 +65,9 @@ class PQueue
     }
 
     /**
-     * @return mixed|null
      * @phpstan-return T|null
      */
-    public function pop()
+    public function pop(): mixed
     {
         if (!$this->sorted) {
             $this->sort();
@@ -115,10 +105,9 @@ class PQueue
     }
 
     /**
-     * @return array<T>
      * @phpstan-return array<T>
      */
-    public function getContent(bool $sorted = true)
+    public function getContent(bool $sorted = true): array
     {
         if ($sorted && !$this->sorted) {
             $this->sort();
