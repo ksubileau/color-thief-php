@@ -18,6 +18,8 @@ use ColorThief\Exception\NotReadableException;
 
 class GdAdapter extends AbstractAdapter
 {
+    /** @var \GdImage|null */
+    protected ?object $resource = null;
     public static function isAvailable(): bool
     {
         return extension_loaded('gd') && function_exists('gd_info');
@@ -90,20 +92,32 @@ class GdAdapter extends AbstractAdapter
         parent::destroy();
     }
 
+    private function gd(): \GdImage
+    {
+        if (!$this->resource instanceof \GdImage) {
+            throw new \RuntimeException('No image loaded.');
+        }
+
+        return $this->resource;
+    }
+
     public function getHeight(): int
     {
-        return imagesy($this->resource);
+        return imagesy($this->gd());
     }
 
     public function getWidth(): int
     {
-        return imagesx($this->resource);
+        return imagesx($this->gd());
     }
 
     public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
-        $rgba = imagecolorat($this->resource, $x, $y);
-        $color = imagecolorsforindex($this->resource, $rgba);
+        $rgba = imagecolorat($this->gd(), $x, $y);
+        if ($rgba === false) {
+            throw new \RuntimeException("Failed to get pixel color at ({$x}, {$y})");
+        }
+        $color = imagecolorsforindex($this->gd(), $rgba);
 
         return new \ColorThief\Image\PixelColor(
             red: $color['red'],

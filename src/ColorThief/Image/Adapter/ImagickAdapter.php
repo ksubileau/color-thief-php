@@ -20,6 +20,8 @@ use Imagick;
 
 class ImagickAdapter extends AbstractAdapter
 {
+    /** @var Imagick|null */
+    protected ?object $resource = null;
     public static function isAvailable(): bool
     {
         return extension_loaded('imagick') && class_exists('Imagick');
@@ -76,9 +78,18 @@ class ImagickAdapter extends AbstractAdapter
         return $this->load($resource);
     }
 
+    private function imagick(): Imagick
+    {
+        if (!$this->resource instanceof Imagick) {
+            throw new \RuntimeException('No image loaded.');
+        }
+
+        return $this->resource;
+    }
+
     public function destroy(): void
     {
-        if ($this->resource) {
+        if ($this->resource instanceof Imagick) {
             $this->resource->clear();
         }
         parent::destroy();
@@ -86,18 +97,18 @@ class ImagickAdapter extends AbstractAdapter
 
     public function getHeight(): int
     {
-        return $this->resource->getImageHeight();
+        return $this->imagick()->getImageHeight();
     }
 
     public function getWidth(): int
     {
-        return $this->resource->getImageWidth();
+        return $this->imagick()->getImageWidth();
     }
 
     public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         /** @var \ImagickPixel $pixel */
-        $pixel = $this->resource->getImagePixelColor($x, $y);
+        $pixel = $this->imagick()->getImagePixelColor($x, $y);
 
         // Un-normalized values don't give a full range 0-1 alpha channel
         // So we ask for normalized values, and then we un-normalize it ourselves.
