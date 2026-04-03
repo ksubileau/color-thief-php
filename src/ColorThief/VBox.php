@@ -15,43 +15,29 @@ namespace ColorThief;
 
 class VBox
 {
-    /** @var int */
-    public $r1;
-    /** @var int */
-    public $r2;
-    /** @var int */
-    public $g1;
-    /** @var int */
-    public $g2;
-    /** @var int */
-    public $b1;
-    /** @var int */
-    public $b2;
+    public int $r1;
+    public int $r2;
+    public int $g1;
+    public int $g2;
+    public int $b1;
+    public int $b2;
 
     /** @var array<int, int> */
-    public $histo;
+    public array $histo;
 
-    /** @var int */
-    private $volume;
-    /** @var bool */
-    private $volume_set = false;
+    private int $volume = 0;
+    private bool $volume_set = false;
 
-    /** @var int */
-    private $count;
-    /** @var bool */
-    private $count_set = false;
+    private int $count = 0;
+    private bool $count_set = false;
 
     /**
-     * @var array
      * @phpstan-var ColorRGB
      */
-    private $avg;
-    /** @var bool */
-    private $avg_set = false;
+    private array $avg = [];
+    private bool $avg_set = false;
 
     /**
-     * VBox constructor.
-     *
      * @param array<int, int> $histo
      */
     public function __construct(int $r1, int $r2, int $g1, int $g2, int $b1, int $b2, array $histo)
@@ -164,14 +150,13 @@ class VBox
                     (int) ($bsum / $ntot),
                 ];
             } else {
-                // echo 'empty box'."\n";
                 $this->avg = [
                     (int) ($mult * ($this->r1 + $this->r2 + 1) / 2),
                     (int) ($mult * ($this->g1 + $this->g2 + 1) / 2),
                     (int) ($mult * ($this->b1 + $this->b2 + 1) / 2),
                 ];
 
-                // Ensure all channel values are leather or equal 255 (Issue #24)
+                // Ensure all channel values are less than or equal to 255 (Issue #24)
                 $this->avg = array_map(function ($val) {
                     return min($val, 255);
                 }, $this->avg);
