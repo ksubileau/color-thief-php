@@ -505,9 +505,9 @@ class ColorThief
         }
 
         // check that we aren't below maxcolors already
-        //if (count($histo) <= $maxcolors) {
+        // if (count($histo) <= $maxcolors) {
         // XXX: generate the new colors from the histo and return
-        //}
+        // }
 
         $vBox = self::vboxFromHistogram($histo);
 
