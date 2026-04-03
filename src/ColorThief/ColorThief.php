@@ -243,7 +243,7 @@ class ColorThief
             // Count this pixel in its histogram bucket.
             ++$numUsefulPixels;
             $bucketIndex = self::getColorIndex($color->red, $color->green, $color->blue);
-            ++$histoSpl[$bucketIndex];
+            $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
         }
 
         // Copy the histogram buckets that had pixels back to a normal array.
