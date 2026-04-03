@@ -15,58 +15,25 @@ namespace ColorThief;
 
 use ColorThief\Exception\NotSupportedException;
 
-class Color
+readonly class Color
 {
-    /**
-     * RGB Red value of current color instance.
-     *
-     * @var int
-     */
-    private $red;
-
-    /**
-     * RGB Green value of current color instance.
-     *
-     * @var int
-     */
-    private $green;
-
-    /**
-     * RGB Blue value of current color instance.
-     *
-     * @var int
-     */
-    private $blue;
-
-    /**
-     * Creates new instance.
-     */
-    public function __construct(int $red = 0, int $green = 0, int $blue = 0)
-    {
-        $this->red = $red;
-        $this->green = $green;
-        $this->blue = $blue;
+    public function __construct(
+        private int $red = 0,
+        private int $green = 0,
+        private int $blue = 0,
+    ) {
     }
 
-    /**
-     * Get red value.
-     */
     public function getRed(): int
     {
         return $this->red;
     }
 
-    /**
-     * Get green value.
-     */
     public function getGreen(): int
     {
         return $this->green;
     }
 
-    /**
-     * Get blue value.
-     */
     public function getBlue(): int
     {
         return $this->blue;
@@ -112,32 +79,18 @@ class Color
      * @return string|int|array|self
      * @phpstan-return ColorRGB|string|int|self
      */
-    public function format(string $type)
+    public function format(string $type): string|int|array|self
     {
-        switch (strtolower($type)) {
-            case 'rgb':
-                return $this->getRgb();
-
-            case 'hex':
-                return $this->getHex('#');
-
-            case 'int':
-                return $this->getInt();
-
-            case 'array':
-                return $this->getArray();
-
-            case 'obj':
-                return $this;
-
-            default:
-                throw new NotSupportedException("Color format ({$type}) is not supported.");
-        }
+        return match (strtolower($type)) {
+            'rgb' => $this->getRgb(),
+            'hex' => $this->getHex('#'),
+            'int' => $this->getInt(),
+            'array' => $this->getArray(),
+            'obj' => $this,
+            default => throw new NotSupportedException("Color format ({$type}) is not supported."),
+        };
     }
 
-    /**
-     * Get color as string.
-     */
     public function __toString(): string
     {
         return $this->getHex('#');
