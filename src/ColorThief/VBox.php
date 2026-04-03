@@ -157,9 +157,7 @@ class VBox
                 ];
 
                 // Ensure all channel values are less than or equal to 255 (Issue #24)
-                $this->avg = array_map(function ($val) {
-                    return min($val, 255);
-                }, $this->avg);
+                $this->avg = array_map(static fn ($val) => min($val, 255), $this->avg);
             }
 
             $this->avg_set = true;
@@ -179,12 +177,12 @@ class VBox
         $blueBucket = $rgbValue[2] >> $rshift;
 
         return
-            $redBucket >= $this->r1 &&
-            $redBucket <= $this->r2 &&
-            $greenBucket >= $this->g1 &&
-            $greenBucket <= $this->g2 &&
-            $blueBucket >= $this->b1 &&
-            $blueBucket <= $this->b2;
+            $redBucket >= $this->r1
+            && $redBucket <= $this->r2
+            && $greenBucket >= $this->g1
+            && $greenBucket <= $this->g2
+            && $blueBucket >= $this->b1
+            && $blueBucket <= $this->b2;
     }
 
     /**

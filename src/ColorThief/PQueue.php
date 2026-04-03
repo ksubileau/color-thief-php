@@ -83,7 +83,9 @@ class PQueue
 
     /**
      * @phpstan-template R
+     *
      * @phpstan-param callable(T): R $function
+     *
      * @phpstan-return array<R>
      */
     public function map(callable $function, bool $sorted = true): array
