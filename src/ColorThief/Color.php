@@ -76,7 +76,6 @@ readonly class Color
     /**
      * Formats current color instance into given format.
      *
-     * @return string|int|array|self
      * @phpstan-return ColorRGB|string|int|self
      */
     public function format(string $type): string|int|array|self

@@ -66,5 +66,5 @@ interface AdapterInterface
     /**
      * Get the raw resource.
      */
-    public function getResource(): object|null;
+    public function getResource(): ?object;
 }

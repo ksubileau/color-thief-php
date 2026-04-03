@@ -26,7 +26,7 @@ class GmagickAdapterTest extends AbstractAdapterTest
     protected function getTestResourceInstance()
     {
         // The loader requires a non-empty GMagick object for the color space check
-        return new GMagick(__DIR__.'/../../images/blank.png');
+        return new \Gmagick(__DIR__.'/../../images/blank.png');
     }
 
     protected function getAdapterInstance(): AdapterInterface
@@ -52,7 +52,7 @@ class GmagickAdapterTest extends AbstractAdapterTest
 
     public function testLoadFileWebp(): AdapterInterface
     {
-        if (empty((new Gmagick())->queryFormats('WEBP'))) {
+        if (empty((new \Gmagick())->queryFormats('WEBP'))) {
             $this->markTestSkipped('Gmagick was not compiled with support for WebP format.');
         }
 

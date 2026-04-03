@@ -17,24 +17,27 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = new PhpCsFixer\Config();
 return $config->setRules([
-        '@PHP71Migration' => true,
-        '@PHP71Migration:risky' => true,
-        '@PHPUnit84Migration:risky' => true,
-        '@Symfony' => true,
-        '@Symfony:risky' => true,
-        'header_comment' => [
-            'header' => $header,
-            'location' => 'after_open',
-        ],
-        'no_useless_else' => true,
-        'no_useless_return' => true,
-        'phpdoc_order' => true,
-        'trailing_comma_in_multiline' => true,
-        'native_constant_invocation' => false,
-        'native_function_invocation' => false,
-        'visibility_required' => [
-            'elements' => ['const', 'method', 'property']
-        ]
-    ])
+    '@PHP8x2Migration' => true,
+    '@PHP8x2Migration:risky' => true,
+    '@PHPUnit11x0Migration:risky' => true,
+    '@Symfony' => true,
+    '@Symfony:risky' => true,
+    'header_comment' => [
+        'header' => $header,
+        'location' => 'after_open',
+    ],
+    'declare_strict_types' => true,
+    'no_useless_else' => true,
+    'no_useless_return' => true,
+    'phpdoc_order' => true,
+    'trailing_comma_in_multiline' => true,
+    'increment_style' => false,
+    'long_to_shorthand_operator' => false,
+    'native_constant_invocation' => false,
+    'native_function_invocation' => false,
+    'visibility_required' => [
+        'elements' => ['const', 'method', 'property'],
+    ],
+])
     ->setRiskyAllowed(true)
     ->setFinder($finder);
