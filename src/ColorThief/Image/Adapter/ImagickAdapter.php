@@ -94,7 +94,7 @@ class ImagickAdapter extends AbstractAdapter
         return $this->resource->getImageWidth();
     }
 
-    public function getPixelColor(int $x, int $y): \stdClass
+    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         /** @var \ImagickPixel $pixel */
         $pixel = $this->resource->getImagePixelColor($x, $y);
@@ -102,12 +102,12 @@ class ImagickAdapter extends AbstractAdapter
         // Un-normalized values don't give a full range 0-1 alpha channel
         // So we ask for normalized values, and then we un-normalize it ourselves.
         $colorArray = $pixel->getColor(1);
-        $color = new \stdClass();
-        $color->red = (int) round($colorArray['r'] * 255);
-        $color->green = (int) round($colorArray['g'] * 255);
-        $color->blue = (int) round($colorArray['b'] * 255);
-        $color->alpha = (int) (127 - round($colorArray['a'] * 127));
 
-        return $color;
+        return new \ColorThief\Image\PixelColor(
+            red: (int) round($colorArray['r'] * 255),
+            green: (int) round($colorArray['g'] * 255),
+            blue: (int) round($colorArray['b'] * 255),
+            alpha: (int) (127 - round($colorArray['a'] * 127)),
+        );
     }
 }
