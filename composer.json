@@ -45,7 +45,7 @@
 
     "scripts": {
         "test": "phpunit",
-        "stan": "phpstan analyse src/ --level=8",
+        "stan": ["phpstan clear-result-cache", "phpstan analyse"],
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix"
     }
