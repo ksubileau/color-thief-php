@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 #[RequiresPhpExtension('imagick')]
 class ImagickAdapterTest extends AbstractAdapterTest
 {
-    protected function getTestResourceInstance()
+    protected function getTestResourceInstance(): \Imagick
     {
         return new \Imagick(__DIR__.'/../../images/blank.png');
     }

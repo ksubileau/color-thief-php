@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
-    public static function provideImageDominantColor()
+    public static function provideImageDominantColor(): array
     {
         return [
             [
@@ -66,7 +66,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public static function provideImageColorPalette()
+    public static function provideImageColorPalette(): array
     {
         return [
             [
@@ -140,7 +140,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public static function provide8bitsColorIndex()
+    public static function provide8bitsColorIndex(): array
     {
         return [
             [0, 0, 0, 0],
@@ -149,7 +149,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public static function provide5bitsColorIndex()
+    public static function provide5bitsColorIndex(): array
     {
         return [
             [0,     0,   0,  0b000000000000000],

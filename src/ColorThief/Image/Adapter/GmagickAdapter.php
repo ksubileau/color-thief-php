@@ -32,7 +32,7 @@ class GmagickAdapter extends AbstractAdapter
             throw new InvalidArgumentException('Argument is not an instance of Gmagick.');
         }
 
-        if (\Gmagick::COLORSPACE_CMYK == $resource->getImageColorSpace()) {
+        if (\Gmagick::COLORSPACE_CMYK === $resource->getImageColorSpace()) {
             // Leave original object unmodified
             $resource = clone $resource;
             $resource->setImageColorspace(\Gmagick::COLORSPACE_RGB);
@@ -113,7 +113,7 @@ class GmagickAdapter extends AbstractAdapter
             red: (int) round($colorArray['r'] * 255),
             green: (int) round($colorArray['g'] * 255),
             blue: (int) round($colorArray['b'] * 255),
-            alpha: (int) round((float) $pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
+            alpha: (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
         );
     }
 }
