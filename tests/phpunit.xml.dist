@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
         backupGlobals="false"
-        backupStaticAttributes="false"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
         colors="true"
         processIsolation="false"
         stopOnFailure="false"
@@ -12,11 +8,12 @@
     <testsuites>
         <testsuite name="Color Thief PHP Test Suite">
             <directory>.</directory>
+            <exclude>Image/Adapter/AbstractAdapterTest.php</exclude>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
+    <source>
+        <include>
             <directory>../src/</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </source>
 </phpunit>
