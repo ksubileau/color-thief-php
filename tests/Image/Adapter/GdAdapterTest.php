@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 #[RequiresPhpExtension('gd')]
 class GdAdapterTest extends AbstractAdapterTest
 {
-    protected function getTestResourceInstance()
+    protected function getTestResourceInstance(): \GdImage|false
     {
         return imagecreate(80, 20);
     }

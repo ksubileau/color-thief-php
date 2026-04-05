@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 #[RequiresPhpExtension('gmagick')]
 class GmagickAdapterTest extends AbstractAdapterTest
 {
-    protected function getTestResourceInstance()
+    protected function getTestResourceInstance(): \Gmagick
     {
         return new \Gmagick(__DIR__.'/../../images/blank.png');
     }

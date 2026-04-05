@@ -33,7 +33,7 @@ class ImagickAdapter extends AbstractAdapter
             throw new InvalidArgumentException('Argument is not an instance of Imagick.');
         }
 
-        if (\Imagick::COLORSPACE_CMYK == $resource->getImageColorspace()) {
+        if (\Imagick::COLORSPACE_CMYK === $resource->getImageColorspace()) {
             // Leave original object unmodified
             $resource = clone $resource;
 

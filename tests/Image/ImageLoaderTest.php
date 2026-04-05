@@ -44,7 +44,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         self::$mockGmagickAvailability = null;
     }
 
-    protected function getAdapterMock(string $method, $image)
+    protected function getAdapterMock(string $method, $image): \PHPUnit\Framework\MockObject\MockObject
     {
         $adapter = $this->createMock(AdapterInterface::class);
 
@@ -56,7 +56,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         return $adapter;
     }
 
-    protected function getImageLoaderPartialMock(?string $preferredAdapter, AdapterInterface $returnedAdapter)
+    protected function getImageLoaderPartialMock(?string $preferredAdapter, AdapterInterface $returnedAdapter): \PHPUnit\Framework\MockObject\MockObject
     {
         $loader = $this->getMockBuilder(ImageLoader::class)
             ->onlyMethods(['createAdapter'])
