@@ -134,7 +134,7 @@ class ImageLoader
         if (is_string($data)) {
             try {
                 return is_file($data);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return false;
             }
         }
@@ -172,7 +172,7 @@ class ImageLoader
                 finfo_close($finfo);
             }
 
-            return 'text' != substr($mime, 0, 4) && 'application/x-empty' != $mime;
+            return !str_starts_with($mime, 'text') && 'application/x-empty' !== $mime;
         }
 
         return false;

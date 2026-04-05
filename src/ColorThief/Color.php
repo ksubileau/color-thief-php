@@ -15,7 +15,7 @@ namespace ColorThief;
 
 use ColorThief\Exception\NotSupportedException;
 
-readonly class Color
+readonly class Color implements \Stringable
 {
     public function __construct(
         private int $red = 0,
