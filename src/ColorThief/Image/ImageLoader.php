@@ -105,7 +105,7 @@ class ImageLoader
      */
     public function isGdImage(mixed $data): bool
     {
-        return is_a($data, 'GdImage');
+        return \is_object($data) && is_a($data, 'GdImage');
     }
 
     /**
@@ -113,7 +113,7 @@ class ImageLoader
      */
     public function isImagick(mixed $data): bool
     {
-        return is_a($data, 'Imagick');
+        return \is_object($data) && is_a($data, 'Imagick');
     }
 
     /**
@@ -121,11 +121,13 @@ class ImageLoader
      */
     public function isGmagick(mixed $data): bool
     {
-        return is_a($data, 'Gmagick');
+        return \is_object($data) && is_a($data, 'Gmagick');
     }
 
     /**
      * Determines if given source data is a file path.
+     *
+     * @phpstan-assert-if-true =string $data
      */
     public function isFilePath(mixed $data): bool
     {
@@ -142,6 +144,8 @@ class ImageLoader
 
     /**
      * Determines if given source data is an url.
+     *
+     * @phpstan-assert-if-true =string $data
      */
     public function isUrl(mixed $data): bool
     {
@@ -150,6 +154,8 @@ class ImageLoader
 
     /**
      * Determines if given source data is binary data.
+     *
+     * @phpstan-assert-if-true =string $data
      */
     public function isBinary(mixed $data): bool
     {

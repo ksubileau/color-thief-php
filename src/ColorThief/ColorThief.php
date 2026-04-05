@@ -216,6 +216,7 @@ class ColorThief
         // Fill a SplArray with zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
         // There are 32768 buckets because each color is 5 bits (15 bits total for RGB values).
         $totalBuckets = (1 << (3 * self::SIGBITS));
+        /** @var \SplFixedArray<int> $histoSpl */
         $histoSpl = new \SplFixedArray($totalBuckets);
         for ($i = 0; $i < $totalBuckets; ++$i) {
             $histoSpl[$i] = 0;
@@ -250,7 +251,7 @@ class ColorThief
         $histo = [];
         foreach ($histoSpl as $bucketInt => $numPixels) {
             if ($numPixels > 0) {
-                $histo[(int) $bucketInt] = (int) $numPixels;
+                $histo[$bucketInt] = $numPixels;
             }
         }
 
@@ -300,19 +301,24 @@ class ColorThief
         $dim1 = $color.'1';
         $dim2 = $color.'2';
 
-        for ($i = $vBox->$dim1; $i <= $vBox->$dim2; ++$i) {
+        /** @var int $lo */
+        $lo = $vBox->$dim1;
+        /** @var int $hi */
+        $hi = $vBox->$dim2;
+
+        for ($i = $lo; $i <= $hi; ++$i) {
             if ($partialSum[$i] > $total / 2) {
                 $vBox1 = $vBox->copy();
                 $vBox2 = $vBox->copy();
-                $left = $i - $vBox->$dim1;
-                $right = $vBox->$dim2 - $i;
+                $left = $i - $lo;
+                $right = $hi - $i;
 
                 // Choose the cut plane within the greater of the (left, right) sides
                 // of the bin in which the median pixel resides
                 if ($left <= $right) {
-                    $d2 = min($vBox->$dim2 - 1, (int) ($i + $right / 2));
+                    $d2 = min($hi - 1, (int) ($i + $right / 2));
                 } else { /* left > right */
-                    $d2 = max($vBox->$dim1, (int) ($i - 1 - $left / 2));
+                    $d2 = max($lo, (int) ($i - 1 - $left / 2));
                 }
 
                 while (empty($partialSum[$d2])) {
@@ -388,6 +394,7 @@ class ColorThief
             foreach ($secondRange as $secondColor) {
                 foreach ($thirdRange as $thirdColor) {
                     // Rearrange color components
+                    /** @var array{r: int, g: int, b: int} $bucket */
                     $bucket = [
                         $colorIterateOrder[0] => $firstColor,
                         $colorIterateOrder[1] => $secondColor,
