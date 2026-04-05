@@ -51,9 +51,9 @@ class ImageLoader
             $source instanceof \GdImage,
             $this->isImagick($source),
             $this->isGmagick($source) => $image->load($source),
-            $this->isBinary($source) => $image->loadFromBinary($source),
-            $this->isUrl($source) => $image->loadFromUrl($source),
-            $this->isFilePath($source) => $image->loadFromPath($source),
+            \is_string($source) && $this->isBinary($source) => $image->loadFromBinary($source),
+            \is_string($source) && $this->isUrl($source) => $image->loadFromUrl($source),
+            \is_string($source) && $this->isFilePath($source) => $image->loadFromPath($source),
             default => throw new NotReadableException('Image source does not exists or is not readable.'),
         };
     }
@@ -95,12 +95,12 @@ class ImageLoader
 
     public function isImagick(mixed $data): bool
     {
-        return is_a($data, 'Imagick');
+        return \is_object($data) && is_a($data, 'Imagick');
     }
 
     public function isGmagick(mixed $data): bool
     {
-        return is_a($data, 'Gmagick');
+        return \is_object($data) && is_a($data, 'Gmagick');
     }
 
     public function isFilePath(mixed $data): bool
