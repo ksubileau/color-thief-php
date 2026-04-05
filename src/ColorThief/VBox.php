@@ -15,16 +15,6 @@ namespace ColorThief;
 
 class VBox
 {
-    public int $r1;
-    public int $r2;
-    public int $g1;
-    public int $g2;
-    public int $b1;
-    public int $b2;
-
-    /** @var array<int, int> */
-    public array $histo;
-
     private int $volume = 0;
     private bool $volume_set = false;
 
@@ -40,20 +30,13 @@ class VBox
     /**
      * @param array<int, int> $histo
      */
-    public function __construct(int $r1, int $r2, int $g1, int $g2, int $b1, int $b2, array $histo)
+    public function __construct(public int $r1, public int $r2, public int $g1, public int $g2, public int $b1, public int $b2, public array $histo)
     {
-        $this->r1 = $r1;
-        $this->r2 = $r2;
-        $this->g1 = $g1;
-        $this->g2 = $g2;
-        $this->b1 = $b1;
-        $this->b2 = $b2;
-        $this->histo = $histo;
     }
 
     public function volume(bool $force = false): int
     {
-        if (true !== $this->volume_set || $force) {
+        if (!$this->volume_set || $force) {
             $this->volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
             $this->volume_set = true;
         }
@@ -63,7 +46,7 @@ class VBox
 
     public function count(bool $force = false): int
     {
-        if (true !== $this->count_set || $force) {
+        if (!$this->count_set || $force) {
             $npix = 0;
 
             // Select the fastest way (i.e. with the fewest iterations) to count
@@ -114,7 +97,7 @@ class VBox
      */
     public function avg(bool $force = false): array
     {
-        if (true !== $this->avg_set || $force) {
+        if (!$this->avg_set || $force) {
             $ntot = 0;
             $mult = 1 << ColorThief::RSHIFT;
             $rsum = 0;
@@ -143,7 +126,7 @@ class VBox
                 }
             }
 
-            if ($ntot) {
+            if (0 !== $ntot) {
                 $this->avg = [
                     (int) ($rsum / $ntot),
                     (int) ($gsum / $ntot),
@@ -157,7 +140,7 @@ class VBox
                 ];
 
                 // Ensure all channel values are less than or equal to 255 (Issue #24)
-                $this->avg = array_map(static fn ($val) => min($val, 255), $this->avg);
+                $this->avg = array_map(static fn (int $val): int => min($val, 255), $this->avg);
             }
 
             $this->avg_set = true;

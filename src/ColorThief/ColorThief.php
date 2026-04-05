@@ -180,7 +180,7 @@ class ColorThief
         // using median cut algorithm
         $palette = self::quantize($numPixelsAnalyzed, $colorCount, $histo);
 
-        return array_map(static fn (Color $color) => $color->format($outputFormat), $palette);
+        return array_map(static fn (Color $color): string|int|Color|array => $color->format($outputFormat), $palette);
     }
 
     /**
@@ -274,7 +274,7 @@ class ColorThief
         $rgbMax = [-\PHP_INT_MAX, -\PHP_INT_MAX, -\PHP_INT_MAX];
 
         // find min/max
-        foreach ($histo as $bucketIndex => $count) {
+        foreach (array_keys($histo) as $bucketIndex) {
             $rgb = self::getColorsFromIndex($bucketIndex, self::SIGBITS);
 
             // For each color components
@@ -325,7 +325,7 @@ class ColorThief
                     ++$d2;
                 }
                 // Avoid 0-count boxes
-                while ($partialSum[$d2] >= $total && !empty($partialSum[$d2 - 1])) {
+                while ($partialSum[$d2] >= $total && (isset($partialSum[$d2 - 1]) && 0 !== $partialSum[$d2 - 1])) {
                     --$d2;
                 }
 
@@ -347,12 +347,12 @@ class ColorThief
      */
     private static function medianCutApply(array $histo, VBox $vBox): ?array
     {
-        if (!$vBox->count()) {
+        if (0 === $vBox->count()) {
             return null;
         }
 
         // If the vbox occupies just one element in color space, it can't be split
-        if (1 == $vBox->count()) {
+        if (1 === $vBox->count()) {
             return [
                 $vBox->copy(),
             ];
@@ -516,22 +516,21 @@ class ColorThief
         $vBox = self::vboxFromHistogram($histo);
 
         /** @var PQueue<VBox> $priorityQueue */
-        $priorityQueue = new PQueue(static fn (VBox $a, VBox $b) => $a->count() <=> $b->count());
+        $priorityQueue = new PQueue(static fn (VBox $a, VBox $b): int => $a->count() <=> $b->count());
         $priorityQueue->push($vBox);
 
         // first set of colors, sorted by population
         self::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
-        $priorityQueue->setComparator(static fn (VBox $a, VBox $b) => ($a->count() * $a->volume()) <=> ($b->count() * $b->volume()));
+        $priorityQueue->setComparator(static fn (VBox $a, VBox $b): int => ($a->count() * $a->volume()) <=> ($b->count() * $b->volume()));
 
         // next set - generate the median cuts using the (npix * vol) sorting.
         self::quantizeIter($priorityQueue, $maxColors, $histo);
 
         // calculate the actual colors
-        $colors = $priorityQueue->map(static fn (VBox $vbox) => new Color(...$vbox->avg()));
-        $colors = array_reverse($colors);
+        $colors = $priorityQueue->map(static fn (VBox $vbox): Color => new Color(...$vbox->avg()));
 
-        return $colors;
+        return array_reverse($colors);
     }
 }
