@@ -22,7 +22,8 @@
         "phpunit/phpunit": "^11.0",
         "friendsofphp/php-cs-fixer": "^3.75",
         "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-phpunit": "^2.0"
+        "phpstan/phpstan-phpunit": "^2.0",
+        "rector/rector": "^2.4"
     },
 
     "suggest": {
@@ -47,6 +48,10 @@
         "test": "phpunit",
         "stan": ["phpstan clear-result-cache", "phpstan analyse"],
         "cs": "php-cs-fixer fix --dry-run --diff",
-        "cs:fix": "php-cs-fixer fix"
+        "cs:fix": "php-cs-fixer fix",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
+        "quality": ["@stan", "@cs", "@rector"],
+        "clean": ["@rector:fix", "@cs:fix"]
     }
 }
