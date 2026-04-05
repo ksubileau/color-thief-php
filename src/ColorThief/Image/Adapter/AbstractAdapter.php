@@ -36,6 +36,7 @@ abstract class AbstractAdapter implements AdapterInterface
 
     public function load(mixed $resource): AdapterInterface
     {
+        \assert(\is_object($resource));
         $this->resource = $resource;
 
         return $this;

@@ -96,22 +96,24 @@ class GmagickAdapter extends AbstractAdapter
     public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
     {
         $cropped = clone $this->gmagick();    // No need to modify the original object.
+        /** @var \GmagickPixel[] $histogram */
         $histogram = $cropped->cropImage(1, 1, $x, $y)->getImageHistogram();
         $pixel = array_shift($histogram);
 
-        if (null === $pixel) {
+        if (!$pixel instanceof \GmagickPixel) {
             throw new \RuntimeException("Failed to get pixel color at ({$x}, {$y}): empty histogram");
         }
 
         // Un-normalized values don't give a full range 0-1 alpha channel
         // So we ask for normalized values, and then we un-normalize it ourselves.
+        /** @var array{r: float, g: float, b: float} $colorArray */
         $colorArray = $pixel->getColor(true, true);
 
         return new \ColorThief\Image\PixelColor(
             red: (int) round($colorArray['r'] * 255),
             green: (int) round($colorArray['g'] * 255),
             blue: (int) round($colorArray['b'] * 255),
-            alpha: (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
+            alpha: (int) round((float) $pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
         );
     }
 }
