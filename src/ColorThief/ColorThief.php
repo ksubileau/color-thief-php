@@ -512,7 +512,18 @@ class ColorThief
         self::quantizeIter($priorityQueue, $maxColors, $histo);
 
         // calculate the actual colors
-        $colors = $priorityQueue->map(static fn (VBox $vbox): Color => new Color(...$vbox->avg()));
+        $totalPopulation = $priorityQueue->reduce(static fn (int $carry, VBox $vbox): int => $carry + $vbox->count(), 0);
+        $colors = $priorityQueue->map(static function (VBox $vbox) use ($totalPopulation): Color {
+            $avg = $vbox->avg();
+
+            return new Color(
+                red: $avg[0],
+                green: $avg[1],
+                blue: $avg[2],
+                population: $vbox->count(),
+                proportion: $totalPopulation > 0 ? $vbox->count() / $totalPopulation : 0,
+            );
+        });
 
         return array_reverse($colors);
     }

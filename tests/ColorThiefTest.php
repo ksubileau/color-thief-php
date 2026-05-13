@@ -185,6 +185,8 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(88, $dominantColor->getRed());
         $this->assertEquals(70, $dominantColor->getGreen());
         $this->assertEquals(80, $dominantColor->getBlue());
+        $this->assertEquals(14734, $dominantColor->getPopulation());
+        $this->assertEqualsWithDelta(0.6048, $dominantColor->getProportion(), 1e-4);
     }
 
     /**

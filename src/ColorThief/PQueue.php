@@ -98,6 +98,23 @@ class PQueue
     }
 
     /**
+     * @phpstan-template R
+     *
+     * @phpstan-param callable(R, T): R $function
+     * @phpstan-param R $initial
+     *
+     * @phpstan-return R
+     */
+    public function reduce(callable $function, mixed $initial = null, bool $sorted = true): mixed
+    {
+        if ($sorted && !$this->sorted) {
+            $this->sort();
+        }
+
+        return array_reduce($this->contents, $function, $initial);
+    }
+
+    /**
      * @phpstan-param callable(T, T): int $function
      */
     public function setComparator(callable $function): void
