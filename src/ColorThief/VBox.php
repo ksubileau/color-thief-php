@@ -15,17 +15,13 @@ namespace ColorThief;
 
 class VBox
 {
-    private int $volume = 0;
-    private bool $volume_set = false;
-
-    private int $count = 0;
-    private bool $count_set = false;
+    private ?int $volume = null;
+    private ?int $count = null;
 
     /**
-     * @phpstan-var ColorRGB
+     * @phpstan-var ColorRGB|null
      */
-    private array $avg = [0, 0, 0];
-    private bool $avg_set = false;
+    private ?array $avg = null;
 
     /**
      * @param array<int, int> $histo
@@ -36,9 +32,8 @@ class VBox
 
     public function volume(bool $force = false): int
     {
-        if (!$this->volume_set || $force) {
+        if (null === $this->volume || $force) {
             $this->volume = (($this->r2 - $this->r1 + 1) * ($this->g2 - $this->g1 + 1) * ($this->b2 - $this->b1 + 1));
-            $this->volume_set = true;
         }
 
         return $this->volume;
@@ -46,7 +41,7 @@ class VBox
 
     public function count(bool $force = false): int
     {
-        if (!$this->count_set || $force) {
+        if (null === $this->count || $force) {
             $npix = 0;
 
             // Select the fastest way (i.e. with the fewest iterations) to count
@@ -79,7 +74,6 @@ class VBox
                 }
             }
             $this->count = $npix;
-            $this->count_set = true;
         }
 
         return $this->count;
@@ -97,7 +91,7 @@ class VBox
      */
     public function avg(bool $force = false): array
     {
-        if (!$this->avg_set || $force) {
+        if (null === $this->avg || $force) {
             $ntot = 0;
             $mult = 1 << ColorThief::RSHIFT;
             $rsum = 0;
@@ -142,8 +136,6 @@ class VBox
                 // Ensure all channel values are less than or equal to 255 (Issue #24)
                 $this->avg = array_map(static fn (int $val): int => min($val, 255), $this->avg);
             }
-
-            $this->avg_set = true;
         }
 
         return $this->avg;
