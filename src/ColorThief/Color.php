@@ -21,6 +21,8 @@ readonly class Color implements \Stringable
         private int $red = 0,
         private int $green = 0,
         private int $blue = 0,
+        private int $population = 0,
+        private float $proportion = 0,
     ) {
     }
 
@@ -37,6 +39,16 @@ readonly class Color implements \Stringable
     public function getBlue(): int
     {
         return $this->blue;
+    }
+
+    public function getPopulation(): int
+    {
+        return $this->population;
+    }
+
+    public function getProportion(): float
+    {
+        return $this->proportion;
     }
 
     /**
