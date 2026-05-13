@@ -469,7 +469,6 @@ class ColorThief
 
             if (!$vBox->count()) { /* just put it back */
                 $priorityQueue->push($vBox);
-                ++$nIterations;
                 continue;
             }
             // do the cut
