@@ -23,7 +23,7 @@ class ImagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance(): \Imagick
     {
-        return new \Imagick(__DIR__.'/../../images/blank.png');
+        return new \Imagick(__DIR__.'/../../images/white.png');
     }
 
     protected function getAdapterInstance(): AdapterInterface

@@ -16,6 +16,7 @@ namespace ColorThief\Image\Adapter;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
+use ColorThief\Image\PixelColor;
 
 class ImagickAdapter extends AbstractAdapter
 {
@@ -105,7 +106,7 @@ class ImagickAdapter extends AbstractAdapter
         return $this->imagick()->getImageWidth();
     }
 
-    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
+    public function getPixelColor(int $x, int $y): PixelColor
     {
         /** @var \ImagickPixel $pixel */
         $pixel = $this->imagick()->getImagePixelColor($x, $y);
@@ -114,11 +115,11 @@ class ImagickAdapter extends AbstractAdapter
         // So we ask for normalized values, and then we un-normalize it ourselves.
         $colorArray = $pixel->getColor(1);
 
-        return new \ColorThief\Image\PixelColor(
+        return new PixelColor(
             red: (int) round($colorArray['r'] * 255),
             green: (int) round($colorArray['g'] * 255),
             blue: (int) round($colorArray['b'] * 255),
-            alpha: (int) (127 - round($colorArray['a'] * 127)),
+            alpha: (int) (round($colorArray['a'] * 255)),
         );
     }
 }

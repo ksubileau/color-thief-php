@@ -23,7 +23,7 @@ class GmagickAdapterTest extends AbstractAdapterTest
 {
     protected function getTestResourceInstance(): \Gmagick
     {
-        return new \Gmagick(__DIR__.'/../../images/blank.png');
+        return new \Gmagick(__DIR__.'/../../images/white.png');
     }
 
     protected function getAdapterInstance(): AdapterInterface
