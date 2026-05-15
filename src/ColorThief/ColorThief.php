@@ -133,8 +133,8 @@ class ColorThief
         string $outputFormat = 'array',
         AdapterInterface|string|null $adapter = null,
     ): ?array {
-        if ($colorCount < 2 || $colorCount > 256) {
-            throw new InvalidArgumentException('The number of palette colors must be between 2 and 256 inclusive.');
+        if ($colorCount < 2 || $colorCount > 20) {
+            throw new InvalidArgumentException('The number of palette colors must be between 2 and 20 inclusive.');
         }
 
         if ($quality < 1) {

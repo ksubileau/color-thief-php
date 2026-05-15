@@ -175,7 +175,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
      */
     public function testPaletteColorCount(): void
     {
-        $testWith = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 32, 64, 128, 256];
+        $testWith = [2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20];
         foreach ($testWith as $numColors) {
             $image = '/images/single_color_PR41.png';
             $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
@@ -290,7 +290,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The number of palette colors');
 
-        ColorThief::getPalette('foo.jpg', 120000);
+        ColorThief::getPalette('foo.jpg', 21);
     }
 
     public function testGetPaletteWithInvalidQuality(): void
