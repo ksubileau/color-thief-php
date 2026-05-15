@@ -213,15 +213,7 @@ class ColorThief
             }
         }
 
-        // Fill a SplArray with zeroes to initialize the 5-bit buckets and avoid having to check isset in the pixel loop.
-        // There are 32768 buckets because each color is 5 bits (15 bits total for RGB values).
-        $totalBuckets = (1 << (3 * self::SIGBITS));
-        /** @var \SplFixedArray<int> $histoSpl */
-        $histoSpl = new \SplFixedArray($totalBuckets);
-        for ($i = 0; $i < $totalBuckets; ++$i) {
-            $histoSpl[$i] = 0;
-        }
-
+        $histo = [];
         $numUsefulPixels = 0;
         $pixelCount = $width * $height;
 
@@ -244,15 +236,7 @@ class ColorThief
             // Count this pixel in its histogram bucket.
             ++$numUsefulPixels;
             $bucketIndex = self::getColorIndex($color->red, $color->green, $color->blue);
-            $histoSpl[$bucketIndex] = $histoSpl[$bucketIndex] + 1;
-        }
-
-        // Copy the histogram buckets that had pixels back to a normal array.
-        $histo = [];
-        foreach ($histoSpl as $bucketInt => $numPixels) {
-            if ($numPixels > 0) {
-                $histo[$bucketInt] = $numPixels;
-            }
+            $histo[$bucketIndex] = ($histo[$bucketIndex] ?? 0) + 1;
         }
 
         // Don't destroy a resource passed by the user !
