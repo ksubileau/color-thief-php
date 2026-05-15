@@ -15,6 +15,7 @@ namespace ColorThief\Image\Adapter;
 
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
+use ColorThief\Image\PixelColor;
 
 class GmagickAdapter extends AbstractAdapter
 {
@@ -93,7 +94,7 @@ class GmagickAdapter extends AbstractAdapter
         return $this->gmagick()->getimagewidth();
     }
 
-    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
+    public function getPixelColor(int $x, int $y): PixelColor
     {
         $cropped = clone $this->gmagick();    // No need to modify the original object.
         /** @var \GmagickPixel[] $histogram */
@@ -109,11 +110,11 @@ class GmagickAdapter extends AbstractAdapter
         /** @var array{r: float, g: float, b: float} $colorArray */
         $colorArray = $pixel->getColor(true, true);
 
-        return new \ColorThief\Image\PixelColor(
+        return new PixelColor(
             red: (int) round($colorArray['r'] * 255),
             green: (int) round($colorArray['g'] * 255),
             blue: (int) round($colorArray['b'] * 255),
-            alpha: (int) round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 127),
+            alpha: (int) (255 - round($pixel->getcolorvalue(\Gmagick::COLOR_OPACITY) * 255)),
         );
     }
 }

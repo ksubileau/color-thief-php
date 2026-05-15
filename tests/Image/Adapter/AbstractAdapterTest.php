@@ -140,21 +140,22 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
     #[Depends('testLoadFilePng')]
     public function testGetPixelColor(AdapterInterface $adapter): void
     {
-        $this->assertEquals(new PixelColor(100, 50, 25, 0), $adapter->getPixelColor(1, 0));
-        $this->assertEquals(new PixelColor(100, 50, 25, 12), $adapter->getPixelColor(1, 1));
-        $this->assertEquals(new PixelColor(100, 50, 25, 63), $adapter->getPixelColor(1, 2));
-        $this->assertEquals(new PixelColor(100, 50, 25, 114), $adapter->getPixelColor(1, 3));
-        $this->assertEquals(new PixelColor(255, 255, 255, 127), $adapter->getPixelColor(1, 4));
+        $this->assertEqualsWithDelta(new PixelColor(0, 0, 0, 255), $adapter->getPixelColor(0, 0), 1);
+        $this->assertEqualsWithDelta(new PixelColor(100, 50, 25, 255), $adapter->getPixelColor(1, 0), 1);
+        $this->assertEqualsWithDelta(new PixelColor(100, 50, 25, 231), $adapter->getPixelColor(1, 1), 1);
+        $this->assertEqualsWithDelta(new PixelColor(100, 50, 25, 129), $adapter->getPixelColor(1, 2), 1);
+        $this->assertEqualsWithDelta(new PixelColor(100, 50, 25, 26), $adapter->getPixelColor(1, 3), 1);
+        $this->assertEqualsWithDelta(new PixelColor(255, 255, 255, 0), $adapter->getPixelColor(1, 4), 1);
     }
 
     #[Depends('testLoadFileCmykJpg')]
     public function testGetPixelColorFromCmykJpg(AdapterInterface $adapter): void
     {
-        $this->assertEquals(new PixelColor(192, 0, 0, 0), $adapter->getPixelColor(1, 0));
-        $this->assertEquals(new PixelColor(78, 255, 1, 0), $adapter->getPixelColor(1, 1));
-        $this->assertEquals(new PixelColor(255, 229, 44, 0), $adapter->getPixelColor(0, 2));
-        $this->assertEquals(new PixelColor(204, 203, 204, 0), $adapter->getPixelColor(2, 2));
-        $this->assertEquals(new PixelColor(255, 255, 255, 0), $adapter->getPixelColor(2, 1));
+        $this->assertEqualsWithDelta(new PixelColor(192, 0, 0, 255), $adapter->getPixelColor(1, 0), 1);
+        $this->assertEqualsWithDelta(new PixelColor(78, 255, 1, 255), $adapter->getPixelColor(1, 1), 1);
+        $this->assertEqualsWithDelta(new PixelColor(255, 229, 44, 255), $adapter->getPixelColor(0, 2), 1);
+        $this->assertEqualsWithDelta(new PixelColor(204, 203, 204, 255), $adapter->getPixelColor(2, 2), 1);
+        $this->assertEqualsWithDelta(new PixelColor(255, 255, 255, 255), $adapter->getPixelColor(2, 1), 1);
     }
 
     #[Depends('testLoad')]

@@ -15,6 +15,7 @@ namespace ColorThief\Image\Adapter;
 
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
+use ColorThief\Image\PixelColor;
 
 class GdAdapter extends AbstractAdapter
 {
@@ -57,29 +58,15 @@ class GdAdapter extends AbstractAdapter
         }
         $type = $imageInfo[2];
 
-        switch ($type) {
-            case \IMAGETYPE_GIF:
-                $resource = @imagecreatefromgif($file);
-                break;
-
-            case \IMAGETYPE_JPEG:
-                $resource = @imagecreatefromjpeg($file);
-                break;
-
-            case \IMAGETYPE_PNG:
-                $resource = @imagecreatefrompng($file);
-                break;
-
-            case \IMAGETYPE_WEBP:
-                if (!function_exists('imagecreatefromwebp')) {
-                    throw new NotReadableException('Unsupported image type. GD/PHP installation does not support WebP format.');
-                }
-                $resource = @imagecreatefromwebp($file);
-                break;
-
-            default:
-                throw new NotReadableException('Unsupported image type for GD image adapter.');
-        }
+        $resource = match ($type) {
+            \IMAGETYPE_GIF => @imagecreatefromgif($file),
+            \IMAGETYPE_JPEG => @imagecreatefromjpeg($file),
+            \IMAGETYPE_PNG => @imagecreatefrompng($file),
+            \IMAGETYPE_WEBP => function_exists('imagecreatefromwebp')
+                ? @imagecreatefromwebp($file)
+                : throw new NotReadableException('Unsupported image type. GD/PHP installation does not support WebP format.'),
+            default => throw new NotReadableException('Unsupported image type for GD image adapter.'),
+        };
 
         if (false === $resource) {
             throw new NotReadableException("Unable to decode image from file ({$file}).");
@@ -112,7 +99,7 @@ class GdAdapter extends AbstractAdapter
         return imagesx($this->gd());
     }
 
-    public function getPixelColor(int $x, int $y): \ColorThief\Image\PixelColor
+    public function getPixelColor(int $x, int $y): PixelColor
     {
         $rgba = imagecolorat($this->gd(), $x, $y);
         if (false === $rgba) {
@@ -120,11 +107,11 @@ class GdAdapter extends AbstractAdapter
         }
         $color = imagecolorsforindex($this->gd(), $rgba);
 
-        return new \ColorThief\Image\PixelColor(
+        return new PixelColor(
             red: $color['red'],
             green: $color['green'],
             blue: $color['blue'],
-            alpha: $color['alpha'],
+            alpha: (int) round((127 - $color['alpha']) * 255 / 127),
         );
     }
 }

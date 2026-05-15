@@ -19,7 +19,6 @@ use ColorThief\Colors\RgbColor;
 use ColorThief\ColorSwatches;
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
-use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -238,6 +237,29 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    public static function provideInvalidConstructorArguments(): array
+    {
+        return [
+            'quality too low' => [0, 250, 125, 0.0, 'The quality argument'],
+            'white threshold too low' => [10, -1, 125, 0.0, 'The whiteThreshold argument'],
+            'white threshold too high' => [10, 256, 125, 0.0, 'The whiteThreshold argument'],
+            'alpha threshold too low' => [10, 250, -1, 0.0, 'The alphaThreshold argument'],
+            'alpha threshold too high' => [10, 250, 256, 0.0, 'The alphaThreshold argument'],
+            'minimum saturation too low' => [10, 250, 125, -0.01, 'The minSaturation argument'],
+            'minimum saturation equal to one' => [10, 250, 125, 1.0, 'The minSaturation argument'],
+            'minimum saturation too high' => [10, 250, 125, 1.01, 'The minSaturation argument'],
+        ];
+    }
+
+    #[DataProvider('provideInvalidConstructorArguments')]
+    public function testConstructorRejectsInvalidArguments(int $quality, int $whiteThreshold, int $alphaThreshold, float $minSaturation, string $expectedMessage): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        new ColorThief($quality, $whiteThreshold, $alphaThreshold, $minSaturation);
+    }
+
     #[DataProvider('provideImageDominantColor')]
     public function testDominantColor(string $image, ?array $area, RgbColor $expectedColor): void
     {
@@ -308,10 +330,10 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $adapter->method('getWidth')->willReturn(2);
         $adapter->method('getHeight')->willReturn(2);
         $adapter->method('getPixelColor')->willReturn(
-            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0),
-            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0),
-            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 0),
-            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 0)
+            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 255),
+            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 255),
+            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 255),
+            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 255)
         );
 
         $palette = $this->colorThief
@@ -345,14 +367,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->colorThief->getPalette('foo.jpg', 21);
     }
 
-    public function testGetPaletteWithInvalidQuality(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('quality argument');
-
-        $this->colorThief->with(quality: 0)->getPalette('foo.jpg', 5);
-    }
-
     public function testGetPaletteWithSingleColorImage(): void
     {
         $palette = $this->colorThief->getPalette(__DIR__.'/images/single_color_PR41.png');
@@ -362,14 +376,21 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @see Issue #11
-     */
-    public function testGetPaletteWithBlankImage(): void
+    public function testGetPaletteWithWhiteImage(): void
     {
-        $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('blank or transparent image');
+        $palette = $this->colorThief->getPalette(__DIR__.'/images/white.png');
+        $this->assertEquals(
+            new ColorPalette(new RgbColor(255, 255, 255, 16000, 1)),
+            $palette
+        );
+    }
 
-        $this->colorThief->getPalette(__DIR__.'/images/blank.png');
+    public function testGetPaletteWithTransparentImage(): void
+    {
+        $palette = $this->colorThief->getPalette(__DIR__.'/images/transparent.png');
+        $this->assertEquals(
+            new ColorPalette(new RgbColor(0, 0, 0, 16000, 1)),
+            $palette
+        );
     }
 }
