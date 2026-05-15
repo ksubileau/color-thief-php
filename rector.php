@@ -15,9 +15,6 @@ return RectorConfig::configure()
 	])
 	->withSkip([
 		__DIR__ . '/vendor',
-		// ++ has no effect on SplFixedArray elements, and CombinedAssignRector
-		// converts $a = $a + 1 to $a += 1, which cs-fixer then converts to ++$a
-		CombinedAssignRector::class,
 	])
 	->withSets([
 		// Apply PHP 8.2 level set (current project requirement)
