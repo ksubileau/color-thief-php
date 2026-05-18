@@ -29,11 +29,6 @@ interface AdapterInterface
     public function loadFromPath(string $file): self;
 
     /**
-     * Loads an image from given URL.
-     */
-    public function loadFromUrl(string $url): self;
-
-    /**
      * Loads an image from a binary string representation.
      */
     public function loadFromBinary(string $data): self;
