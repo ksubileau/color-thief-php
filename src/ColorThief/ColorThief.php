@@ -78,7 +78,7 @@ class ColorThief
     /**
      * Gets the dominant color from the image using the median cut algorithm to cluster similar colors.
      *
-     * @param mixed                        $sourceImage  Path/URL to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param mixed                        $sourceImage  Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
      * @param int                          $quality      1 is the highest quality. There is a trade-off between quality and speed.
      *                                                   It determines how many pixels are skipped before the next one is sampled.
      *                                                   We rarely need to sample every single pixel in the image to get good results.
@@ -120,7 +120,7 @@ class ColorThief
     /**
      * Gets a palette of dominant colors from the image using the median cut algorithm to cluster similar colors.
      *
-     * @param mixed                        $sourceImage  Path/URL to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param mixed                        $sourceImage  Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
      * @param int                          $colorCount   it determines the size of the palette; the number of colors returned
      * @param int                          $quality      1 is the highest quality. There is a trade-off between quality and speed.
      *                                                   It determines how many pixels are skipped before the next one is sampled.

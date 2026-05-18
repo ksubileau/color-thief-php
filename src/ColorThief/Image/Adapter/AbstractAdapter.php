@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace ColorThief\Image\Adapter;
 
-use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
 
 /**
@@ -40,29 +39,6 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->resource = $resource;
 
         return $this;
-    }
-
-    public function loadFromUrl(string $url): AdapterInterface
-    {
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                // force use HTTP 1.1 for service mesh environment with envoy
-                'protocol_version' => 1.1,
-                'header' => [
-                    'Accept-language: en',
-                    'User-Agent: ColorThief Library',
-                ],
-            ],
-        ]);
-
-        $data = @file_get_contents($url, false, $context);
-
-        if (false === $data) {
-            throw new NotReadableException("Unable to load image from url ({$url}).");
-        }
-
-        return $this->loadFromBinary($data);
     }
 
     public function destroy(): void

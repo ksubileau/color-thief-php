@@ -78,40 +78,6 @@ abstract class AbstractAdapterTest extends \PHPUnit\Framework\TestCase
         return $this->baseTestLoadFile(__DIR__.'/../../images/donuts_PR45.webp');
     }
 
-    protected function baseTestLoadUrl(string $path): AdapterInterface
-    {
-        // Loads image file
-        $adapter = $this->getAdapterInstance();
-        $adapter->loadFromUrl($path);
-
-        // Checks object state
-        $this->checkIsLoaded($adapter);
-
-        return $adapter;
-    }
-
-    /**
-     * @see Issue #13
-     */
-    public function testLoadUrl(): AdapterInterface
-    {
-        return $this->baseTestLoadUrl(
-            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png'
-        );
-    }
-
-    /**
-     * @see Issue #13
-     */
-    public function testLoad404Url(): void
-    {
-        $this->expectException(NotReadableException::class);
-        $this->expectExceptionMessage('Unable to load image from url');
-
-        $adapter = $this->getAdapterInstance();
-        $adapter->loadFromUrl('http://example.com/pixels.png');
-    }
-
     public function testLoadFileMissing(): void
     {
         $this->expectException(NotReadableException::class);
