@@ -188,17 +188,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @see Issue #13
-     */
-    public function testRemoteImage(): void
-    {
-        $dominantColor = ColorThief::getColor(
-            'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/rails_600x406.gif'
-        );
-        $this->assertSame([88, 70, 80], $dominantColor);
-    }
-
-    /**
      * Asserts that the response palette includes the requested number of colors.
      */
     public function testPaletteColorCount(): void

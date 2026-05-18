@@ -59,7 +59,6 @@ class ImageLoader
             $this->isImagick($source),
             $this->isGmagick($source) => $image->load($source),
             $this->isBinary($source) => $image->loadFromBinary($source),
-            $this->isUrl($source) => $image->loadFromUrl($source),
             $this->isFilePath($source) => $image->loadFromPath($source),
             default => throw new NotReadableException('Image source does not exists or is not readable.'),
         };
@@ -140,16 +139,6 @@ class ImageLoader
         }
 
         return false;
-    }
-
-    /**
-     * Determines if given source data is an url.
-     *
-     * @phpstan-assert-if-true =string $data
-     */
-    public function isUrl(mixed $data): bool
-    {
-        return (bool) filter_var($data, FILTER_VALIDATE_URL);
     }
 
     /**

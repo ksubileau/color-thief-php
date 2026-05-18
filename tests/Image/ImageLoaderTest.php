@@ -120,20 +120,6 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($adapter, $loader->load($path));
     }
 
-    public function testLoadUrl(): void
-    {
-        $url = 'https://raw.githubusercontent.com/ksubileau/color-thief-php/master/tests/images/pixels.png';
-
-        $adapter = $this->getAdapterMock('loadFromUrl', $url);
-
-        $loader = $this->getImageLoaderPartialMock(
-            null,
-            $adapter
-        );
-
-        $this->assertSame($adapter, $loader->load($url));
-    }
-
     public function testLoadBinaryString(): void
     {
         $data = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'
@@ -264,13 +250,6 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->loader->isFilepath(new \stdClass()));
         $this->assertFalse($this->loader->isFilepath([]));
         $this->assertFalse($this->loader->isFilepath(null));
-    }
-
-    public function testIsUrl(): void
-    {
-        $this->assertTrue($this->loader->isUrl('http://foo.bar'));
-        $this->assertFalse($this->loader->isUrl('/is/a/path'));
-        $this->assertFalse($this->loader->isUrl(null));
     }
 
     public function testIsBinary(): void
