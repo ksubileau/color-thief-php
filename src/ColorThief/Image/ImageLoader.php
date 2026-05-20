@@ -40,6 +40,14 @@ class ImageLoader
      */
     public function load(mixed $source): AdapterInterface
     {
+        if (null === $source) {
+            throw new NotReadableException('Unable to load image from null');
+        }
+
+        if ('' === $source) {
+            throw new NotReadableException('Unable to load image from empty string');
+        }
+
         $preferredAdapter = $this->preferredAdapter;
         // Select appropriate adapter depending on source type if no preference given
         if (null === $preferredAdapter) {
@@ -58,8 +66,8 @@ class ImageLoader
             $this->isGdImage($source),
             $this->isImagick($source),
             $this->isGmagick($source) => $image->load($source),
-            $this->isBinary($source) => $image->loadFromBinary($source),
-            $this->isFilePath($source) => $image->loadFromPath($source),
+            $this->isBinary($source) => $image->loadFromBinary((string) $source),
+            $this->isFilePath($source) => $image->loadFromPath((string) $source),
             default => throw new NotReadableException('Image source does not exists or is not readable.'),
         };
     }
@@ -126,44 +134,56 @@ class ImageLoader
     /**
      * Determines if given source data is a file path.
      *
-     * @phpstan-assert-if-true =string $data
+     * @phpstan-assert-if-true string|\Stringable $data
      */
     public function isFilePath(mixed $data): bool
     {
-        if (is_string($data)) {
-            try {
-                return is_file($data);
-            } catch (\Exception) {
-                return false;
-            }
+        if (!is_string($data) && !$data instanceof \Stringable) {
+            return false;
         }
 
-        return false;
+        $data = (string) $data;
+
+        if (strlen($data) > PHP_MAXPATHLEN) {
+            return false;
+        }
+
+        if (1 === preg_match('/[^ -~]/', $data)) {
+            return false;
+        }
+
+        try {
+            return is_file($data);
+        } catch (\Exception) {
+            return false;
+        }
     }
 
     /**
      * Determines if given source data is binary data.
      *
-     * @phpstan-assert-if-true =string $data
+     * @phpstan-assert-if-true string|\Stringable $data
      */
     public function isBinary(mixed $data): bool
     {
-        if (is_string($data)) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-
-            if (false === $finfo) {
-                return false;
-            }
-
-            $mime = (string) finfo_buffer($finfo, $data);
-
-            if (PHP_VERSION_ID < 80400) {
-                finfo_close($finfo);
-            }
-
-            return !str_starts_with($mime, 'text') && 'application/x-empty' !== $mime;
+        if (!is_string($data) && !$data instanceof \Stringable) {
+            return false;
         }
 
-        return false;
+        $data = (string) $data;
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+
+        if (false === $finfo) {
+            return false;
+        }
+
+        $mime = (string) finfo_buffer($finfo, $data);
+
+        if (PHP_VERSION_ID < 80400) {
+            finfo_close($finfo);
+        }
+
+        return !str_starts_with($mime, 'text') && 'application/x-empty' !== $mime;
     }
 }
