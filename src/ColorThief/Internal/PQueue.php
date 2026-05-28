@@ -11,10 +11,12 @@
 
 declare(strict_types=1);
 
-namespace ColorThief;
+namespace ColorThief\Internal;
 
 /**
  * Simple priority queue.
+ *
+ * @internal
  *
  * @phpstan-template T
  */
