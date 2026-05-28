@@ -11,8 +11,11 @@
 
 declare(strict_types=1);
 
-namespace ColorThief;
+namespace ColorThief\Internal;
 
+/**
+ * @internal
+ */
 class VBox
 {
     private ?int $volume = null;
@@ -49,7 +52,7 @@ class VBox
             if ($this->volume() > \count($this->histo)) {
                 // Iterate over the histogram if the size of this histogram is lower than the vbox volume
                 foreach ($this->histo as $bucketIndex => $count) {
-                    $rgbBuckets = ColorThief::getColorsFromIndex($bucketIndex, ColorThief::SIGBITS);
+                    $rgbBuckets = Mmcq::getColorsFromIndex($bucketIndex, Mmcq::SIGBITS);
                     if ($this->contains($rgbBuckets, 0)) {
                         $npix += $count;
                     }
@@ -60,11 +63,11 @@ class VBox
                     for ($greenBucket = $this->g1; $greenBucket <= $this->g2; ++$greenBucket) {
                         for ($blueBucket = $this->b1; $blueBucket <= $this->b2; ++$blueBucket) {
                             // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
-                            $bucketIndex = ColorThief::getColorIndex(
-                                $redBucket << ColorThief::RSHIFT,
-                                $greenBucket << ColorThief::RSHIFT,
-                                $blueBucket << ColorThief::RSHIFT,
-                                ColorThief::SIGBITS
+                            $bucketIndex = Mmcq::getColorIndex(
+                                $redBucket << Mmcq::RSHIFT,
+                                $greenBucket << Mmcq::RSHIFT,
+                                $blueBucket << Mmcq::RSHIFT,
+                                Mmcq::SIGBITS
                             );
                             if (isset($this->histo[$bucketIndex])) {
                                 $npix += $this->histo[$bucketIndex];
@@ -93,7 +96,7 @@ class VBox
     {
         if (null === $this->avg || $force) {
             $ntot = 0;
-            $mult = 1 << ColorThief::RSHIFT;
+            $mult = 1 << Mmcq::RSHIFT;
             $rsum = 0;
             $gsum = 0;
             $bsum = 0;
@@ -102,11 +105,11 @@ class VBox
                 for ($greenBucket = $this->g1; $greenBucket <= $this->g2; ++$greenBucket) {
                     for ($blueBucket = $this->b1; $blueBucket <= $this->b2; ++$blueBucket) {
                         // getColorIndex takes RGB values instead of buckets, so left shift so we get a bucketIndex
-                        $bucketIndex = ColorThief::getColorIndex(
-                            $redBucket << ColorThief::RSHIFT,
-                            $greenBucket << ColorThief::RSHIFT,
-                            $blueBucket << ColorThief::RSHIFT,
-                            ColorThief::SIGBITS
+                        $bucketIndex = Mmcq::getColorIndex(
+                            $redBucket << Mmcq::RSHIFT,
+                            $greenBucket << Mmcq::RSHIFT,
+                            $blueBucket << Mmcq::RSHIFT,
+                            Mmcq::SIGBITS
                         );
 
                         // The bucket values need to be multiplied by $mult to get the RGB values.
@@ -144,7 +147,7 @@ class VBox
     /**
      * @phpstan-param ColorRGB $rgbValue
      */
-    public function contains(array $rgbValue, int $rshift = ColorThief::RSHIFT): bool
+    public function contains(array $rgbValue, int $rshift = Mmcq::RSHIFT): bool
     {
         // Get the buckets from the RGB values.
         $redBucket = $rgbValue[0] >> $rshift;
