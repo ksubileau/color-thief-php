@@ -11,10 +11,10 @@
 
 declare(strict_types=1);
 
-namespace ColorThief\Tests;
+namespace ColorThief\Tests\Internal;
 
-use ColorThief\ColorThief;
-use ColorThief\VBox;
+use ColorThief\Internal\Mmcq;
+use ColorThief\Internal\VBox;
 
 class VBoxTest extends \PHPUnit\Framework\TestCase
 {
@@ -67,12 +67,12 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
 
     public function testCount(): void
     {
-        $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
-        $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
-        $this->vbox->g1 = 180 >> ColorThief::RSHIFT;
-        $this->vbox->g2 = 189 >> ColorThief::RSHIFT;
-        $this->vbox->b1 = 130 >> ColorThief::RSHIFT;
-        $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
+        $this->vbox->r1 = 225 >> Mmcq::RSHIFT;
+        $this->vbox->r2 = 247 >> Mmcq::RSHIFT;
+        $this->vbox->g1 = 180 >> Mmcq::RSHIFT;
+        $this->vbox->g2 = 189 >> Mmcq::RSHIFT;
+        $this->vbox->b1 = 130 >> Mmcq::RSHIFT;
+        $this->vbox->b2 = 158 >> Mmcq::RSHIFT;
 
         $this->vbox->histo = [
             29427 => 1,
@@ -97,12 +97,12 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
 
     public function testContains(): void
     {
-        $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
-        $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
-        $this->vbox->g1 = 180 >> ColorThief::RSHIFT;
-        $this->vbox->g2 = 189 >> ColorThief::RSHIFT;
-        $this->vbox->b1 = 158 >> ColorThief::RSHIFT;
-        $this->vbox->b2 = 158 >> ColorThief::RSHIFT;
+        $this->vbox->r1 = 225 >> Mmcq::RSHIFT;
+        $this->vbox->r2 = 247 >> Mmcq::RSHIFT;
+        $this->vbox->g1 = 180 >> Mmcq::RSHIFT;
+        $this->vbox->g2 = 189 >> Mmcq::RSHIFT;
+        $this->vbox->b1 = 158 >> Mmcq::RSHIFT;
+        $this->vbox->b2 = 158 >> Mmcq::RSHIFT;
 
         $this->assertTrue($this->vbox->contains([225, 190, 158]));
 
@@ -118,19 +118,19 @@ class VBoxTest extends \PHPUnit\Framework\TestCase
 
     public function testLongestAxis(): void
     {
-        $this->vbox->r1 = 225 >> ColorThief::RSHIFT;
-        $this->vbox->r2 = 247 >> ColorThief::RSHIFT;
-        $this->vbox->g1 = 180 >> ColorThief::RSHIFT;
-        $this->vbox->g2 = 189 >> ColorThief::RSHIFT;
-        $this->vbox->b1 = 180 >> ColorThief::RSHIFT;
-        $this->vbox->b2 = 228 >> ColorThief::RSHIFT;
+        $this->vbox->r1 = 225 >> Mmcq::RSHIFT;
+        $this->vbox->r2 = 247 >> Mmcq::RSHIFT;
+        $this->vbox->g1 = 180 >> Mmcq::RSHIFT;
+        $this->vbox->g2 = 189 >> Mmcq::RSHIFT;
+        $this->vbox->b1 = 180 >> Mmcq::RSHIFT;
+        $this->vbox->b2 = 228 >> Mmcq::RSHIFT;
 
         $this->assertEquals('b', $this->vbox->longestAxis());
 
-        $this->vbox->g1 = 110 >> ColorThief::RSHIFT;
+        $this->vbox->g1 = 110 >> Mmcq::RSHIFT;
         $this->assertEquals('g', $this->vbox->longestAxis());
 
-        $this->vbox->r1 = 10 >> ColorThief::RSHIFT;
+        $this->vbox->r1 = 10 >> Mmcq::RSHIFT;
         $this->assertEquals('r', $this->vbox->longestAxis());
     }
 
