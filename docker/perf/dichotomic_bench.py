@@ -251,7 +251,11 @@ def main() -> None:
     # Build ordered commit list: index 0 = base, index N = head.
     # Two-dot notation (base..head) lists commits reachable from head but not
     # from base, which is exactly the set of new commits we want to benchmark.
-    raw = git(repo, "log", "--oneline", f"{args.base}..{args.head}")
+    # IMPORTANT: use --format=%H to get FULL SHAs. Abbreviated SHAs (e.g. from
+    # --oneline, which defaults to 7 chars) would not match the 8-char cache
+    # keys derived from full SHAs in bench_commit(), causing print_report() to
+    # silently skip every commit except the base.
+    raw = git(repo, "log", "--format=%H", f"{args.base}..{args.head}")
     if not raw:
         sys.exit(
             f"No commits found between {args.base} and {args.head}.\n"
@@ -261,9 +265,12 @@ def main() -> None:
             "    Use an explicit remote ref instead, e.g.:\n"
             "      --base origin/3.x-dev --head origin/main"
         )
-    branch_commits = [line.split()[0] for line in raw.strip().splitlines()]
+    branch_commits = raw.strip().splitlines()
     branch_commits.reverse()                     # oldest first
-    commits = [args.base] + branch_commits       # prepend base
+    # Normalise the base ref to a full SHA so all entries in `commits` are
+    # comparable and produce identical 8-char cache keys.
+    base_sha = git(repo, "rev-parse", "--verify", args.base)
+    commits = [base_sha] + branch_commits        # prepend base
     print(f"Commits on branch : {len(commits) - 1}  "
           f"(base: {commits[0][:8]} → head: {commits[-1][:8]})")
     print(f"Threshold         : ±{threshold * 100:.0f}%")
