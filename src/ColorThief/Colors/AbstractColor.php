@@ -89,6 +89,38 @@ abstract readonly class AbstractColor implements \Stringable
     abstract public function toArray(): array;
 
     /**
+     * Convert to OKLCH.
+     */
+    public function toOklch(): OklchColor
+    {
+        return $this->toRgb()->toOklch();
+    }
+
+    /**
+     * Convert to HSL.
+     */
+    public function toHsl(): HslColor
+    {
+        return $this->toRgb()->toHsl();
+    }
+
+    /**
+     * Convert to HSV.
+     */
+    public function toHsv(): HsvColor
+    {
+        return $this->toRgb()->toHsv();
+    }
+
+    /**
+     * Convert to CMYK.
+     */
+    public function toCmyk(): CmykColor
+    {
+        return $this->toRgb()->toCmyk();
+    }
+
+    /**
      * Relative luminance as defined by WCAG 2.x (0 = black, 1 = white).
      * Non-RGB colorspaces round-trip through RGB; for Color itself toRgb() returns $this.
      */

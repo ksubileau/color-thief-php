@@ -51,6 +51,34 @@ readonly class RgbColor extends AbstractColor
         return $this;
     }
 
+    public function toOklch(): OklchColor
+    {
+        [$l, $c, $h] = static::rgbToOklch($this->red, $this->green, $this->blue);
+
+        return new OklchColor($l, $c, $h, $this->population(), $this->proportion());
+    }
+
+    public function toHsl(): HslColor
+    {
+        [$h, $s, $l] = static::rgbToHsl($this->red, $this->green, $this->blue);
+
+        return new HslColor($h, $s, $l, $this->population(), $this->proportion());
+    }
+
+    public function toHsv(): HsvColor
+    {
+        [$h, $s, $v] = static::rgbToHsv($this->red, $this->green, $this->blue);
+
+        return new HsvColor($h, $s, $v, $this->population(), $this->proportion());
+    }
+
+    public function toCmyk(): CmykColor
+    {
+        [$c, $m, $y, $k] = static::rgbToCmyk($this->red, $this->green, $this->blue);
+
+        return new CmykColor($c, $m, $y, $k, $this->population(), $this->proportion());
+    }
+
     /** Returns CSS rgb() notation: "rgb(255, 128, 0)". */
     public function toCss(): string
     {

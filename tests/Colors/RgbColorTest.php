@@ -13,10 +13,18 @@ declare(strict_types=1);
 
 namespace ColorThief\Tests\Colors;
 
+use ColorThief\Colors\AbstractColor;
 use ColorThief\Colors\RgbColor;
 
 class RgbColorTest extends AbstractColorTest
 {
+    protected const FIXTURE_COLORSPACE_KEY = 'rgb';
+
+    protected function toSelf(AbstractColor $color): AbstractColor
+    {
+        return $color->toRgb();
+    }
+
     public function testConstructorAndAccessors(): void
     {
         $c = new RgbColor(181, 55, 23, 1000, 0.42);

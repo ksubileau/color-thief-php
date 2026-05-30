@@ -14,6 +14,11 @@ declare(strict_types=1);
 namespace ColorThief;
 
 use ColorThief\Colors\AbstractColor;
+use ColorThief\Colors\CmykColor;
+use ColorThief\Colors\HslColor;
+use ColorThief\Colors\HsvColor;
+use ColorThief\Colors\OklchColor;
+use ColorThief\Colors\RgbColor;
 
 /**
  * Read-only ordered palette of colors.
@@ -135,6 +140,56 @@ readonly class ColorPalette implements \ArrayAccess, \Countable, \IteratorAggreg
     public function reduce(callable $callback, mixed $initial): mixed
     {
         return array_reduce($this->colors, $callback, $initial);
+    }
+
+    /**
+     * Return a palette with every color converted to sRGB color space.
+     *
+     * @return ColorPalette<RgbColor>
+     */
+    public function toRgb(): self
+    {
+        return new self(...array_map(static fn (AbstractColor $color): RgbColor => $color->toRgb(), $this->colors));
+    }
+
+    /**
+     * Return a palette with every color converted to Oklch color space.
+     *
+     * @return ColorPalette<OklchColor>
+     */
+    public function toOklch(): self
+    {
+        return new self(...array_map(static fn (AbstractColor $color): OklchColor => $color->toOklch(), $this->colors));
+    }
+
+    /**
+     * Return a palette with every color converted to HSL color space.
+     *
+     * @return ColorPalette<HslColor>
+     */
+    public function toHsl(): self
+    {
+        return new self(...array_map(static fn (AbstractColor $color): HslColor => $color->toHsl(), $this->colors));
+    }
+
+    /**
+     * Return a palette with every color converted to HSV color space.
+     *
+     * @return ColorPalette<HsvColor>
+     */
+    public function toHsv(): self
+    {
+        return new self(...array_map(static fn (AbstractColor $color): HsvColor => $color->toHsv(), $this->colors));
+    }
+
+    /**
+     * Return a palette with every color converted to CMYK color space.
+     *
+     * @return ColorPalette<CmykColor>
+     */
+    public function toCmyk(): self
+    {
+        return new self(...array_map(static fn (AbstractColor $color): CmykColor => $color->toCmyk(), $this->colors));
     }
 
     /**
