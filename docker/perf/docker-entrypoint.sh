@@ -38,7 +38,10 @@ if [[ -z "$BASE" || -z "$HEAD_REF" ]]; then
     exit 1
 fi
 REPO=/repo
-IMAGE_PATH="$REPO/tests/images/child_painter_3840x2400.jpg"
+# Keep the test image OUTSIDE the cloned repository so that arbitrary
+# `git checkout` operations during the benchmark never touch it. This removes
+# the need for any stash / backup dance inside the orchestrator.
+IMAGE_PATH=/tmp/bench_image.jpg
 CACHE=/tmp/perf_results.json
 echo "================================================================"
 echo "  ColorThief PHP — getPalette() dichotomic performance benchmark"
@@ -98,6 +101,7 @@ python3 /bench/dichotomic_bench.py \
     --repo       "$REPO"       \
     --base       "$BASE"       \
     --head       "$HEAD_REF"   \
+    --image      "$IMAGE_PATH" \
     --iterations "$ITERATIONS" \
     --threshold  "$THRESHOLD"  \
     --cache      "$CACHE"

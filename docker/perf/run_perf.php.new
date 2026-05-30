@@ -3,8 +3,8 @@
 // Usage: php run_perf.php <image_path> [iterations]
 //
 // For each iteration we measure:
-//   • elapsed wall-clock time            (hrtime, ns)
-//   • peak memory allocated by the call  (memory_reset_peak_usage + memory_get_peak_usage)
+//   • elapsed wall-clock time          (hrtime, ns)
+//   • peak memory allocated by the call (memory_reset_peak_usage + memory_get_peak_usage)
 //
 // The script emits a JSON document containing the full per-iteration samples
 // (so the orchestrator can run its own statistical tests) AND pre-computed
@@ -26,17 +26,12 @@ $iterations = max(1, (int) ($argv[2] ?? 50));
 // --- Autoloader resolution ---------------------------------------------------
 // The script is copied to /bench/run_perf.php inside the benchmark Docker
 // image, while Composer installs dependencies in the cloned repository
-// (e.g. /repo/vendor). The test image now lives OUTSIDE the repo, so it can
-// no longer be used to derive the repo path. The orchestrator
-// (dichotomic_bench.py) therefore exports BENCH_AUTOLOAD pointing to the
-// repository's autoload.php; we fall back to a few well-known locations to
-// stay usable when invoked manually.
-$autoloadCandidates = array_filter([
-    getenv('BENCH_AUTOLOAD') ?: null,
+// (e.g. /repo/vendor). Resolve the autoloader from candidate locations.
+$autoloadCandidates = [
+    dirname($imagePath, 3) . '/vendor/autoload.php', // <repo>/vendor/autoload.php
     __DIR__ . '/../../vendor/autoload.php',          // repo checkout: docker/perf/run_perf.php
     __DIR__ . '/../vendor/autoload.php',             // legacy layout
-    dirname($imagePath, 3) . '/vendor/autoload.php', // <repo>/vendor/autoload.php (legacy in-repo image)
-]);
+];
 $autoload = null;
 foreach ($autoloadCandidates as $candidate) {
     if (is_file($candidate)) {
@@ -45,10 +40,7 @@ foreach ($autoloadCandidates as $candidate) {
     }
 }
 if ($autoload === null) {
-    fwrite(STDERR,
-        "Composer autoloader not found. Tried:\n  - " . implode("\n  - ", $autoloadCandidates)
-        . "\nHint: set BENCH_AUTOLOAD=/path/to/repo/vendor/autoload.php.\n"
-    );
+    fwrite(STDERR, "Composer autoloader not found. Tried:\n  - " . implode("\n  - ", $autoloadCandidates) . "\n");
     exit(1);
 }
 require_once $autoload;
@@ -59,12 +51,13 @@ if (!file_exists($imagePath)) {
     fwrite(STDERR, "Image not found: $imagePath\n");
     exit(1);
 }
+
 if (!function_exists('memory_reset_peak_usage')) {
     fwrite(STDERR, "memory_reset_peak_usage() is required (PHP >= 8.2).\n");
     exit(1);
 }
 
-// --- Warmup: 2 calls to populate OPcache, FS cache and lazy state -----------
+// --- Warmup: 2 calls to populate OPcache, FS cache and any lazy state -------
 try {
     ColorThief::getPalette($imagePath, 10, 10, null);
     ColorThief::getPalette($imagePath, 10, 10, null);
@@ -73,19 +66,16 @@ try {
     exit(1);
 }
 
-// --- Measurement (per-iteration time AND memory) ----------------------------
-/** @var array<int, float> $timesNs */
+// --- Measurement -------------------------------------------------------------
+/** @var array<int, float> $timesNs   Per-iteration elapsed time in nanoseconds */
 $timesNs = [];
-/** @var array<int, int> $memBytes */
+/** @var array<int, int> $memBytes    Per-iteration peak memory in bytes */
 $memBytes = [];
 
 for ($i = 0; $i < $iterations; $i++) {
     gc_collect_cycles();
     memory_reset_peak_usage();
-    // Use `false`: we want the actual emalloc'd memory, not the chunks the
-    // engine reserves from the system (which jumps in ~2 MB increments and
-    // would make the per-iteration delta read as 0 most of the time).
-    $memBaseline = memory_get_usage(false);
+    $memBaseline = memory_get_usage(true);
 
     $t0 = hrtime(true);
     try {
@@ -96,14 +86,16 @@ for ($i = 0; $i < $iterations; $i++) {
     }
     $timesNs[]  = hrtime(true) - $t0;
     // Per-iteration peak attributable to the call: peak since reset, minus
-    // baseline (memory already allocated and unrelated to getPalette).
-    $memBytes[] = max(0, memory_get_peak_usage(false) - $memBaseline);
+    // baseline (already-allocated memory unrelated to getPalette).
+    $memBytes[] = max(0, memory_get_peak_usage(true) - $memBaseline);
 }
 
-// --- Descriptive statistics --------------------------------------------------
+// --- Statistics --------------------------------------------------------------
 /**
+ * Compute descriptive statistics on a numeric sample.
+ *
  * @param array<int, int|float> $samples
- * @return array{min:float,p25:float,median:float,p75:float,p95:float,max:float,mean:float,stdev:float}
+ * @return array{min: float, p25: float, median: float, p75: float, p95: float, max: float, mean: float, stdev: float}
  */
 function stats(array $samples): array
 {
@@ -114,11 +106,11 @@ function stats(array $samples): array
     $sorted = $samples;
     sort($sorted, SORT_NUMERIC);
     $mean = array_sum($sorted) / $n;
-    $sq   = 0.0;
+    // Sample standard deviation (Bessel's correction).
+    $sq = 0.0;
     foreach ($sorted as $v) {
         $sq += ($v - $mean) ** 2;
     }
-    // Sample standard deviation (Bessel correction).
     $stdev = $n > 1 ? sqrt($sq / ($n - 1)) : 0.0;
     // Linear-interpolation percentile (R-7 / Excel default).
     $percentile = static function (array $sorted, float $p) use ($n): float {
@@ -145,14 +137,14 @@ function stats(array $samples): array
     ];
 }
 
-$timesMs   = array_map(static fn ($ns) => $ns / 1_000_000.0, $timesNs);
+$timesMs = array_map(static fn ($ns) => $ns / 1_000_000.0, $timesNs);
 $timeStats = stats($timesMs);
 $memStats  = stats($memBytes);
 
 echo json_encode([
-    '_schema'        => 2,
-    'iterations'     => $iterations,
-    'time_ms'        => [
+    '_schema'           => 2,
+    'iterations'        => $iterations,
+    'time_ms'           => [
         'samples' => array_map(static fn ($v) => round($v, 4), $timesMs),
         'min'     => round($timeStats['min'], 4),
         'p25'     => round($timeStats['p25'], 4),
@@ -163,7 +155,7 @@ echo json_encode([
         'mean'    => round($timeStats['mean'], 4),
         'stdev'   => round($timeStats['stdev'], 4),
     ],
-    'memory_bytes'   => [
+    'memory_bytes'      => [
         'samples' => $memBytes,
         'min'     => (int) $memStats['min'],
         'p25'     => (int) $memStats['p25'],
@@ -174,8 +166,8 @@ echo json_encode([
         'mean'    => round($memStats['mean'], 1),
         'stdev'   => round($memStats['stdev'], 1),
     ],
-    // Legacy keys (now median, robust to outliers).
-    'avg_time_ms'    => round($timeStats['median'], 4),
-    'peak_memory_mb' => round($memStats['median'] / 1024 / 1024, 3),
+    // Legacy keys (median, more robust than mean for micro-benches).
+    'avg_time_ms'       => round($timeStats['median'], 4),
+    'peak_memory_mb'    => round($memStats['median'] / 1024 / 1024, 3),
 ]);
 echo "\n";
