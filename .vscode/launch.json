@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Perf: cf-bench (HEAD vs origin/main)",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "command": "docker run --rm cf-bench --head HEAD --base origin/main --iterations 50 --threshold 0.10"
+    }
+  ]
+}

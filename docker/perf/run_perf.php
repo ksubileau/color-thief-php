@@ -1,16 +1,38 @@
 <?php
 // Performance test script for ColorThief::getPalette
-// Usage: php run_perf.php <path_to_repo> <iterations>
+// Usage: php run_perf.php <image_path> [iterations]
 
-require_once __DIR__.'/../vendor/autoload.php';
-
-if ($argc !== 2) {
-    fwrite(STDERR, "Usage: php run_perf.php <image_path>\n");
+if ($argc < 2 || $argc > 3) {
+    fwrite(STDERR, "Usage: php run_perf.php <image_path> [iterations]\n");
     exit(1);
 }
 
 $imagePath = $argv[1];
 $iterations = (int)($argv[2] ?? 50);
+
+// Locate the autoloader of the repository under test.
+// The script is copied to /bench/run_perf.php inside the benchmark Docker image,
+// while Composer dependencies are installed in the cloned repository (e.g. /repo),
+// so __DIR__/../vendor does NOT work. Resolve the autoloader from candidate
+// locations, including the repo derived from the image path
+// (<repo>/tests/images/<file>).
+$autoloadCandidates = [
+    dirname($imagePath, 3).'/vendor/autoload.php', // <repo>/vendor/autoload.php
+    __DIR__.'/../../vendor/autoload.php',          // repo checkout: docker/perf/run_perf.php
+    __DIR__.'/../vendor/autoload.php',             // legacy layout
+];
+$autoload = null;
+foreach ($autoloadCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $autoload = $candidate;
+        break;
+    }
+}
+if ($autoload === null) {
+    fwrite(STDERR, "Composer autoloader not found. Tried:\n  - ".implode("\n  - ", $autoloadCandidates)."\n");
+    exit(1);
+}
+require_once $autoload;
 
 use ColorThief\ColorThief;
 

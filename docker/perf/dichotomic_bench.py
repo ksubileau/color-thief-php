@@ -48,11 +48,14 @@ def run_bench(repo: str, iterations: int) -> dict:
         raise FileNotFoundError(f"Test image not found: {image}")
     script = os.path.join(os.path.dirname(__file__), "run_perf.php")
     result = subprocess.run(
-        ["php", "-d", "xdebug.mode=off", script, repo, str(iterations)],
+        ["php", "-d", "xdebug.mode=off", script, image, str(iterations)],
         capture_output=True, text=True, timeout=600,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"Perf script failed:\n{result.stderr[-500:]}")
+        err = (result.stderr or "").strip()
+        out = (result.stdout or "").strip()
+        details = err if err else (out if out else f"(no output, exit code {result.returncode})")
+        raise RuntimeError(f"Perf script failed:\n{details[-1000:]}")
     return json.loads(result.stdout.strip())
 # ---------------------------------------------------------------------------
 # Benchmark one commit (checkout → deps → bench)
@@ -245,10 +248,19 @@ def main() -> None:
     repo       = args.repo
     threshold  = args.threshold
     iterations = args.iterations
-    # Build ordered commit list: index 0 = base, index N = head
+    # Build ordered commit list: index 0 = base, index N = head.
+    # Two-dot notation (base..head) lists commits reachable from head but not
+    # from base, which is exactly the set of new commits we want to benchmark.
     raw = git(repo, "log", "--oneline", f"{args.base}..{args.head}")
     if not raw:
-        sys.exit(f"No commits found between {args.base} and {args.head}")
+        sys.exit(
+            f"No commits found between {args.base} and {args.head}.\n"
+            "  • Make sure --base is an ancestor of --head.\n"
+            "  • Do not pass the bare symbolic ref 'HEAD' for --base: after a fresh\n"
+            "    clone it resolves to the default branch (same as origin/main).\n"
+            "    Use an explicit remote ref instead, e.g.:\n"
+            "      --base origin/3.x-dev --head origin/main"
+        )
     branch_commits = [line.split()[0] for line in raw.strip().splitlines()]
     branch_commits.reverse()                     # oldest first
     commits = [args.base] + branch_commits       # prepend base
