@@ -15,12 +15,15 @@ namespace ColorThief\Tests;
 
 use ColorThief\ColorPalette;
 use ColorThief\Colors\AbstractColor;
+use ColorThief\Colors\CmykColor;
+use ColorThief\Colors\HslColor;
+use ColorThief\Colors\HsvColor;
+use ColorThief\Colors\OklchColor;
 use ColorThief\Colors\RgbColor;
 use PHPUnit\Framework\TestCase;
 
 class ColorPaletteTest extends TestCase
 {
-
     private function createPalette(): ColorPalette
     {
         return new ColorPalette(
@@ -69,6 +72,26 @@ class ColorPaletteTest extends TestCase
 
         $this->expectException(\LogicException::class);
         $palette[0] = new RgbColor(1, 2, 3);
+    }
+
+    public function testMapMethodsReturnColorPalette(): void
+    {
+        $palette = $this->createPalette();
+
+        $this->assertInstanceOf(ColorPalette::class, $palette->toRgb());
+        $this->assertInstanceOf(RgbColor::class, $palette->toRgb()[0]);
+
+        $this->assertInstanceOf(ColorPalette::class, $palette->toHsl());
+        $this->assertInstanceOf(HslColor::class, $palette->toHsl()[0]);
+
+        $this->assertInstanceOf(ColorPalette::class, $palette->toHsv());
+        $this->assertInstanceOf(HsvColor::class, $palette->toHsv()[0]);
+
+        $this->assertInstanceOf(ColorPalette::class, $palette->toCmyk());
+        $this->assertInstanceOf(CmykColor::class, $palette->toCmyk()[0]);
+
+        $this->assertInstanceOf(ColorPalette::class, $palette->toOklch());
+        $this->assertInstanceOf(OklchColor::class, $palette->toOklch()[0]);
     }
 
     public function testMap(): void
