@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace ColorThief\Internal;
 
-use ColorThief\Color;
+use ColorThief\Colors\RgbColor;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\RuntimeException;
 
@@ -55,7 +55,7 @@ final class Mmcq
      * @param int             $numPixels Number of image pixels analyzed
      * @param array<int, int> $histo     Histogram
      *
-     * @return Color[]
+     * @return RgbColor[]
      */
     public static function quantize(int $numPixels, int $maxColors, array &$histo): array
     {
@@ -92,10 +92,10 @@ final class Mmcq
 
         // calculate the actual colors
         $totalPopulation = $priorityQueue->reduce(static fn (int $carry, VBox $vbox): int => $carry + $vbox->count(), 0);
-        $colors = $priorityQueue->map(static function (VBox $vbox) use ($totalPopulation): Color {
+        $colors = $priorityQueue->map(static function (VBox $vbox) use ($totalPopulation): RgbColor {
             $avg = $vbox->avg();
 
-            return new Color(
+            return new RgbColor(
                 red: $avg[0],
                 green: $avg[1],
                 blue: $avg[2],

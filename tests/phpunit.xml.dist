@@ -7,6 +7,7 @@
         <testsuite name="Color Thief PHP Test Suite">
             <directory>.</directory>
             <exclude>Image/Adapter/AbstractAdapterTest.php</exclude>
+            <exclude>Colors/AbstractColorTest.php</exclude>
         </testsuite>
     </testsuites>
     <source>
