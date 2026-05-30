@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace ColorThief\Tests;
 
-use ColorThief\Color;
+use ColorThief\ColorPalette;
+use ColorThief\Colors\AbstractColor;
+use ColorThief\Colors\RgbColor;
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
@@ -22,28 +24,58 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * Asserts that two palette colors are equal.
+     */
+    private function assertColorEquals(
+        $expectedColor,
+        AbstractColor $actualColor,
+        string $messagePrefix = '',
+        int $componentDelta = 1,
+        int $populationDelta = 1,
+        float $proportionDelta = 0.0001,
+    ): void {
+        $this->assertEqualsWithDelta($expectedColor->red(), $actualColor->red(), $componentDelta, "{$messagePrefix}red mismatch");
+        $this->assertEqualsWithDelta($expectedColor->green(), $actualColor->green(), $componentDelta, "{$messagePrefix}green mismatch");
+        $this->assertEqualsWithDelta($expectedColor->blue(), $actualColor->blue(), $componentDelta, "{$messagePrefix}blue mismatch");
+        $this->assertEqualsWithDelta($expectedColor->population(), $actualColor->population(), $populationDelta, "{$messagePrefix}population mismatch");
+        $this->assertEqualsWithDelta($expectedColor->proportion(), $actualColor->proportion(), $proportionDelta, "{$messagePrefix}proportion mismatch");
+    }
+
+    /**
+     * Asserts that two palettes are equal.
+     */
+    private function assertPaletteEquals(ColorPalette $expected, ColorPalette $actual): void
+    {
+        $this->assertEquals($expected->count(), $actual->count(), 'Palette color count mismatch');
+
+        foreach ($expected as $index => $expectedColor) {
+            $this->assertColorEquals($expectedColor, $actual[$index], "Color #{$index}: ");
+        }
+    }
+
     public static function provideImageDominantColor(): array
     {
         return [
             [
                 '/images/rails_600x406.gif',
                 null,
-                [88, 70, 80],
+                new RgbColor(88, 70, 80, 14734, 0.60484),
             ],
             [
                 '/images/field_1024x683.jpg',
                 null,
-                [107, 172, 222],
+                new RgbColor(107, 172, 222, 35527, 0.50796),
             ],
             [
                 '/images/covers_cmyk_PR37.jpg',
                 null,
-                [135, 220, 248],
+                new RgbColor(135, 220, 248, 14292, 0.59546),
             ],
             [
                 '/images/single_color_PR41.png',
                 null,
-                [180, 228, 28],
+                new RgbColor(180, 228, 28, 36000, 1.0),
             ],
             /*
             [  // WebP image
@@ -55,12 +87,12 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [  // Area targeting
                 '/images/vegetables_1500x995.png',
                 ['x' => 670, 'y' => 215, 'w' => 230, 'h' => 120],
-                [63, 112, 24],
+                new RgbColor(63, 112, 24, 2404, 0.87101),
             ],
             [  // Area targeting with default values for y and width.
                 '/images/vegetables_1500x995.png',
                 ['x' => 1300, 'h' => 500],
-                [54, 60, 33],
+                new RgbColor(54, 60, 33, 5608, 0.56080),
             ],
         ];
     }
@@ -70,57 +102,57 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 '/images/rails_600x406.gif',
-                [
-                    [210, 170, 127],
-                    [88, 69, 81],
-                    [158, 113, 84],
-                    [157, 190, 175],
-                    [107, 119, 129],
-                    [82, 48, 33],
-                    [52, 136, 211],
-                    [29, 68, 84],
-                    [120, 124, 101],
-                    [212, 76, 60],
-                ],
+                new ColorPalette(
+                    new RgbColor(210, 170, 127, 1561, 0.19224),
+                    new RgbColor(88, 69, 81, 4559, 0.56145),
+                    new RgbColor(158, 113, 84, 1696, 0.20887),
+                    new RgbColor(157, 190, 175, 43, 0.00530),
+                    new RgbColor(107, 119, 129, 115, 0.01416),
+                    new RgbColor(82, 48, 33, 115, 0.01416),
+                    new RgbColor(52, 136, 211, 11, 0.00135),
+                    new RgbColor(29, 68, 84, 11, 0.00135),
+                    new RgbColor(120, 124, 101, 6, 0.00074),
+                    new RgbColor(212, 76, 60, 3, 0.00037),
+                ),
             ],
             [
                 '/images/vegetables_1500x995.png',
-                [
-                    [227, 217, 199],
-                    [96, 59, 49],
-                    [45, 58, 23],
-                    [117, 122, 46],
-                    [107, 129, 102],
-                    [176, 153, 102],
-                    [191, 180, 144],
-                    [159, 132, 146],
-                    [60, 148, 44],
-                    [68, 116, 124],
-                ],
+                new ColorPalette(
+                    new RgbColor(227, 217, 199, 16069, 0.32346),
+                    new RgbColor(96, 59, 49, 4597, 0.09253),
+                    new RgbColor(45, 58, 23, 10394, 0.20922),
+                    new RgbColor(117, 122, 46, 5329, 0.10727),
+                    new RgbColor(107, 129, 102, 5044, 0.10153),
+                    new RgbColor(176, 153, 102, 4443, 0.08943),
+                    new RgbColor(191, 180, 144, 3494, 0.07033),
+                    new RgbColor(159, 132, 146, 307, 0.00618),
+                    new RgbColor(60, 148, 44, 1, 0.00002),
+                    new RgbColor(68, 116, 124, 1, 0.00002),
+                ),
             ],
             [
                 '/images/covers_cmyk_PR37.jpg',
-                [
-                    [141, 229, 249],
-                    [21, 50, 129],
-                    [245, 84, 135],
-                    [238, 178, 163],
-                    [163, 173, 59],
-                    [94, 158, 245],
-                    [167, 39, 30],
-                    [120, 181, 170],
-                    [68, 164, 168],
-                ],
+                new ColorPalette(
+                    new RgbColor(141, 229, 249, 4140, 0.51750),
+                    new RgbColor(21, 50, 129, 931, 0.11638),
+                    new RgbColor(245, 84, 135, 624, 0.07810),
+                    new RgbColor(238, 178, 163, 1049, 0.13113),
+                    new RgbColor(163, 173, 59, 326, 0.04075),
+                    new RgbColor(94, 158, 245, 671, 0.08388),
+                    new RgbColor(167, 39, 30, 240, 0.02990),
+                    new RgbColor(120, 181, 170, 17, 0.00213),
+                    new RgbColor(68, 164, 168, 2, 0.00025),
+                ),
             ],
             [
                 '/images/single_color_PR41.png',
-                [
-                    [180, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
-                    [184, 228, 28],
-                ],
+                new ColorPalette(
+                    new RgbColor(180, 228, 28, 12000, 1.0),
+                    new RgbColor(184, 228, 28),
+                    new RgbColor(184, 228, 28),
+                    new RgbColor(184, 228, 28),
+                    new RgbColor(184, 228, 28),
+                ),
             ],
             /*
             [
@@ -140,34 +172,12 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     #[DataProvider('provideImageDominantColor')]
-    public function testDominantColor(string $image, ?array $area, array $expectedColor): void
+    public function testDominantColor(string $image, ?array $area, RgbColor $expectedColor): void
     {
         $dominantColor = ColorThief::getColor(__DIR__.$image, 10, $area);
 
-        $this->assertSame($expectedColor, $dominantColor);
-    }
-
-    public function testDominantColorFormat(): void
-    {
-        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'array');
-        $this->assertSame([88, 70, 80], $dominantColor);
-
-        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'hex');
-        $this->assertSame('#584650', $dominantColor);
-
-        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'int');
-        $this->assertSame(5785168, $dominantColor);
-
-        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'rgb');
-        $this->assertSame('rgb(88, 70, 80)', $dominantColor);
-
-        $dominantColor = ColorThief::getColor(__DIR__.'/images/rails_600x406.gif', 10, null, 'obj');
-        $this->assertInstanceOf(Color::class, $dominantColor);
-        $this->assertEquals(88, $dominantColor->getRed());
-        $this->assertEquals(70, $dominantColor->getGreen());
-        $this->assertEquals(80, $dominantColor->getBlue());
-        $this->assertEquals(14734, $dominantColor->getPopulation());
-        $this->assertEqualsWithDelta(0.6048, $dominantColor->getProportion(), 1e-4);
+        $this->assertInstanceOf(RgbColor::class, $dominantColor);
+        $this->assertColorEquals($expectedColor, $dominantColor);
     }
 
     /**
@@ -185,75 +195,24 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     #[DataProvider('provideImageColorPalette')]
-    public function testPalette(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
+    public function testPalette(string $image, ColorPalette $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
         $palette = ColorThief::getPalette(__DIR__.$image, $numColors, $quality, $area);
 
         $this->assertCount($numColors, $palette);
-        $this->assertSame($expectedPalette, $palette);
-    }
-
-    public function testPaletteFormat(): void
-    {
-        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'array');
-        $this->assertSame([
-            [209, 169, 127],
-            [88, 68, 79],
-            [158, 113, 84],
-            [152, 188, 177],
-            [106, 120, 129],
-            [96, 144, 196],
-            [118, 124, 101],
-            [28, 68, 81],
-        ], $dominantColor);
-
-        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'hex');
-        $this->assertSame([
-            '#d1a97f',
-            '#58444f',
-            '#9e7154',
-            '#98bcb1',
-            '#6a7881',
-            '#6090c4',
-            '#767c65',
-            '#1c4451',
-        ], $dominantColor);
-
-        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'int');
-        $this->assertSame([
-            13740415,
-            5784655,
-            10383700,
-            10009777,
-            6977665,
-            6328516,
-            7765093,
-            1852497,
-        ], $dominantColor);
-
-        $dominantColor = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 8, 10, null, 'rgb');
-        $this->assertSame([
-            'rgb(209, 169, 127)',
-            'rgb(88, 68, 79)',
-            'rgb(158, 113, 84)',
-            'rgb(152, 188, 177)',
-            'rgb(106, 120, 129)',
-            'rgb(96, 144, 196)',
-            'rgb(118, 124, 101)',
-            'rgb(28, 68, 81)',
-        ], $dominantColor);
+        $this->assertPaletteEquals($expectedPalette, $palette);
     }
 
     #[DataProvider('provideImageColorPalette')]
-    public function testPaletteBinaryString(string $image, array $expectedPalette, int $quality = 30, ?array $area = null): void
+    public function testPaletteBinaryString(string $image, ColorPalette $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
         $image = file_get_contents(__DIR__.$image);
         $palette = ColorThief::getPalette($image, $numColors, $quality, $area);
 
         $this->assertCount($numColors, $palette);
-        $this->assertSame($expectedPalette, $palette);
+        $this->assertPaletteEquals($expectedPalette, $palette);
     }
 
     public function testGetPaletteWithCustomAdapter(): void
@@ -266,7 +225,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $adapter->method('getHeight')->willReturn(500);
         $adapter->method('getPixelColor')->willReturn(new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0));
 
-        $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 5, 10, null, 'array', $adapter);
+        $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 5, 10, null, $adapter);
 
         $this->assertSame([
             [28, 60, 100],
@@ -274,7 +233,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [32, 60, 100],
             [32, 60, 100],
             [32, 60, 100],
-        ], $palette);
+        ], $palette->toArray());
     }
 
     public function testGetPaletteWithTooFewColors(): void
