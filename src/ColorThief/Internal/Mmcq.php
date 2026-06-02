@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace ColorThief\Internal;
 
-use ColorThief\Colors\RgbColor;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\RuntimeException;
 
@@ -55,7 +54,7 @@ final class Mmcq
      * @param int             $numPixels Number of image pixels analyzed
      * @param array<int, int> $histo     Histogram
      *
-     * @return RgbColor[]
+     * @return array<array{channels: array{int, int, int}, population: int}>
      */
     public static function quantize(int $numPixels, int $maxColors, array &$histo): array
     {
@@ -70,39 +69,26 @@ final class Mmcq
             throw new InvalidArgumentException('Image produced an empty histogram.');
         }
 
-        // check that we aren't below maxcolors already
-        // if (count($histo) <= $maxcolors) {
-        // XXX: generate the new colors from the histo and return
-        // }
-
         $vBox = self::vboxFromHistogram($histo);
 
         /** @var PQueue<VBox> $priorityQueue */
         $priorityQueue = new PQueue(static fn (VBox $a, VBox $b): int => $a->count() <=> $b->count());
         $priorityQueue->push($vBox);
 
-        // first set of colors, sorted by population
+        // First set of colors, sorted by population.
         self::quantizeIter($priorityQueue, self::FRACT_BY_POPULATIONS * $maxColors, $histo);
 
         // Re-sort by the product of pixel occupancy times the size in color space.
         $priorityQueue->setComparator(static fn (VBox $a, VBox $b): int => ($a->count() * $a->volume()) <=> ($b->count() * $b->volume()));
 
-        // next set - generate the median cuts using the (npix * vol) sorting.
+        // Next set: generate the median cuts using the (npix * vol) sorting.
         self::quantizeIter($priorityQueue, $maxColors, $histo);
 
-        // calculate the actual colors
-        $totalPopulation = $priorityQueue->reduce(static fn (int $carry, VBox $vbox): int => $carry + $vbox->count(), 0);
-        $colors = $priorityQueue->map(static function (VBox $vbox) use ($totalPopulation): RgbColor {
-            $avg = $vbox->avg();
-
-            return new RgbColor(
-                red: $avg[0],
-                green: $avg[1],
-                blue: $avg[2],
-                population: $vbox->count(),
-                proportion: $totalPopulation > 0 ? $vbox->count() / $totalPopulation : 0,
-            );
-        });
+        // Calculate final quantized channels with population.
+        $colors = $priorityQueue->map(static fn (VBox $vbox): array => [
+            'channels' => $vbox->avg(),
+            'population' => $vbox->count(),
+        ]);
 
         return array_reverse($colors);
     }

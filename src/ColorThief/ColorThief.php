@@ -129,27 +129,80 @@ class ColorThief
 
         /** @var array<int, int> $histo */
         $histo = [];
-        $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area, $adapter);
+        /** @var array<int, int> $distinctColors */
+        $distinctColors = [];
+
+        // Load image histogram and track up to $colorCount + 1 distinct 8-bit colors.
+        $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area, $adapter, $colorCount + 1, $distinctColors);
+
         if (0 === $numPixelsAnalyzed) {
             throw new NotSupportedException('Unable to compute the color palette of a blank or transparent image.');
         }
 
-        // Send histogram to quantize function which clusters values
-        // using median cut algorithm
-        $palette = Mmcq::quantize($numPixelsAnalyzed, $colorCount, $histo);
+        // If the number of distinct 8-bit colors is at most $colorCount, build the palette
+        // directly from the exact pixel colors — no quantization needed.
+        if (\count($distinctColors) <= $colorCount) {
+            arsort($distinctColors);
+            $palette = array_map(
+                static fn (int $colorKey, int $population): RgbColor => new RgbColor(
+                    red: ($colorKey >> 16) & 0xFF,
+                    green: ($colorKey >> 8) & 0xFF,
+                    blue: $colorKey & 0xFF,
+                    population: $population,
+                ),
+                array_keys($distinctColors),
+                $distinctColors,
+            );
+        } else {
+            // Send histogram to quantize function which clusters values
+            // using median cut algorithm
+            $paletteData = Mmcq::quantize($numPixelsAnalyzed, $colorCount, $histo);
+            $palette = array_map(static function (array $entry): RgbColor {
+                [$r, $g, $b] = $entry['channels'];
+
+                return new RgbColor($r, $g, $b, $entry['population']);
+            }, $paletteData);
+        }
+
+        // Compute proportion from the final palette population totals
+        $totalPopulation = array_sum(array_map(static fn (RgbColor $c): int => $c->population(), $palette));
+        $palette = array_map(
+            static fn (RgbColor $c): RgbColor => new RgbColor(
+                red: $c->red(),
+                green: $c->green(),
+                blue: $c->blue(),
+                population: $c->population(),
+                proportion: $totalPopulation > 0 ? $c->population() / $totalPopulation : 0,
+            ),
+            $palette,
+        );
 
         return new ColorPalette(...$palette);
     }
 
     /**
-     * @param array<int, int> $histo Histogram
+     * @param array<int, int> $histo             5-bit histogram (bucket index → pixel count) populated during sampling
+     * @param int             $maxDistinctColors Maximum number of distinct 8-bit RGB colors to track in $distinctColors.
+     *                                           Set to 0 (default) to disable tracking entirely.
+     * @param array<int, int> $distinctColors    Out-parameter: 24-bit RGB histogram (key = (r<<16)|(g<<8)|b, value = occurrences)
+     *                                           capped at $maxDistinctColors distinct entries.
+     *                                           Already-seen colors continue to accumulate counts even once the cap is reached.
+     *                                           Empty when $maxDistinctColors is 0.
      *
-     * @param-out array<int, int>          $histo
+     * @param-out array<int, int> $histo
+     * @param-out array<int, int> $distinctColors
      *
      * @phpstan-param ?RectangularArea $area
      */
-    private static function loadImage(mixed $sourceImage, int $quality, array &$histo, ?array $area = null, AdapterInterface|string|null $adapter = null): int
-    {
+    private static function loadImage(
+        mixed $sourceImage,
+        int $quality,
+        array &$histo,
+        ?array $area = null,
+        AdapterInterface|string|null $adapter = null,
+        int $maxDistinctColors = 0,
+        array &$distinctColors = [],
+    ): int {
         $loader = new ImageLoader();
         if (null !== $adapter) {
             $loader->setPreferredAdapter($adapter);
@@ -172,6 +225,7 @@ class ColorThief
         }
 
         $histo = [];
+        $distinctColors = [];
         $numUsefulPixels = 0;
         $pixelCount = $width * $height;
 
@@ -189,6 +243,15 @@ class ColorThief
             // Pixel is too white to be useful. Its RGB values all exceed THRESHOLD_WHITE
             if ($color->red > self::THRESHOLD_WHITE && $color->green > self::THRESHOLD_WHITE && $color->blue > self::THRESHOLD_WHITE) {
                 continue;
+            }
+
+            // Track distinct 8-bit RGB colors up to $maxDistinctColors entries.
+            // Already-seen colors keep accumulating counts even after the cap is reached.
+            if ($maxDistinctColors > 0) {
+                $colorKey = ($color->red << 16) | ($color->green << 8) | $color->blue;
+                if (isset($distinctColors[$colorKey]) || \count($distinctColors) < $maxDistinctColors) {
+                    $distinctColors[$colorKey] = ($distinctColors[$colorKey] ?? 0) + 1;
+                }
             }
 
             // Count this pixel in its histogram bucket.

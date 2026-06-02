@@ -35,9 +35,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         int $populationDelta = 1,
         float $proportionDelta = 0.0001,
     ): void {
-        $this->assertEqualsWithDelta($expectedColor->red(), $actualColor->red(), $componentDelta, "{$messagePrefix}red mismatch");
-        $this->assertEqualsWithDelta($expectedColor->green(), $actualColor->green(), $componentDelta, "{$messagePrefix}green mismatch");
-        $this->assertEqualsWithDelta($expectedColor->blue(), $actualColor->blue(), $componentDelta, "{$messagePrefix}blue mismatch");
+        $this->assertEqualsWithDelta($expectedColor->toArray(), $actualColor->toArray(), $componentDelta, "{$messagePrefix}components mismatch");
         $this->assertEqualsWithDelta($expectedColor->population(), $actualColor->population(), $populationDelta, "{$messagePrefix}population mismatch");
         $this->assertEqualsWithDelta($expectedColor->proportion(), $actualColor->proportion(), $proportionDelta, "{$messagePrefix}proportion mismatch");
     }
@@ -75,7 +73,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             [
                 '/images/single_color_PR41.png',
                 null,
-                new RgbColor(180, 228, 28, 36000, 1.0),
+                new RgbColor(181, 230, 29, 36000, 1.0),
             ],
             /*
             [  // WebP image
@@ -144,16 +142,6 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                     new RgbColor(68, 164, 168, 2, 0.00025),
                 ),
             ],
-            [
-                '/images/single_color_PR41.png',
-                new ColorPalette(
-                    new RgbColor(180, 228, 28, 12000, 1.0),
-                    new RgbColor(184, 228, 28),
-                    new RgbColor(184, 228, 28),
-                    new RgbColor(184, 228, 28),
-                    new RgbColor(184, 228, 28),
-                ),
-            ],
             /*
             [
                 '/images/donuts_PR45.webp',
@@ -187,8 +175,8 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         $testWith = [2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20];
         foreach ($testWith as $numColors) {
-            $image = '/images/single_color_PR41.png';
-            $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 30);
+            $image = '/images/vegetables_1500x995.png';
+            $palette = ColorThief::getPalette(__DIR__.$image, $numColors, 200);
 
             $this->assertCount($numColors, $palette);
         }
@@ -221,19 +209,24 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         // Stub adapter that simulates a monochrome image
         $adapter->method('loadFromPath')->willReturnSelf();
-        $adapter->method('getWidth')->willReturn(500);
-        $adapter->method('getHeight')->willReturn(500);
-        $adapter->method('getPixelColor')->willReturn(new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0));
+        $adapter->method('getWidth')->willReturn(2);
+        $adapter->method('getHeight')->willReturn(2);
+        $adapter->method('getPixelColor')->willReturn(
+            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0),
+            new \ColorThief\Image\PixelColor(red: 24, green: 60, blue: 100, alpha: 0),
+            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 0),
+            new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 0)
+        );
 
-        $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 5, 10, null, $adapter);
+        $palette = ColorThief::getPalette(__DIR__.'/images/rails_600x406.gif', 2, 1, null, $adapter);
 
-        $this->assertSame([
-            [28, 60, 100],
-            [32, 60, 100],
-            [32, 60, 100],
-            [32, 60, 100],
-            [32, 60, 100],
-        ], $palette->toArray());
+        $this->assertPaletteEquals(
+            new ColorPalette(
+                new RgbColor(24, 60, 100, 2, 0.5),
+                new RgbColor(56, 20, 14, 2, 0.5),
+            ),
+            $palette
+        );
     }
 
     public function testGetPaletteWithTooFewColors(): void
@@ -258,6 +251,15 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('quality argument');
 
         ColorThief::getPalette('foo.jpg', 5, 0);
+    }
+
+    public function testGetPaletteWithSingleColorImage(): void
+    {
+        $palette = ColorThief::getPalette(__DIR__.'/images/single_color_PR41.png');
+        $this->assertPaletteEquals(
+            new ColorPalette(new RgbColor(181, 230, 29, 36000, 1)),
+            $palette
+        );
     }
 
     /**
