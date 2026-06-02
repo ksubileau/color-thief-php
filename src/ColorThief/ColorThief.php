@@ -85,6 +85,44 @@ class ColorThief
     }
 
     /**
+     * Get semantic swatches (Vibrant, Muted, etc.) from an image.
+     *
+     * @param mixed                        $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param int                          $quality     1 is the highest quality. There is a trade-off between quality and speed.
+     *                                                  It determines how many pixels are skipped before the next one is sampled.
+     *                                                  We rarely need to sample every single pixel in the image to get good results.
+     *                                                  The bigger the number, the faster the palette generation but the greater the
+     *                                                  likelihood that colors will be missed.
+     * @param array|null                   $area        It allows you to specify a rectangular area in the image in order to get
+     *                                                  colors only for this area. It needs to be an associative array with the
+     *                                                  following keys:
+     *                                                  $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
+     *                                                  $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
+     *                                                  $area['w']: The width of the area. Default to image width minus x-coordinate.
+     *                                                  $area['h']: The height of the area. Default to image height minus y-coordinate.
+     * @param AdapterInterface|string|null $adapter     Optional argument to choose a preferred image adapter to use for loading the image.
+     *                                                  By default, the adapter is automatically chosen depending on the available extensions
+     *                                                  and the type of $sourceImage (for example Imagick is used if $sourceImage is an Imagick instance).
+     *                                                  You can pass one of the 'Imagick', 'Gmagick' or 'Gd' string to use the corresponding
+     *                                                  underlying image extension, or you can pass an instance of any class implementing
+     *                                                  the AdapterInterface interface to use a custom image loader.
+     *
+     * @phpstan-param ?RectangularArea $area
+     *
+     * @return ColorSwatches a map of semantic swatch roles to their best-matching color (or null if no match)
+     */
+    public static function getSwatches(
+        mixed $sourceImage,
+        int $quality = 10,
+        ?array $area = null,
+        AdapterInterface|string|null $adapter = null,
+    ): ColorSwatches {
+        $palette = self::getPalette($sourceImage, 16, $quality, $area, $adapter);
+
+        return ColorSwatches::fromPalette($palette);
+    }
+
+    /**
      * Gets a palette of dominant colors from the image using the median cut algorithm to cluster similar colors.
      *
      * @param mixed                        $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
