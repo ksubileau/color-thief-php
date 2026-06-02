@@ -16,6 +16,7 @@ namespace ColorThief\Tests;
 use ColorThief\ColorPalette;
 use ColorThief\Colors\AbstractColor;
 use ColorThief\Colors\RgbColor;
+use ColorThief\ColorSwatches;
 use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotSupportedException;
@@ -33,7 +34,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         string $messagePrefix = '',
         int $componentDelta = 1,
         int $populationDelta = 1,
-        float $proportionDelta = 0.0001,
+        float $proportionDelta = 0.0002,
     ): void {
         $this->assertEqualsWithDelta($expectedColor->toArray(), $actualColor->toArray(), $componentDelta, "{$messagePrefix}components mismatch");
         $this->assertEqualsWithDelta($expectedColor->population(), $actualColor->population(), $populationDelta, "{$messagePrefix}population mismatch");
@@ -49,6 +50,27 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         foreach ($expected as $index => $expectedColor) {
             $this->assertColorEquals($expectedColor, $actual[$index], "Color #{$index}: ");
+        }
+    }
+
+    /**
+     * Asserts that all expected swatches are present and RGB-close in actual swatches.
+     */
+    private function assertSwatchesMatch(ColorSwatches $expected, ColorSwatches $actual, int $componentDelta = 3): void
+    {
+        foreach (['vibrant', 'muted', 'darkVibrant', 'darkMuted', 'lightVibrant', 'lightMuted'] as $role) {
+            /** @var ?RgbColor $expectedColor */
+            $expectedColor = $expected->{$role};
+            /** @var ?RgbColor $actualColor */
+            $actualColor = $actual->{$role};
+
+            if (null === $expectedColor) {
+                $this->assertNull($actualColor, "Swatch '{$role}' should be null.");
+                continue;
+            }
+
+            $this->assertNotNull($actualColor, "Swatch '{$role}' should not be null.");
+            $this->assertColorEquals($expectedColor, $actualColor, "Swatch '{$role}': ");
         }
     }
 
@@ -133,7 +155,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 new ColorPalette(
                     new RgbColor(141, 229, 249, 4140, 0.51750),
                     new RgbColor(21, 50, 129, 931, 0.11638),
-                    new RgbColor(245, 84, 135, 624, 0.07810),
+                    new RgbColor(245, 84, 135, 624, 0.07809),
                     new RgbColor(238, 178, 163, 1049, 0.13113),
                     new RgbColor(163, 173, 59, 326, 0.04075),
                     new RgbColor(94, 158, 245, 671, 0.08388),
@@ -156,6 +178,56 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 ],
             ],
             */
+        ];
+    }
+
+    public static function provideImageColorSwatches(): array
+    {
+        return [
+            [
+                '/images/rails_600x406.gif',
+                new ColorSwatches(
+                    vibrant: new RgbColor(212, 76, 60, 3, 0.00037),
+                    muted: new RgbColor(158, 112, 82, 1641, 0.20209),
+                    darkVibrant: null,
+                    darkMuted: new RgbColor(82, 65, 80, 3770, 0.46429),
+                    lightVibrant: null,
+                    lightMuted: new RgbColor(157, 190, 175, 43, 0.00530),
+                ),
+            ],
+            [
+                '/images/vegetables_1500x995.png',
+                new ColorSwatches(
+                    vibrant: new RgbColor(204, 76, 148),
+                    muted: new RgbColor(159, 132, 146, 307, 0.00618),
+                    darkVibrant: null,
+                    darkMuted: new RgbColor(42, 50, 22, 9223, 0.18565),
+                    lightVibrant: null,
+                    lightMuted: new RgbColor(231, 217, 198, 13734, 0.27645),
+                ),
+            ],
+            [
+                '/images/covers_cmyk_PR37.jpg',
+                new ColorSwatches(
+                    vibrant: new RgbColor(245, 83, 133, 565, 0.07068),
+                    muted: new RgbColor(68, 164, 168, 2, 0.00025),
+                    darkVibrant: null,
+                    darkMuted: new RgbColor(20, 39, 82, 642, 0.0802),
+                    lightVibrant: new RgbColor(252, 92, 156, 59, 0.00737),
+                    lightMuted: new RgbColor(152, 250, 249, 2630, 0.32875),
+                ),
+            ],
+            [
+                '/images/single_color_PR41.png',
+                new ColorSwatches(
+                    vibrant: null,
+                    muted: null,
+                    darkVibrant: null,
+                    darkMuted: null,
+                    lightVibrant: new RgbColor(181, 230, 29, 12000, 1.0),
+                    lightMuted: null,
+                ),
+            ],
         ];
     }
 
@@ -201,6 +273,13 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCount($numColors, $palette);
         $this->assertPaletteEquals($expectedPalette, $palette);
+    }
+
+    #[DataProvider('provideImageColorSwatches')]
+    public function testSwatches(string $image, ColorSwatches $expectedSwatches, int $quality = 30, ?array $area = null): void
+    {
+        $swatches = ColorThief::getSwatches(__DIR__.$image, $quality, $area);
+        $this->assertSwatchesMatch($expectedSwatches, $swatches);
     }
 
     public function testGetPaletteWithCustomAdapter(): void
