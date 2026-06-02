@@ -11,29 +11,6 @@
 
 declare(strict_types=1);
 
-/*
- * Color Thief PHP
- *
- * Grabs the dominant color or a representative color palette from an image.
- *
- * This class requires the GD library to be installed on the server.
- *
- * It's a PHP port of the Color Thief Javascript library
- * (http://github.com/lokesh/color-thief), using the MMCQ
- * (modified median cut quantization) algorithm from
- * the Leptonica library (http://www.leptonica.com/).
- *
- * by Kevin Subileau - http://www.kevinsubileau.fr
- * Based on the work done by Lokesh Dhakar - http://www.lokeshdhakar.com
- * and Nick Rabinowitz
- *
- * Thanks
- * ------
- * Lokesh Dhakar - For creating the original project.
- * Nick Rabinowitz - For creating quantize.js.
- *
- */
-
 namespace ColorThief;
 
 use ColorThief\Colors\RgbColor;
@@ -43,7 +20,28 @@ use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\ImageLoader;
 use ColorThief\Internal\Mmcq;
 
-class ColorThief
+/**
+ * Grabs the dominant color or a representative color palette from an image.
+ *
+ * This class requires one of the supported image extensions to be installed on
+ * the server: GD, Imagick, or Gmagick.
+ *
+ * It's a PHP port of the Color Thief JavaScript library
+ * (http://github.com/lokesh/color-thief), using the MMCQ
+ * (modified median cut quantization) algorithm from
+ * the Leptonica library (http://www.leptonica.com/).
+ *
+ * By Kevin Subileau - http://www.kevinsubileau.fr
+ *
+ * Based on the work done by Lokesh Dhakar - http://www.lokeshdhakar.com
+ * and Nick Rabinowitz
+ *
+ * Thanks
+ * ------
+ * * Lokesh Dhakar - For creating the original project.
+ * * Nick Rabinowitz - For creating quantize.js.
+ */
+readonly class ColorThief
 {
     public const THRESHOLD_ALPHA = 62;
     public const THRESHOLD_WHITE = 250;
@@ -73,7 +71,7 @@ class ColorThief
      *
      * @phpstan-param ?RectangularArea $area
      */
-    public static function getColor(mixed $sourceImage, int $quality = 10, ?array $area = null, AdapterInterface|string|null $adapter = null): ?RgbColor
+    public function getColor(mixed $sourceImage, int $quality = 10, ?array $area = null, AdapterInterface|string|null $adapter = null): ?RgbColor
     {
         $palette = self::getPalette($sourceImage, 5, $quality, $area, $adapter);
 
@@ -111,7 +109,7 @@ class ColorThief
      *
      * @return ColorSwatches a map of semantic swatch roles to their best-matching color (or null if no match)
      */
-    public static function getSwatches(
+    public function getSwatches(
         mixed $sourceImage,
         int $quality = 10,
         ?array $area = null,
@@ -150,7 +148,7 @@ class ColorThief
      *
      * @phpstan-return ColorPalette<RgbColor>
      */
-    public static function getPalette(
+    public function getPalette(
         mixed $sourceImage,
         int $colorCount = 10,
         int $quality = 10,
@@ -171,7 +169,7 @@ class ColorThief
         $distinctColors = [];
 
         // Load image histogram and track up to $colorCount + 1 distinct 8-bit colors.
-        $numPixelsAnalyzed = self::loadImage($sourceImage, $quality, $histo, $area, $adapter, $colorCount + 1, $distinctColors);
+        $numPixelsAnalyzed = $this->loadImage($sourceImage, $quality, $histo, $area, $adapter, $colorCount + 1, $distinctColors);
 
         if (0 === $numPixelsAnalyzed) {
             throw new NotSupportedException('Unable to compute the color palette of a blank or transparent image.');
@@ -232,7 +230,7 @@ class ColorThief
      *
      * @phpstan-param ?RectangularArea $area
      */
-    private static function loadImage(
+    private function loadImage(
         mixed $sourceImage,
         int $quality,
         array &$histo,
