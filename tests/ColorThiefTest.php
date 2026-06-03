@@ -241,7 +241,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     #[DataProvider('provideImageDominantColor')]
     public function testDominantColor(string $image, ?array $area, RgbColor $expectedColor): void
     {
-        $dominantColor = $this->colorThief->getColor(__DIR__.$image, 10, $area);
+        $dominantColor = $this->colorThief->getColor(__DIR__.$image, $area);
 
         $this->assertInstanceOf(RgbColor::class, $dominantColor);
         $this->assertColorEquals($expectedColor, $dominantColor);
@@ -254,8 +254,9 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         $testWith = [2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20];
         foreach ($testWith as $numColors) {
-            $image = '/images/vegetables_1500x995.png';
-            $palette = $this->colorThief->getPalette(__DIR__.$image, $numColors, 200);
+            $palette = $this->colorThief
+                ->with(quality: 200)
+                ->getPalette(__DIR__.'/images/vegetables_1500x995.png', $numColors);
 
             $this->assertCount($numColors, $palette);
         }
@@ -265,7 +266,10 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     public function testPalette(string $image, ColorPalette $expectedPalette, int $quality = 30, ?array $area = null): void
     {
         $numColors = \count($expectedPalette);
-        $palette = $this->colorThief->getPalette(__DIR__.$image, $numColors, $quality, $area);
+
+        $palette = $this->colorThief
+            ->with(quality: $quality)
+            ->getPalette(__DIR__.$image, $numColors, $area);
 
         $this->assertCount($numColors, $palette);
         $this->assertPaletteEquals($expectedPalette, $palette);
@@ -276,7 +280,10 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     {
         $numColors = \count($expectedPalette);
         $image = file_get_contents(__DIR__.$image);
-        $palette = $this->colorThief->getPalette($image, $numColors, $quality, $area);
+
+        $palette = $this->colorThief
+            ->with(quality: $quality)
+            ->getPalette($image, $numColors, $area);
 
         $this->assertCount($numColors, $palette);
         $this->assertPaletteEquals($expectedPalette, $palette);
@@ -285,7 +292,10 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     #[DataProvider('provideImageColorSwatches')]
     public function testSwatches(string $image, ColorSwatches $expectedSwatches, int $quality = 30, ?array $area = null): void
     {
-        $swatches = $this->colorThief->getSwatches(__DIR__.$image, $quality, $area);
+        $swatches = $this->colorThief
+            ->with(quality: $quality)
+            ->getSwatches(__DIR__.$image, $area);
+
         $this->assertSwatchesMatch($expectedSwatches, $swatches);
     }
 
@@ -304,7 +314,11 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
             new \ColorThief\Image\PixelColor(red: 56, green: 20, blue: 14, alpha: 0)
         );
 
-        $palette = $this->colorThief->getPalette(__DIR__.'/images/rails_600x406.gif', 2, 1, null, $adapter);
+        $palette = $this->colorThief
+            ->with(
+                quality: 1,
+                preferredAdapter: $adapter,
+            )->getPalette(__DIR__.'/images/rails_600x406.gif', 2);
 
         $this->assertPaletteEquals(
             new ColorPalette(
@@ -336,7 +350,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('quality argument');
 
-        $this->colorThief->getPalette('foo.jpg', 5, 0);
+        $this->colorThief->with(quality: 0)->getPalette('foo.jpg', 5);
     }
 
     public function testGetPaletteWithSingleColorImage(): void
