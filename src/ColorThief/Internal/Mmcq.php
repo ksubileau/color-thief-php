@@ -29,9 +29,9 @@ final class Mmcq
     /**
      * Get combined color index (3 channels as one integer) from values in [0..255] or [0..31] depending on $sigBits.
      */
-    public static function getColorIndex(int $dim0, int $dim1, int $dim2, int $sigBits = self::SIGBITS): int
+    public static function getColorIndex(int $x, int $y, int $z, int $sigBits = self::SIGBITS): int
     {
-        return (($dim0 >> (8 - $sigBits)) << (2 * $sigBits)) | (($dim1 >> (8 - $sigBits)) << $sigBits) | ($dim2 >> (8 - $sigBits));
+        return (($x >> (8 - $sigBits)) << (2 * $sigBits)) | (($y >> (8 - $sigBits)) << $sigBits) | ($z >> (8 - $sigBits));
     }
 
     /**
@@ -39,15 +39,15 @@ final class Mmcq
      *
      * @phpstan-return array{int, int, int}
      */
-    public static function getColorsFromIndex(int $index, int $sigBits = 8): array
+    public static function getColorsFromIndex(int $index, int $sigBits = self::SIGBITS): array
     {
         $mask = (1 << $sigBits) - 1;
 
-        $red = ($index >> (2 * $sigBits)) & $mask;
-        $green = ($index >> $sigBits) & $mask;
-        $blue = $index & $mask;
+        $x = ($index >> (2 * $sigBits)) & $mask;
+        $y = ($index >> $sigBits) & $mask;
+        $z = $index & $mask;
 
-        return [$red, $green, $blue];
+        return [$x, $y, $z];
     }
 
     /**
@@ -58,7 +58,7 @@ final class Mmcq
      */
     public static function quantize(int $numPixels, int $maxColors, array &$histo): array
     {
-        // Short-Circuits
+        // Short-circuits
         if (0 === $numPixels) {
             throw new InvalidArgumentException('Zero usable pixels found in image.');
         }
@@ -98,25 +98,25 @@ final class Mmcq
      */
     public static function vboxFromHistogram(array $histo): VBox
     {
-        $rgbMin = [\PHP_INT_MAX, \PHP_INT_MAX, \PHP_INT_MAX];
-        $rgbMax = [-\PHP_INT_MAX, -\PHP_INT_MAX, -\PHP_INT_MAX];
+        $dimMin = [\PHP_INT_MAX, \PHP_INT_MAX, \PHP_INT_MAX];
+        $dimMax = [-\PHP_INT_MAX, -\PHP_INT_MAX, -\PHP_INT_MAX];
 
-        // find min/max
+        // Find min/max.
         foreach (array_keys($histo) as $bucketIndex) {
-            $rgb = self::getColorsFromIndex($bucketIndex, self::SIGBITS);
+            $values = self::getColorsFromIndex($bucketIndex);
 
             // For each color components
             for ($i = 0; $i < 3; ++$i) {
-                if ($rgb[$i] < $rgbMin[$i]) {
-                    $rgbMin[$i] = $rgb[$i];
+                if ($values[$i] < $dimMin[$i]) {
+                    $dimMin[$i] = $values[$i];
                 }
-                if ($rgb[$i] > $rgbMax[$i]) {
-                    $rgbMax[$i] = $rgb[$i];
+                if ($values[$i] > $dimMax[$i]) {
+                    $dimMax[$i] = $values[$i];
                 }
             }
         }
 
-        return new VBox($rgbMin[0], $rgbMax[0], $rgbMin[1], $rgbMax[1], $rgbMin[2], $rgbMax[2], $histo);
+        return new VBox($dimMin[0], $dimMax[0], $dimMin[1], $dimMax[1], $dimMin[2], $dimMax[2], $histo);
     }
 
     /**
@@ -124,15 +124,10 @@ final class Mmcq
      *
      * @return array{VBox, VBox}|null
      */
-    public static function doCut(string $color, VBox $vBox, array $partialSum, int $total): ?array
+    public static function doCut(Axis $axis, VBox $vBox, array $partialSum, int $total): ?array
     {
-        $dim1 = $color.'1';
-        $dim2 = $color.'2';
-
-        /** @var int $lo */
-        $lo = $vBox->$dim1;
-        /** @var int $hi */
-        $hi = $vBox->$dim2;
+        $lo = $vBox->getAxisMin($axis);
+        $hi = $vBox->getAxisMax($axis);
 
         for ($i = $lo; $i <= $hi; ++$i) {
             if ($partialSum[$i] > $total / 2) {
@@ -152,14 +147,14 @@ final class Mmcq
                 while (empty($partialSum[$d2])) {
                     ++$d2;
                 }
-                // Avoid 0-count boxes
+
+                // Avoid 0-count boxes.
                 while ($partialSum[$d2] >= $total && (isset($partialSum[$d2 - 1]) && 0 !== $partialSum[$d2 - 1])) {
                     --$d2;
                 }
 
-                // set dimensions
-                $vBox1->$dim2 = $d2;
-                $vBox2->$dim1 = $d2 + 1;
+                $vBox1->setAxisMax($axis, $d2);
+                $vBox2->setAxisMin($axis, $d2 + 1);
 
                 return [$vBox1, $vBox2];
             }
@@ -181,60 +176,59 @@ final class Mmcq
 
         // If the vbox occupies just one element in color space, it can't be split
         if (1 === $vBox->count()) {
-            return [
-                $vBox->copy(),
-            ];
+            return [$vBox->copy()];
         }
 
         // Select the longest axis for splitting
-        $cutColor = $vBox->longestAxis();
+        $cutAxis = $vBox->longestAxis();
 
         // Find the partial sum arrays along the selected axis.
-        [$total, $partialSum] = self::sumColors($cutColor, $histo, $vBox);
+        [$total, $partialSum] = self::sumColors($cutAxis, $histo, $vBox);
 
-        return self::doCut($cutColor, $vBox, $partialSum, $total);
+        return self::doCut($cutAxis, $vBox, $partialSum, $total);
     }
 
     /**
      * Find the partial sum arrays along the selected axis.
      *
-     * @param string          $axis  r|g|b
      * @param array<int, int> $histo
-     *
-     * @phpstan-param 'r'|'g'|'b' $axis
      *
      * @return array{int, array<int, int>} [$total, $partialSum]
      */
-    private static function sumColors(string $axis, array $histo, VBox $vBox): array
+    private static function sumColors(Axis $axis, array $histo, VBox $vBox): array
     {
         $total = 0;
         $partialSum = [];
 
         // The selected axis should be the first range
-        $colorIterateOrder = array_diff(['r', 'g', 'b'], [$axis]);
-        array_unshift($colorIterateOrder, $axis);
+        /** @var array{Axis, Axis, Axis} $colorIterateOrder */
+        $colorIterateOrder = [$axis, ...array_filter(Axis::cases(), static fn (Axis $a) => $a !== $axis)];
 
         // Retrieves iteration ranges
-        [$firstRange, $secondRange, $thirdRange] = self::getVBoxColorRanges($vBox, $colorIterateOrder);
+        [$firstRange, $secondRange, $thirdRange] = \array_map(
+            static fn (Axis $axis): array => [
+                $vBox->getAxisMin($axis),
+                $vBox->getAxisMax($axis),
+            ],
+            $colorIterateOrder,
+        );
 
-        foreach ($firstRange as $firstColor) {
+        for ($firstValue = $firstRange[0]; $firstValue <= $firstRange[1]; ++$firstValue) {
             $sum = 0;
-            foreach ($secondRange as $secondColor) {
-                foreach ($thirdRange as $thirdColor) {
+            for ($secondValue = $secondRange[0]; $secondValue <= $secondRange[1]; ++$secondValue) {
+                for ($thirdValue = $thirdRange[0]; $thirdValue <= $thirdRange[1]; ++$thirdValue) {
                     // Rearrange color components
-                    /** @var array{r: int, g: int, b: int} $bucket */
+                    /** @var array{X:int,Y:int,Z:int} $bucket */
                     $bucket = [
-                        $colorIterateOrder[0] => $firstColor,
-                        $colorIterateOrder[1] => $secondColor,
-                        $colorIterateOrder[2] => $thirdColor,
+                        $colorIterateOrder[0]->name => $firstValue,
+                        $colorIterateOrder[1]->name => $secondValue,
+                        $colorIterateOrder[2]->name => $thirdValue,
                     ];
 
-                    // The getColorIndex function takes RGB values instead of buckets. The left shift converts our bucket into its RGB value.
                     $bucketIndex = self::getColorIndex(
-                        $bucket['r'] << self::RSHIFT,
-                        $bucket['g'] << self::RSHIFT,
-                        $bucket['b'] << self::RSHIFT,
-                        self::SIGBITS
+                        $bucket[Axis::X->name] << self::RSHIFT,
+                        $bucket[Axis::Y->name] << self::RSHIFT,
+                        $bucket[Axis::Z->name] << self::RSHIFT,
                     );
 
                     if (isset($histo[$bucketIndex])) {
@@ -243,32 +237,10 @@ final class Mmcq
                 }
             }
             $total += $sum;
-            $partialSum[$firstColor] = $total;
+            $partialSum[$firstValue] = $total;
         }
 
         return [$total, $partialSum];
-    }
-
-    /**
-     * @phpstan-param array<'r'|'g'|'b'> $order
-     *
-     * @return int[][]
-     *
-     * @phpstan-return array{int[], int[], int[]}
-     */
-    private static function getVBoxColorRanges(VBox $vBox, array $order): array
-    {
-        $ranges = [
-            'r' => range($vBox->r1, $vBox->r2),
-            'g' => range($vBox->g1, $vBox->g2),
-            'b' => range($vBox->b1, $vBox->b2),
-        ];
-
-        return [
-            $ranges[$order[0]],
-            $ranges[$order[1]],
-            $ranges[$order[2]],
-        ];
     }
 
     /**
@@ -295,14 +267,14 @@ final class Mmcq
                 throw new RuntimeException('Failed to pop VBox from an empty queue.');
             }
 
-            if (!$vBox->count()) { /* just put it back */
+            if (0 === $vBox->count()) { /* just put it back */
                 $priorityQueue->push($vBox);
                 continue;
             }
             // do the cut
             $vBoxes = self::medianCutApply($histo, $vBox);
 
-            if (!(\is_array($vBoxes) && isset($vBoxes[0]))) {
+            if (!\is_array($vBoxes) || !isset($vBoxes[0])) {
                 // Expect an array of VBox
                 throw new RuntimeException('Unexpected result from the medianCutApply function.');
             }
