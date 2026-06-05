@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ColorThief\Tests\Internal;
 
+use ColorThief\Internal\Axis;
 use ColorThief\Internal\Mmcq;
 use ColorThief\Internal\VBox;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -64,7 +65,7 @@ class MmcqTest extends \PHPUnit\Framework\TestCase
         $rgbBuckets = [$r >> Mmcq::RSHIFT, $g >> Mmcq::RSHIFT, $b >> Mmcq::RSHIFT];
         $this->assertSame(
             [$rgbBuckets[0], $rgbBuckets[1], $rgbBuckets[2]],
-            Mmcq::getColorsFromIndex($index, Mmcq::SIGBITS)
+            Mmcq::getColorsFromIndex($index)
         );
     }
 
@@ -73,7 +74,7 @@ class MmcqTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertSame(
             [$r, $g, $b],
-            Mmcq::getColorsFromIndex($index)
+            Mmcq::getColorsFromIndex($index, 8)
         );
     }
 
@@ -92,18 +93,11 @@ class MmcqTest extends \PHPUnit\Framework\TestCase
         ];
 
         $result = Mmcq::vboxFromHistogram($histo);
-
-        $this->assertSame($histo, $result->histo);
-        $this->assertSame(16, $result->r1);
-        $this->assertSame(29, $result->r2);
-        $this->assertSame(3, $result->g1);
-        $this->assertSame(29, $result->g2);
-        $this->assertSame(3, $result->b1);
-        $this->assertSame(26, $result->b2);
+        $this->assertEquals(new VBox(16, 29, 3, 29, 3, 26, $histo), $result);
     }
 
     /**
-     * Tests min and max RGB values are equal if there is only one color in the histogram (PR #41).
+     * Tests min and max Vbox values are equal if there is only one color in the histogram (PR #41).
      */
     public function testVboxFromSingleColorHistogram(): void
     {
@@ -112,19 +106,15 @@ class MmcqTest extends \PHPUnit\Framework\TestCase
         ];
 
         $result = Mmcq::vboxFromHistogram($histo);
-
-        $this->assertSame($histo, $result->histo);
-        $this->assertSame($result->r1, $result->r2);
-        $this->assertSame($result->g1, $result->g2);
-        $this->assertSame($result->b1, $result->b2);
+        $this->assertEquals(new VBox(26, 26, 4, 4, 4, 4, $histo), $result);
         $this->assertSame(1, $result->volume());
     }
 
-    public function testDoCutLeftLeatherThanRight(): void
+    public function testDoCutLeftLessThanRight(): void
     {
         // $left <= $right
         $result = Mmcq::doCut(
-            'g',
+            Axis::Y,
             new VBox(0, 20, 0, 31, 0, 31, []),
             [38, 149, 556, 1222, 1830, 2656, 3638, 4744, 6039, 7412, 9039, 10686, 12244, 13715, 15091, 16355, 17599, 18768, 19771,
                 20925, 22257, 24094, 25782, 27585, 28796, 29794, 30258, 30290, 30298, 30301, 30301, 30301, ],
@@ -139,7 +129,7 @@ class MmcqTest extends \PHPUnit\Framework\TestCase
     {
         // $left > $right
         $result = Mmcq::doCut(
-            'g',
+            Axis::Y,
             new VBox(0, 13, 0, 17, 0, 10, []),
             [38, 149, 512, 1151, 1741, 2554, 3530, 4624, 5899, 7247, 8788, 10261, 11645, 12906, 13969, 14871, 15654, 16329],
             16329
