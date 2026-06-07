@@ -5,5 +5,3 @@ parameters:
   level: max
   paths:
     - src
-  typeAliases:
-    RectangularArea: 'array{x?:int, y?:int, w?:int, h?:int}'
