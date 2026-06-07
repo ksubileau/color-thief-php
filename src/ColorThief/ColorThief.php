@@ -86,7 +86,7 @@ readonly class ColorThief
         private AdapterInterface|string|null $preferredAdapter = null,
     ) {
         if ($this->quality < 1) {
-            throw new InvalidArgumentException('The quality argument must be an integer greater than or equal to 1.');
+            throw new InvalidArgumentException('The quality argument must be an positive integer.');
         }
 
         if ($this->whiteThreshold < 0 || $this->whiteThreshold > 255) {
@@ -178,20 +178,13 @@ readonly class ColorThief
     /**
      * Gets the dominant color from the image using the median cut algorithm to cluster similar colors.
      *
-     * @param mixed      $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
-     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
-     *                                colors only for this area. It needs to be an associative array with the
-     *                                following keys:
-     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
-     *
-     * @phpstan-param ?RectangularArea $area
+     * @param mixed            $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param ImageRegion|null $region      An optional rectangular region of the image to restrict color extraction to.
+     *                                      When null, the entire image is analyzed.
      */
-    public function getColor(mixed $sourceImage, ?array $area = null): ?RgbColor
+    public function getColor(mixed $sourceImage, ?ImageRegion $region = null): ?RgbColor
     {
-        $palette = $this->getPalette($sourceImage, 5, $area);
+        $palette = $this->getPalette($sourceImage, 5, $region);
 
         if ($palette->isEmpty()) {
             return null;
@@ -203,24 +196,17 @@ readonly class ColorThief
     /**
      * Get semantic swatches (Vibrant, Muted, etc.) from an image.
      *
-     * @param mixed      $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
-     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
-     *                                colors only for this area. It needs to be an associative array with the
-     *                                following keys:
-     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
-     *
-     * @phpstan-param ?RectangularArea $area
+     * @param mixed            $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param ImageRegion|null $region      An optional rectangular region of the image to restrict color extraction to.
+     *                                      When null, the entire image is analyzed.
      *
      * @return ColorSwatches a map of semantic swatch roles to their best-matching color (or null if no match)
      */
     public function getSwatches(
         mixed $sourceImage,
-        ?array $area = null,
+        ?ImageRegion $region = null,
     ): ColorSwatches {
-        $palette = $this->getPalette($sourceImage, 16, $area);
+        $palette = $this->getPalette($sourceImage, 16, $region);
 
         return ColorSwatches::fromPalette($palette);
     }
@@ -228,24 +214,17 @@ readonly class ColorThief
     /**
      * Gets a palette of dominant colors from the image using the median cut algorithm to cluster similar colors.
      *
-     * @param mixed      $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
-     * @param int        $colorCount  it determines the size of the palette; the number of colors returned
-     * @param array|null $area        It allows you to specify a rectangular area in the image in order to get
-     *                                colors only for this area. It needs to be an associative array with the
-     *                                following keys:
-     *                                $area['x']: The x-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['y']: The y-coordinate of the top left corner of the area. Default to 0.
-     *                                $area['w']: The width of the area. Default to image width minus x-coordinate.
-     *                                $area['h']: The height of the area. Default to image height minus y-coordinate.
-     *
-     * @phpstan-param ?RectangularArea $area
+     * @param mixed            $sourceImage Path to the image, GD resource, Imagick/Gmagick instance, or image as binary string
+     * @param int              $colorCount  it determines the size of the palette; the number of colors returned
+     * @param ImageRegion|null $region      An optional rectangular region of the image to restrict color extraction to.
+     *                                      When null, the entire image is analyzed.
      *
      * @phpstan-return ColorPalette<RgbColor>
      */
     public function getPalette(
         mixed $sourceImage,
         int $colorCount = 10,
-        ?array $area = null,
+        ?ImageRegion $region = null,
     ): ColorPalette {
         if ($colorCount < 2 || $colorCount > 20) {
             throw new InvalidArgumentException('The number of palette colors must be between 2 and 20 inclusive.');
@@ -257,13 +236,13 @@ readonly class ColorThief
         $distinctColors = [];
 
         // Load image histogram and track up to $colorCount + 1 distinct 8-bit colors.
-        $numPixelsAnalyzed = $this->loadImage($sourceImage, $this->quality, $histo, $area, $colorCount + 1, $distinctColors, $this->whiteThreshold, $this->alphaThreshold, $this->minSaturation);
+        $numPixelsAnalyzed = $this->loadImage($sourceImage, $this->quality, $histo, $region, $colorCount + 1, $distinctColors, $this->whiteThreshold, $this->alphaThreshold, $this->minSaturation);
 
         if (0 === $numPixelsAnalyzed) {
-            $numPixelsAnalyzed = self::loadImage($sourceImage, $this->quality, $histo, $area, $colorCount + 1, $distinctColors, 255, $this->alphaThreshold, $this->minSaturation);
+            $numPixelsAnalyzed = self::loadImage($sourceImage, $this->quality, $histo, $region, $colorCount + 1, $distinctColors, 255, $this->alphaThreshold, $this->minSaturation);
         }
         if (0 === $numPixelsAnalyzed) {
-            $numPixelsAnalyzed = self::loadImage($sourceImage, $this->quality, $histo, $area, $colorCount + 1, $distinctColors, 255, 0, $this->minSaturation);
+            $numPixelsAnalyzed = self::loadImage($sourceImage, $this->quality, $histo, $region, $colorCount + 1, $distinctColors, 255, 0, $this->minSaturation);
         }
 
         // If the number of distinct 8-bit colors is at most $colorCount, build the palette
@@ -318,14 +297,12 @@ readonly class ColorThief
      *
      * @param-out array<int, int> $histo
      * @param-out array<int, int> $distinctColors
-     *
-     * @phpstan-param ?RectangularArea $area
      */
     private function loadImage(
         mixed $sourceImage,
         int $quality,
         array &$histo,
-        ?array $area = null,
+        ?ImageRegion $region = null,
         int $maxDistinctColors = 0,
         array &$distinctColors = [],
         int $whiteThreshold = 250,
@@ -342,14 +319,14 @@ readonly class ColorThief
         $width = $image->getWidth();
         $height = $image->getHeight();
 
-        if ($area) {
-            $startX = $area['x'] ?? 0;
-            $startY = $area['y'] ?? 0;
-            $width = $area['w'] ?? ($width - $startX);
-            $height = $area['h'] ?? ($height - $startY);
+        if ($region) {
+            $startX = $region->x;
+            $startY = $region->y;
+            $width = $region->width ?? ($width - $startX);
+            $height = $region->height ?? ($height - $startY);
 
             if ((($startX + $width) > $image->getWidth()) || (($startY + $height) > $image->getHeight())) {
-                throw new InvalidArgumentException('Area is out of image bounds.');
+                throw new InvalidArgumentException('Region is out of image bounds.');
             }
         }
 

@@ -22,6 +22,7 @@ use ColorThief\ColorThief;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\PixelColor;
+use ColorThief\ImageRegion;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class ColorThiefTest extends \PHPUnit\Framework\TestCase
@@ -115,17 +116,17 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
                 '/images/donuts_PR45.webp',
                 new RgbColor(215, 171, 113, 12829, 0.53468),
             ],
-            'vegetables | area' => [  // Area targeting
+            'vegetables | region' => [  // Region targeting
                 '/images/vegetables_1500x995.png',
                 new RgbColor(63, 112, 24, 2404, 0.87101),
                 ColorSpace::Rgb,
-                ['x' => 670, 'y' => 215, 'w' => 230, 'h' => 120],
+                new ImageRegion(x: 670, y: 215, width: 230, height: 120),
             ],
-            'vegetables | area_partial' => [  // Area targeting with default values for y and width.
+            'vegetables | region_partial' => [  // Region targeting with default values for y and width.
                 '/images/vegetables_1500x995.png',
                 new RgbColor(54, 60, 33, 5608, 0.56080),
                 ColorSpace::Rgb,
-                ['x' => 1300, 'h' => 500],
+                new ImageRegion(x: 1300, height: 500),
             ],
         ];
     }
@@ -288,14 +289,14 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     #[DataProvider('provideImageDominantColor')]
-    public function testDominantColor(string $image, RgbColor $expectedColor, ?ColorSpace $colorSpace = null, ?array $area = null): void
+    public function testDominantColor(string $image, RgbColor $expectedColor, ?ColorSpace $colorSpace = null, ?ImageRegion $region = null): void
     {
         $config = [];
         if (null !== $colorSpace) {
             $config['colorSpace'] = $colorSpace;
         }
 
-        $dominantColor = $this->colorThief->with(...$config)->getColor(__DIR__.$image, $area);
+        $dominantColor = $this->colorThief->with(...$config)->getColor(__DIR__.$image, $region);
 
         $this->assertInstanceOf(RgbColor::class, $dominantColor);
         $this->assertColorEquals($expectedColor, $dominantColor);
@@ -317,7 +318,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
     }
 
     #[DataProvider('provideImageColorPalette')]
-    public function testPalette(string $image, ColorPalette $expectedPalette, ?ColorSpace $colorSpace = null, int $quality = 30, ?array $area = null): void
+    public function testPalette(string $image, ColorPalette $expectedPalette, ?ColorSpace $colorSpace = null, int $quality = 30, ?ImageRegion $region = null): void
     {
         $numColors = \count($expectedPalette);
 
@@ -328,14 +329,14 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $palette = $this->colorThief
             ->with(...$config)
-            ->getPalette(__DIR__.$image, $numColors, $area);
+            ->getPalette(__DIR__.$image, $numColors, $region);
 
         $this->assertCount($numColors, $palette);
         $this->assertPaletteEquals($expectedPalette, $palette);
     }
 
     #[DataProvider('provideImageColorPalette')]
-    public function testPaletteBinaryString(string $image, ColorPalette $expectedPalette, ?ColorSpace $colorSpace = null, int $quality = 30, ?array $area = null): void
+    public function testPaletteBinaryString(string $image, ColorPalette $expectedPalette, ?ColorSpace $colorSpace = null, int $quality = 30, ?ImageRegion $region = null): void
     {
         $numColors = \count($expectedPalette);
         $image = file_get_contents(__DIR__.$image);
@@ -347,14 +348,14 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $palette = $this->colorThief
             ->with(...$config)
-            ->getPalette($image, $numColors, $area);
+            ->getPalette($image, $numColors, $region);
 
         $this->assertCount($numColors, $palette);
         $this->assertPaletteEquals($expectedPalette, $palette);
     }
 
     #[DataProvider('provideImageColorSwatches')]
-    public function testSwatches(string $image, ColorSwatches $expectedSwatches, ?ColorSpace $colorSpace = null, int $quality = 30, ?array $area = null): void
+    public function testSwatches(string $image, ColorSwatches $expectedSwatches, ?ColorSpace $colorSpace = null, int $quality = 30, ?ImageRegion $region = null): void
     {
         $config = ['quality' => $quality];
         if (null !== $colorSpace) {
@@ -363,7 +364,7 @@ class ColorThiefTest extends \PHPUnit\Framework\TestCase
 
         $swatches = $this->colorThief
             ->with(...$config)
-            ->getSwatches(__DIR__.$image, $area);
+            ->getSwatches(__DIR__.$image, $region);
 
         $this->assertSwatchesMatch($expectedSwatches, $swatches);
     }
