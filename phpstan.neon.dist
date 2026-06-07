@@ -6,5 +6,4 @@ parameters:
   paths:
     - src
   typeAliases:
-    ColorRGB: 'array{int, int, int}'
     RectangularArea: 'array{x?:int, y?:int, w?:int, h?:int}'

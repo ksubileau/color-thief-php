@@ -17,6 +17,7 @@ use ColorThief\Colors\RgbColor;
 use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Image\Adapter\AdapterInterface;
 use ColorThief\Image\ImageLoader;
+use ColorThief\Image\PixelColor;
 use ColorThief\Internal\Mmcq;
 
 /**
@@ -63,6 +64,10 @@ readonly class ColorThief
      * @param float                        $minSaturation    Minimum saturation ratio (from 0 inclusive to 1 exclusive) used to skip low-saturation pixels.
      *                                                       Set to 0 to disable saturation filtering.
      *                                                       Default: 0.
+     * @param ColorSpace                   $colorSpace       Color space used internally for quantization and palette extraction.
+     *                                                       Choosing OKLCH produces more perceptually uniform palettes, while RGB keeps the
+     *                                                       computation closest to raw pixel data.
+     *                                                       Default: ColorSpace::Oklch.
      * @param AdapterInterface|string|null $preferredAdapter Optional preferred image adapter used when loading images.
      *                                                       By default, the adapter is automatically chosen depending on the available extensions
      *                                                       and the type of $sourceImage (for example Imagick is used if $sourceImage is an Imagick instance).
@@ -77,6 +82,7 @@ readonly class ColorThief
         private int $whiteThreshold = 250,
         private int $alphaThreshold = 125,
         private float $minSaturation = 0,
+        private ColorSpace $colorSpace = ColorSpace::Oklch,
         private AdapterInterface|string|null $preferredAdapter = null,
     ) {
         if ($this->quality < 1) {
@@ -106,19 +112,18 @@ readonly class ColorThief
      *                                                       We rarely need to sample every single pixel in the image to get good results.
      *                                                       The bigger the number, the faster the palette generation but the greater the
      *                                                       likelihood that colors will be missed.
-     *                                                       Default: 10.
      * @param int                          $whiteThreshold   Brightness threshold used to skip near-white pixels. Pixels with red, green, and blue
      *                                                       values greater than this threshold are ignored.
      *                                                       Range: 0-255. Set to 255 to disable the white-pixel filter.
-     *                                                       Default: 250.
      * @param int                          $alphaThreshold   Transparency threshold used to skip transparent pixels.
      *                                                       Alpha values are in the 0-255 range, where 0 is fully transparent and 255 is fully opaque.
      *                                                       Pixels with an alpha value lower than this threshold are ignored.
      *                                                       Set to 0 to disable alpha filtering.
-     *                                                       Default: 125.
      * @param float                        $minSaturation    Minimum saturation ratio (from 0 inclusive to 1 exclusive) used to skip low-saturation pixels.
      *                                                       Set to 0 to disable saturation filtering.
-     *                                                       Default: 0.
+     * @param ?ColorSpace                  $colorSpace       Color space used internally for quantization and palette extraction.
+     *                                                       Choosing OKLCH produces more perceptually uniform palettes, while RGB keeps the
+     *                                                       computation closest to raw pixel data.
      * @param AdapterInterface|string|null $preferredAdapter Optional preferred image adapter used when loading images.
      *                                                       By default, the adapter is automatically chosen depending on the available extensions
      *                                                       and the type of $sourceImage (for example Imagick is used if $sourceImage is an Imagick instance).
@@ -126,13 +131,13 @@ readonly class ColorThief
      *                                                       underlying image extension, or you can pass an instance of any class implementing
      *                                                       the AdapterInterface interface to use a custom image loader.
      *                                                       Set to null to keep automatic adapter selection.
-     *                                                       Default: null.
      */
     public function with(
         int $quality = -1,
         int $whiteThreshold = -1,
         int $alphaThreshold = -1,
         float $minSaturation = -1,
+        ?ColorSpace $colorSpace = null,
         AdapterInterface|string|null $preferredAdapter = '__UNSET__',
     ): self {
         /** @var list{array{name: string, sentinel: mixed}}|null $metadata */
@@ -164,7 +169,7 @@ readonly class ColorThief
         }
 
         // Get final property values
-        /** @var array{quality: int, preferredAdapter: AdapterInterface|string|null} $values */
+        /** @var array{quality: int} $values */
         $values = array_merge(get_object_vars($this), $overrides);
 
         return new self(...$values);
@@ -279,10 +284,10 @@ readonly class ColorThief
             // Send histogram to quantize function which clusters values
             // using median cut algorithm
             $paletteData = Mmcq::quantize($numPixelsAnalyzed, $colorCount, $histo);
-            $palette = array_map(static function (array $entry): RgbColor {
-                [$r, $g, $b] = $entry['channels'];
+            $palette = array_map(function (array $entry): RgbColor {
+                $rgb = PixelColor::fromColorSpace($this->colorSpace, ...$entry['channels']);
 
-                return new RgbColor($r, $g, $b, $entry['population']);
+                return new RgbColor($rgb->red, $rgb->green, $rgb->blue, $entry['population']);
             }, $paletteData);
         }
 
@@ -387,7 +392,8 @@ readonly class ColorThief
 
             // Count this pixel in its histogram bucket.
             ++$numUsefulPixels;
-            $bucketIndex = Mmcq::getColorIndex($color->red, $color->green, $color->blue);
+            [$x, $y, $z] = $color->toColorspace($this->colorSpace);
+            $bucketIndex = Mmcq::getColorIndex($x, $y, $z);
             $histo[$bucketIndex] = ($histo[$bucketIndex] ?? 0) + 1;
         }
 
