@@ -18,6 +18,8 @@ namespace ColorThief\Internal;
  *
  * All methods are protected static so they are accessible to any class that uses
  * this trait without being part of the public API.
+ *
+ * @internal
  */
 trait ColorMath
 {

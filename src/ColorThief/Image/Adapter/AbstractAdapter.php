@@ -17,6 +17,8 @@ use ColorThief\Exception\NotSupportedException;
 
 /**
  * Base adapter implementation to handle image manipulation.
+ *
+ * @internal
  */
 abstract class AbstractAdapter implements AdapterInterface
 {

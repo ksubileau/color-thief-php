@@ -17,6 +17,9 @@ use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\Adapter\AdapterInterface;
 
+/**
+ * @internal
+ */
 class ImageLoader
 {
     private AdapterInterface|string|null $preferredAdapter = null;

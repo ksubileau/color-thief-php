@@ -17,7 +17,7 @@ use ColorThief\ColorSpace;
 use ColorThief\Internal\ColorMath;
 
 /**
- * @internal
+ * Represents a pixel color with RGBA components.
  */
 readonly class PixelColor
 {
@@ -35,6 +35,8 @@ readonly class PixelColor
      * Convert this pixel color to the specified colorspace.
      *
      * @return array{int, int, int}
+     *
+     * @internal
      */
     public function toColorspace(ColorSpace $colorSpace): array
     {
@@ -54,6 +56,8 @@ readonly class PixelColor
 
     /**
      * Convert from the specified colorspace to RGB and return a new PixelColor.
+     *
+     * @internal
      */
     public static function fromColorSpace(ColorSpace $colorSpace, int $x, int $y, int $z): self
     {

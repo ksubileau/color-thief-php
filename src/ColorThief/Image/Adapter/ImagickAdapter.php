@@ -18,6 +18,9 @@ use ColorThief\Exception\NotReadableException;
 use ColorThief\Exception\NotSupportedException;
 use ColorThief\Image\PixelColor;
 
+/**
+ * @internal
+ */
 class ImagickAdapter extends AbstractAdapter
 {
     /** @var \Imagick|null */

@@ -17,6 +17,9 @@ use ColorThief\Exception\InvalidArgumentException;
 use ColorThief\Exception\NotReadableException;
 use ColorThief\Image\PixelColor;
 
+/**
+ * @internal
+ */
 class GmagickAdapter extends AbstractAdapter
 {
     /** @var \Gmagick|null */
