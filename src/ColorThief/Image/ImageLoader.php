@@ -71,7 +71,7 @@ class ImageLoader
             $this->isGmagick($source) => $image->load($source),
             $this->isBinary($source) => $image->loadFromBinary((string) $source),
             $this->isFilePath($source) => $image->loadFromPath((string) $source),
-            default => throw new NotReadableException('Image source does not exists or is not readable.'),
+            default => throw new NotReadableException('Image source does not exist or is not readable.'),
         };
     }
 

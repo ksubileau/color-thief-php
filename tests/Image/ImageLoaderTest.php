@@ -138,7 +138,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     public function testLoadFileMissing(): void
     {
         $this->expectException(NotReadableException::class);
-        $this->expectExceptionMessage('Image source does not exists or is not readable.');
+        $this->expectExceptionMessage('Image source does not exist or is not readable.');
 
         $this->loader->load('Not an image');
     }
@@ -146,7 +146,7 @@ class ImageLoaderTest extends \PHPUnit\Framework\TestCase
     public function testLoadInvalidSource(): void
     {
         $this->expectException(NotReadableException::class);
-        $this->expectExceptionMessage('Image source does not exists or is not readable.');
+        $this->expectExceptionMessage('Image source does not exist or is not readable.');
 
         $this->loader->load(42);
     }
